@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BranchFlow.Api/BranchFlow.Api.csproj" />
+    <Project Path="src/BranchFlow.Application/BranchFlow.Application.csproj" />
+    <Project Path="src/BranchFlow.Infrastructure/BranchFlow.Infrastructure.csproj" />
+    <Project Path="src/BranchFlow.Web/BranchFlow.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BranchFlow.Tests/BranchFlow.Tests.csproj" />
+  </Folder>
+</Solution>
