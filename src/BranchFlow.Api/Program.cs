@@ -1,6 +1,18 @@
+using BranchFlow.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Dùng DB riêng của nhóm; dừng rõ ràng nếu máy chưa cấu hình connection string.
+string? connectionString = builder.Configuration.GetConnectionString("BranchFlowDb");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Chưa cấu hình ConnectionStrings:BranchFlowDb. Xem database/README.md.");
+}
+builder.Services.AddDbContext<BranchFlowDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Đăng ký controller và bộ sinh tài liệu Swagger cho API.
 builder.Services.AddControllers();
