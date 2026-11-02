@@ -1,0 +1,2096 @@
+{
+  "version": "1",
+  "tables": {
+    "Role": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Code",
+        "sql_type": "NVARCHAR(30)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "AppUser": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "RoleId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Username",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "PasswordHash",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "FullName",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Email",
+        "sql_type": "NVARCHAR(254)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Phone",
+        "sql_type": "NVARCHAR(30)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Branch": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Code",
+        "sql_type": "NVARCHAR(30)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Address",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "EmployeeProfile": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "UserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK,U1"
+      },
+      {
+        "name": "EmployeeCode",
+        "sql_type": "NVARCHAR(30)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "DateOfBirth",
+        "sql_type": "DATE",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "HireDate",
+        "sql_type": "DATE",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "LeaveDate",
+        "sql_type": "DATE",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Position",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Address",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AvatarUrl",
+        "sql_type": "NVARCHAR(1000)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BaseSalary",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "AdminBranchAssignment": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "AdminUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "EffectiveFrom",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "EffectiveTo",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AssignedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "EmployeeBranchAssignment": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "EmployeeProfileId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "EffectiveFrom",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "EffectiveTo",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AssignedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "TransferRequestId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "EmployeeTransferRequest": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "EmployeeProfileId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "FromBranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ToBranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "RequestedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ReviewedByUserId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Status",
+        "sql_type": "NVARCHAR(20)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Reason",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RejectionReason",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RequestedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReviewedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "EmployeeStockPermission": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "EmployeeProfileId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK,U1"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK,U1"
+      },
+      {
+        "name": "CanReceive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CanIssue",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CanStocktake",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Category": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Product": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "CategoryId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ImageUrl",
+        "sql_type": "NVARCHAR(1000)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Size": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(50)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "ProductSize": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "ProductId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "SizeId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Price",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "ToppingGroup": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Topping": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "ToppingGroupId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Price",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "NoteGroup": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "NoteOption": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "NoteGroupId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "BranchProduct": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ProductId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "IsAvailable",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "BranchTopping": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ToppingId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "IsAvailable",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "SalesOrder": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Code",
+        "sql_type": "NVARCHAR(50)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "BusinessDate",
+        "sql_type": "DATE",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "DailySequence",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "TotalAmount",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Status",
+        "sql_type": "NVARCHAR(20)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReportReason",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReportedByUserId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ReportedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "OrderDailyCounter": [
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK,FK"
+      },
+      {
+        "name": "BusinessDate",
+        "sql_type": "DATE",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "LastNumber",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "OrderItem": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "SalesOrderId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ProductSizeId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ProductNameSnapshot",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "SizeNameSnapshot",
+        "sql_type": "NVARCHAR(50)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Quantity",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UnitPriceSnapshot",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "SubtotalAmount",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Note",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "OrderItemTopping": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "OrderItemId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ToppingId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "ToppingNameSnapshot",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Quantity",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UnitPriceSnapshot",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "OrderItemNote": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "OrderItemId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "NoteOptionId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "NoteNameSnapshot",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "OrderAdjustment": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "SalesOrderId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "AdjustedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Reason",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BeforeData",
+        "sql_type": "NVARCHAR(MAX)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AfterData",
+        "sql_type": "NVARCHAR(MAX)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "IngredientUnit": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(50)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Ingredient": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "UnitId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Name",
+        "sql_type": "NVARCHAR(150)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "IsActive",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Deleted",
+        "sql_type": "BIT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "BranchIngredient": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "IngredientId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Quantity",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "WarningThreshold",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "StockTransaction": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "PerformedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Type",
+        "sql_type": "NVARCHAR(30)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "OriginalTransactionId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "StockTransactionDetail": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "StockTransactionId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "IngredientId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "QuantityChange",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "QuantityBefore",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "QuantityAfter",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "Stocktake": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "Code",
+        "sql_type": "NVARCHAR(50)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CheckedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "AdjustmentTransactionId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CompletedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Status",
+        "sql_type": "NVARCHAR(20)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReviewedByUserId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReviewedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ReviewReason",
+        "sql_type": "NVARCHAR(500)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "SubmittedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "StocktakeItem": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "StocktakeId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "BranchIngredientId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "SystemQuantity",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ActualQuantity",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "InventoryRowVersionSnapshot",
+        "sql_type": "BINARY(8)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Difference",
+        "sql_type": "DECIMAL(18,3)",
+        "nullable": false,
+        "computed": true,
+        "key": ""
+      }
+    ],
+    "Payroll": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "EmployeeProfileId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK,U1"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "Year",
+        "sql_type": "SMALLINT",
+        "nullable": false,
+        "computed": false,
+        "key": "U1"
+      },
+      {
+        "name": "Month",
+        "sql_type": "TINYINT",
+        "nullable": false,
+        "computed": false,
+        "key": "U1"
+      },
+      {
+        "name": "BaseSalarySnapshot",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "TotalSalary",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": true,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UpdatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AllowanceAmount",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BonusAmount",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "DeductionAmount",
+        "sql_type": "DECIMAL(18,2)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "UpdatedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      }
+    ],
+    "AuditLog": [
+      {
+        "name": "Id",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "BranchId",
+        "sql_type": "INT",
+        "nullable": true,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "EntityName",
+        "sql_type": "NVARCHAR(100)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "EntityId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "Action",
+        "sql_type": "NVARCHAR(20)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "BeforeData",
+        "sql_type": "NVARCHAR(MAX)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "AfterData",
+        "sql_type": "NVARCHAR(MAX)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "PerformedByUserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "AuthSession": [
+      {
+        "name": "Id",
+        "sql_type": "UNIQUEIDENTIFIER",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "UserId",
+        "sql_type": "INT",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ExpiresAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RevokedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      }
+    ],
+    "RefreshToken": [
+      {
+        "name": "Id",
+        "sql_type": "UNIQUEIDENTIFIER",
+        "nullable": false,
+        "computed": false,
+        "key": "PK"
+      },
+      {
+        "name": "SessionId",
+        "sql_type": "UNIQUEIDENTIFIER",
+        "nullable": false,
+        "computed": false,
+        "key": "FK"
+      },
+      {
+        "name": "TokenHash",
+        "sql_type": "VARCHAR(64)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "CreatedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "ExpiresAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "UsedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RevokedAt",
+        "sql_type": "DATETIME2(7)",
+        "nullable": true,
+        "computed": false,
+        "key": ""
+      },
+      {
+        "name": "RowVersion",
+        "sql_type": "ROWVERSION",
+        "nullable": false,
+        "computed": false,
+        "key": ""
+      }
+    ]
+  },
+  "foreign_key_targets": {
+    "Role": {},
+    "AppUser": {
+      "RoleId": "Role.Id"
+    },
+    "Branch": {},
+    "EmployeeProfile": {
+      "UserId": "AppUser.Id"
+    },
+    "AdminBranchAssignment": {
+      "AdminUserId": "AppUser.Id",
+      "BranchId": "Branch.Id",
+      "AssignedByUserId": "AppUser.Id"
+    },
+    "EmployeeBranchAssignment": {
+      "EmployeeProfileId": "EmployeeProfile.Id",
+      "BranchId": "Branch.Id",
+      "AssignedByUserId": "AppUser.Id",
+      "TransferRequestId": "EmployeeTransferRequest.Id"
+    },
+    "EmployeeTransferRequest": {
+      "EmployeeProfileId": "EmployeeProfile.Id",
+      "FromBranchId": "Branch.Id",
+      "ToBranchId": "Branch.Id",
+      "RequestedByUserId": "AppUser.Id",
+      "ReviewedByUserId": "AppUser.Id"
+    },
+    "EmployeeStockPermission": {
+      "EmployeeProfileId": "EmployeeProfile.Id",
+      "BranchId": "Branch.Id"
+    },
+    "Category": {},
+    "Product": {
+      "CategoryId": "Category.Id"
+    },
+    "Size": {},
+    "ProductSize": {
+      "ProductId": "Product.Id",
+      "SizeId": "Size.Id"
+    },
+    "ToppingGroup": {},
+    "Topping": {
+      "ToppingGroupId": "ToppingGroup.Id"
+    },
+    "NoteGroup": {},
+    "NoteOption": {
+      "NoteGroupId": "NoteGroup.Id"
+    },
+    "BranchProduct": {
+      "BranchId": "Branch.Id",
+      "ProductId": "Product.Id"
+    },
+    "BranchTopping": {
+      "BranchId": "Branch.Id",
+      "ToppingId": "Topping.Id"
+    },
+    "SalesOrder": {
+      "BranchId": "Branch.Id",
+      "CreatedByUserId": "AppUser.Id",
+      "ReportedByUserId": "AppUser.Id"
+    },
+    "OrderDailyCounter": {
+      "BranchId": "Branch.Id"
+    },
+    "OrderItem": {
+      "SalesOrderId": "SalesOrder.Id",
+      "ProductSizeId": "ProductSize.Id"
+    },
+    "OrderItemTopping": {
+      "OrderItemId": "OrderItem.Id",
+      "ToppingId": "Topping.Id"
+    },
+    "OrderItemNote": {
+      "OrderItemId": "OrderItem.Id",
+      "NoteOptionId": "NoteOption.Id"
+    },
+    "OrderAdjustment": {
+      "SalesOrderId": "SalesOrder.Id",
+      "AdjustedByUserId": "AppUser.Id"
+    },
+    "IngredientUnit": {},
+    "Ingredient": {
+      "UnitId": "IngredientUnit.Id"
+    },
+    "BranchIngredient": {
+      "BranchId": "Branch.Id",
+      "IngredientId": "Ingredient.Id"
+    },
+    "StockTransaction": {
+      "BranchId": "Branch.Id",
+      "PerformedByUserId": "AppUser.Id",
+      "OriginalTransactionId": "StockTransaction.Id"
+    },
+    "StockTransactionDetail": {
+      "StockTransactionId": "StockTransaction.Id",
+      "IngredientId": "Ingredient.Id"
+    },
+    "Stocktake": {
+      "BranchId": "Branch.Id",
+      "CheckedByUserId": "AppUser.Id",
+      "AdjustmentTransactionId": "StockTransaction.Id",
+      "ReviewedByUserId": "AppUser.Id"
+    },
+    "StocktakeItem": {
+      "StocktakeId": "Stocktake.Id",
+      "BranchIngredientId": "BranchIngredient.Id"
+    },
+    "Payroll": {
+      "EmployeeProfileId": "EmployeeProfile.Id",
+      "BranchId": "Branch.Id",
+      "CreatedByUserId": "AppUser.Id",
+      "UpdatedByUserId": "AppUser.Id"
+    },
+    "AuditLog": {
+      "BranchId": "Branch.Id",
+      "PerformedByUserId": "AppUser.Id"
+    },
+    "AuthSession": {
+      "UserId": "AppUser.Id"
+    },
+    "RefreshToken": {
+      "SessionId": "AuthSession.Id"
+    }
+  }
+}

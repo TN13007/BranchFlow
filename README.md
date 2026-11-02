@@ -1,6 +1,6 @@
 # BranchFlow
 
-Dự án nhóm môn Quản lý dự án CNTT. Khung ứng dụng .NET 10; chưa triển khai chức năng nghiệp vụ hoặc kết nối database.
+Dự án nhóm môn Quản lý dự án CNTT. Khung ứng dụng .NET 10 đã có SQL baseline 35 bảng, model/DbContext Database First và đăng ký kết nối SQL Server; chưa triển khai endpoint nghiệp vụ.
 
 ## Cấu trúc
 
@@ -18,6 +18,8 @@ planning/                    Kế hoạch của nhóm
 ```
 
 Tham chiếu: Api → Application + Infrastructure; Application → Infrastructure; Web → Application để dùng DTO. Web gọi API bằng HTTP khi triển khai chức năng; không gọi repository/DbContext trực tiếp.
+
+Thiết lập DB local trước khi chạy API: [database/README.md](database/README.md). Thông tin kiểm tra schema và scaffold: [database/VERIFICATION.md](database/VERIFICATION.md).
 
 ## Chạy local
 
@@ -40,7 +42,7 @@ dotnet run --project src/BranchFlow.Web --launch-profile http
 - Web local: [http://localhost:5132](http://localhost:5132).
 - Profile HTTPS: API 7107, Web 7132; cần chứng chỉ HTTPS dev được máy tin cậy.
 - Swagger mới có tài liệu rỗng vì chưa có endpoint nghiệp vụ. Chỉ bật trong Development.
-- Hiện chưa cần SQL Server/JWT key để chạy hai host. Chưa có đăng nhập, phân quyền hoặc dữ liệu thật.
+- API cần cấu hình `ConnectionStrings:BranchFlowDb` qua User Secrets; thiếu cấu hình sẽ dừng với thông báo rõ. Web hiện vẫn chạy độc lập. Chưa có đăng nhập/phân quyền hay dữ liệu nghiệp vụ mẫu.
 
 ## Package đã chuẩn bị
 
@@ -62,6 +64,6 @@ Blazor Interactive Server dùng ASP.NET Core shared framework, không cần cài
 
 System.Security.Cryptography.Pkcs được ghim bản đã vá vì Microsoft.Data.SqlClient kéo phiên bản cũ có cảnh báo NU1902/NU1903. Xem [Microsoft security advisory](https://github.com/advisories/GHSA-846f-f764-76mx). Không tắt NuGet audit để che cảnh báo.
 
-API có UserSecretsId riêng; chưa lưu secret nào. Khi triển khai DB/auth, cấu hình connection string và JWT key qua User Secrets hoặc môi trường host, không commit vào appsettings.json. Cài package JWT chưa đồng nghĩa API đã có xác thực.
+API có UserSecretsId riêng; connection string local được cấu hình riêng trên từng máy, không commit vào appsettings.json. JWT key cũng phải đặt qua User Secrets hoặc môi trường host khi triển khai auth. Cài package JWT chưa đồng nghĩa API đã có xác thực.
 
 Thư mục rỗng dùng .gitkeep để Git giữ cấu trúc; thay bằng file thực tế khi bắt đầu module. Template Class1/WeatherForecast/test rỗng đã bỏ để tránh hiểu nhầm là chức năng hoặc test hoàn chỉnh.
