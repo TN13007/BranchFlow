@@ -1,0 +1,51 @@
+BranchFlow menu SQL/HTTP smoke
+Date: 2026-11-03 Asia/Ho_Chi_Minh
+Test source commit: c0f5ed58077f12244c4187a8057afda405ea3315
+Database: local .\SQLEXPRESS / BranchFlow_Test
+Command: dotnet run --project tests/MenuSmoke/MenuSmoke.csproj -c Release -- (Get-Location).Path
+Output:
+PASS HTTP 401 case 1
+PASS HTTP 401 case 2
+PASS HTTP 401 case 3
+PASS HTTP 403 case 4
+PASS HTTP 403 case 5
+PASS HTTP 403 case 6
+PASS HTTP 400 case 7
+PASS HTTP 400 case 8
+PASS HTTP 400 case 9
+PASS HTTP 400 case 10
+PASS HTTP 200 case 11
+PASS HTTP 200 case 12
+PASS HTTP 200 case 13
+PASS HTTP 200 case 14
+PASS HTTP 200 case 15
+PASS HTTP 200 case 16
+PASS HTTP 200 case 17
+PASS HTTP 200 case 18
+PASS HTTP 200 case 19
+PASS HTTP 200 case 20
+PASS HTTP 200 case 21
+PASS HTTP 200 case 22
+PASS HTTP 200 case 23
+PASS HTTP 200 case 24
+PASS HTTP 200 case 25
+PASS HTTP 200 case 26
+PASS HTTP 200 case 27
+PASS HTTP 200 case 28
+PASS HTTP 404 case 29
+PASS HTTP 404 case 30
+PASS HTTP 403 case 31
+PASS HTTP 403 case 32
+PASS HTTP 401 case 33
+PASS HTTP 401 case 34
+PASS QA-S4-019: menu branch, ProductSizeId, current price and option structure
+PASS QA-S4-020: active/deleted and branch availability filters
+PASS QA-S4-021: missing, zero, negative and malformed branchId
+PASS QA-S4-022: nonexistent/out-of-scope branch 403, assigned inactive branch 404
+Menu SQL/HTTP smoke: 34 cases passed.
+Cleaned this run's SQL fixtures.
+Branches Products Sessions
+-------- -------- --------
+0 0 0
+
+(1 rows affected)
