@@ -37,6 +37,8 @@
     private async Task LoadAsync()
     {
         loading = true; error = null; needsLogin = false;
+        // Không hiển thị kết quả của bộ lọc cũ nếu lần tải mới thất bại.
+        orders = null;
         try { orders = await Api.MineAsync(keyword.Trim(), businessDate); }
         catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không tải được danh sách đơn. Vui lòng thử lại."; }

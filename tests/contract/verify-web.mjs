@@ -60,15 +60,22 @@ const csrf = page => {
 };
 let checks = 0;
 const pass = label => { checks++; console.log(`PASS ${label}`); };
-const dotnet = process.platform === 'win32' ? join(process.env.LOCALAPPDATA,'Microsoft/dotnet/dotnet.exe') : 'dotnet';
+// Dùng SDK trong PATH; máy cài riêng có thể truyền DOTNET_PATH tới dotnet executable.
+const dotnet = process.env.DOTNET_PATH || 'dotnet';
 let child;
 try {
     await new Promise(r=>fixture.listen(19107,'127.0.0.1',r));
     child = spawn(dotnet,[join(root,'src/BranchFlow.Web/bin/Release/net10.0/BranchFlow.Web.dll'),'--urls','https://localhost:7134','--contentRoot',join(root,'src/BranchFlow.Web')],
         {cwd:root,windowsHide:true,env:{...process.env,ASPNETCORE_ENVIRONMENT:'Development',Api__BaseUrl:'http://127.0.0.1:19107/'},stdio:['ignore','pipe','pipe']});
+    let startupError;
+    child.on('error', error => { startupError = error; });
     let logs = ''; child.stdout.on('data',d=>logs+=d); child.stderr.on('data',d=>logs+=d);
     let ready = false;
-    for(let i=0;i<100;i++) { try { await request('/login'); ready=true; break; } catch { await new Promise(r=>setTimeout(r,100)); } }
+    for(let i=0;i<100;i++) {
+        if (startupError) break;
+        try { await request('/login'); ready=true; break; } catch { await new Promise(r=>setTimeout(r,100)); }
+    }
+    assert.ok(!startupError, `Cannot start ${dotnet}: ${startupError?.message}. Check PATH or DOTNET_PATH.`);
     assert.ok(ready, `Web test host starts: ${logs.slice(-2000)}`);
     let response = await request('/auth/login',new Map(),{username:'one',password:'  test-password  '});
     assert.equal(response.status,400); pass('Missing antiforgery rejected');
