@@ -1,0 +1,45 @@
+@page "/orders/mine"
+@attribute [Authorize(Roles = "EMPLOYEE")]
+@layout EmployeeLayout
+@inject OrderApiClient Api
+
+<PageTitle>Đơn của tôi | BranchFlow</PageTitle>
+<header class="page-heading"><div><h1>Đơn của tôi</h1><p>Chỉ hiển thị các đơn do bạn tạo.</p></div><a href="/orders/create" class="btn btn-brand">Gọi món</a></header>
+<div class="page-content">
+    <form class="history-filters" @onsubmit="LoadAsync" @onsubmit:preventDefault>
+        <div><label for="keyword" class="form-label">Mã đơn</label><input id="keyword" class="form-control" placeholder="Tìm mã đơn" @bind="keyword" /></div>
+        <div><label for="business-date" class="form-label">Ngày kinh doanh</label><InputDate id="business-date" class="form-control" @bind-Value="businessDate" /></div>
+        <button class="btn btn-brand" type="submit" disabled="@loading">Tìm đơn</button>
+        <button class="btn btn-outline-secondary" type="button" @onclick="ClearAsync" disabled="@loading">Bỏ bộ lọc</button>
+    </form>
+    <ApiError Message="@error" NeedsLogin="needsLogin" />
+    @if (loading) { <p role="status">Đang tải danh sách đơn…</p> }
+    else if (orders is not null)
+    {
+        @if (orders.Count == 0) { <p class="empty-state">Chưa có đơn phù hợp với bộ lọc.</p> }
+        @foreach (var order in orders)
+        {
+            <a class="order-row" href="/orders/@order.Id"><div><strong>@order.Code</strong><small>@Display.VietnamTime(order.CreatedAt) · @order.TotalQuantity ly</small></div>
+                <b>@Display.Money(order.TotalAmount)</b><StatusBadge Status="@order.Status" /><span aria-hidden="true">›</span></a>
+        }
+    }
+</div>
+
+@code {
+    private string keyword = "";
+    private DateOnly? businessDate;
+    private List<OrderSummary>? orders;
+    private bool loading = true;
+    private string? error;
+    private bool needsLogin;
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await LoadAsync(); StateHasChanged(); } }
+    private async Task ClearAsync() { keyword = ""; businessDate = null; await LoadAsync(); }
+    private async Task LoadAsync()
+    {
+        loading = true; error = null; needsLogin = false;
+        try { orders = await Api.MineAsync(keyword.Trim(), businessDate); }
+        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không tải được danh sách đơn. Vui lòng thử lại."; }
+        finally { loading = false; }
+    }
+}
