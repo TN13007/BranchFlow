@@ -4,19 +4,19 @@ Owner: Nguyễn Đặng Hòa Thuận. Updated: 03/11/2026 (Asia/Ho_Chi_Minh). Ca
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
-| 44 | 0 | 0 | 0 | 44 | 0 |
+| 44 | 4 | 0 | 0 | 40 | 0 |
 
-Counts reflect the explicit per-case initial state in [TestCases.md](TestCases.md). The [preflight](TestResults.md) found runtime gates and did not execute individual catalog cases, so it does not turn them into Pass or Fail. The existing repository xUnit suite ran **23/23 Pass** on the inspected commit, including a local TRX run, and solution build passed after restore. Those 23 tests are a separate baseline observation and are not added to the 44 Sprint QA case count.
+Counts use the initial 44-row catalog and the latest observed runs in [TestResults.md](TestResults.md): QA-S4-019–022 passed with a real local SQL/HTTP fixture; 40 cases have not run. The menu runner reported 34 passing HTTP checks, which map to those four catalog cases plus partial auth evidence. The repository xUnit suite ran **23/23 Pass** on the inspected commit, including a local TRX run, and solution build passed after restore. Those 23 tests are a separate baseline observation and are not added to the 44 Sprint QA case count.
 
 ## Current assessment
 
-**Not ready for Sprint 4 demo acceptance on the inspected commit.** The local Dev/Test SQL databases now have a verified baseline and reference seed, but auth and order API and demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. The menu service/Web unit and transport tests provide limited confidence for those components only. No runtime defect is confirmed, and no bug has been closed or retested.
+**Not ready for Sprint 4 demo acceptance on the inspected commit.** The local Dev/Test SQL databases have a verified baseline and reference seed, and the menu API has four passing catalog cases on a temporary SQL fixture. Auth and order API and a repeatable demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. No runtime defect is confirmed, and no bug has been closed or retested.
 
 | Workstream | Evidence available | Remaining gate |
 |---|---|---|
 | SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md) | Khang review and shared evidence link |
 | SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet | Khang review; resolve actual seed IDs before execution |
-| SCRUM-89 Auth/permissions | [TestResults.md](TestResults.md) preflight only | BE1 auth API/seed; FE browser integration; direct HTTP results |
+| SCRUM-89 Auth/permissions | [Menu smoke](MenuSmokeResult-2026-11-03.txt) gives partial JWT/role/branch evidence | BE1 login/refresh/logout/me/accessible API and seed; FE browser integration |
 | SCRUM-90 Price/validation/persistence | Existing 23-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
 | SCRUM-91 E2E | Case definitions QA-S4-043/044 | Integrated FE/API/DB, same-code UI/API/SQL evidence |
 | SCRUM-92 Retest/summary | This summary and [BugLog.md](BugLog.md) | Fix commits and original-case retests; release-candidate smoke |

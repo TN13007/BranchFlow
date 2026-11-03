@@ -86,6 +86,19 @@ After run A, SQL Server 2025 Express `17.0.1000.7` was installed as `.\SQLEXPRES
 
 `./database/Verify-Database.ps1 -Server '.\SQLEXPRESS'` ran twice on `BranchFlow_Test` and passed. The second run's [redacted local output](DatabaseSetupResult-2026-11-03.txt) records SQL metadata/constraints, counter 10000 boundary, transaction rollback, 12 distinct concurrent codes, and fixture cleanup. This changes the **SQL baseline readiness gate to Pass**. It does not turn QA-S4-038/039 or any other catalog case into Pass: the script tests DB rules and the counter procedure, not the missing order API/service transaction.
 
+## Run 2026-11-03-C: menu API with local SQL fixture
+
+The existing `tests/MenuSmoke` runner was expanded in test commit `c0f5ed58077f12244c4187a8057afda405ea3315` and run against `BranchFlow_Test` and the API source at `ca9b56e593278595bcf1de250e222c6f39056439`. It creates uniquely named branch/user/menu/session fixtures, generates test-only password hashes and JWT keys in memory, exercises the real HTTP host and SQL repository, then deletes its own fixtures. The [console evidence](MenuSmokeResult-2026-11-03.txt) shows **34 HTTP status checks**, all Pass, followed by zero remaining branch/product/session fixtures. These 34 checks complete four catalog cases; they are not 34 separate catalog case results.
+
+| Case ID | Expected | Observed actual | Status | Test source commit | Evidence | Bug | Runner |
+|---|---|---|---|---|---|---|---|
+| QA-S4-019 | Authorized A menu contains only valid branch items and ProductSizeId/current DB price | HTTP 200; branch matched fixture; ProductSizeId and 30,000.50 price matched SQL; topping maxQuantity 3 and note maxSelections 1 | Pass | `c0f5ed5` | [MenuSmoke output](MenuSmokeResult-2026-11-03.txt) | — | Codex assisting Thuận |
+| QA-S4-020 | Inactive/deleted/unavailable menu elements omitted; empty collections are arrays | HTTP 200 after each controlled toggle of category/product/product size/size/topping group/topping/note group/option and branch availability; affected collection length 0 | Pass | `c0f5ed5` | [MenuSmoke output](MenuSmokeResult-2026-11-03.txt) | — | Codex assisting Thuận |
+| QA-S4-021 | Missing, zero, negative and malformed branchId return 400 ProblemDetails | Four HTTP 400 responses, each with problem+json status and traceId | Pass | `c0f5ed5` | [MenuSmoke output](MenuSmokeResult-2026-11-03.txt) | — | Codex assisting Thuận |
+| QA-S4-022 | Out-of-scope/nonexistent branch 403; assigned inactive branch 404 | HTTP 403 for both out-of-scope and nonexistent branch; HTTP 404 for assigned branch made inactive/deleted | Pass | `c0f5ed5` | [MenuSmoke output](MenuSmokeResult-2026-11-03.txt) | — | Codex assisting Thuận |
+
+The same runner also observed missing/malformed/expired/revoked JWT as 401, Owner role and wrong branch as 403, and expired/future branch assignment as 403. These are partial evidence for SCRUM-89. QA-S4-015/016 still include create-order actions, so they remain Not Run until the order endpoint exists. Login/refresh/logout and browser session behavior were not exercised. Run A's SQL-readiness row is historical; Run B supersedes it.
+
 ## Next execution log template
 
 Append one row for each attempted case. Preserve earlier runs when retesting. The `Actual` field must quote an observed status/body or SQL/UI fact, never copy the expected text.
