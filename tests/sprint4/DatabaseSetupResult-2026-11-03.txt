@@ -1,0 +1,36 @@
+BranchFlow local database setup verification
+Date: 2026-11-03 Asia/Ho_Chi_Minh
+Repo commit: 7321fe414382578add8c413f9f1c7e0ef885caf9
+Server: .\SQLEXPRESS (SQL Server 2025 Express 17.0.1000.7)
+Databases: BranchFlow_Dev, BranchFlow_Test
+Scripts: database/001-baseline.sql, database/002-reference-data.sql
+Command: ./database/Verify-Database.ps1 -Server '.\SQLEXPRESS'
+Output:
+PASS: One open admin per branch
+PASS: One open branch per employee
+PASS: Employee user remains unique after soft delete
+PASS: Invalid assignment time range
+PASS: Foreign key enforced
+PASS: Active product-size unique
+PASS: Negative price rejected
+PASS: Topping four portions rejected
+PASS: Topping zero portions rejected
+PASS: Duplicate topping rejected
+PASS: History is protected, no cascade delete
+PASS: Legacy adjusted status rejected
+PASS: Branch/date/sequence unique
+PASS: stale RowVersion update prevented
+PASS: payroll computed total
+PASS: Negative payroll total rejected
+PASS: Negative inventory rejected
+PASS: stocktake computed decimal(18,3)
+PASS: Refresh hash unique
+PASS: counter output reset, sequential allocation and 10000 boundary
+PASS: fixture/order/counter rollback; no test data retained
+PASS: metadata 35 tables / 271 columns / 59 trusted FK, no cascade delete
+PASS: all 271 column types/nullability/computed/identity flags and all 59 FK targets match schema-v1.json
+PASS: 12 concurrent SQL connections, 12 unique codes, counter = 12
+PASS: concurrency fixtures cleaned; verification completed
+Result: PASS
+Database check (each of BranchFlow_Dev and BranchFlow_Test): Vietnamese_100_CI_AI, 35 tables, 4 Role rows, 2 Size rows, 4 IngredientUnit rows, 0 AppUser rows.
+SSMS: version 22.11.3 installed from Microsoft's winget package and launched successfully. The installer requested a Windows restart to finish installation; no restart was performed.

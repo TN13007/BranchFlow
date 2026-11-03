@@ -80,6 +80,12 @@ Every catalog case has an explicit result row. Not Run means no execution of tha
 | QA-S4-043 | — | Not Run | — | — | — | — |
 | QA-S4-044 | — | Not Run | — | — | — | — |
 
+## Run 2026-11-03-B: local SQL baseline and seed
+
+After run A, SQL Server 2025 Express `17.0.1000.7` was installed as `.\SQLEXPRESS` with Windows Authentication. SSMS `22.11.3` was installed and launched; its installer requested a Windows restart, which was not performed in this run. `BranchFlow_Dev` and `BranchFlow_Test` were confirmed absent, then created with `Vietnamese_100_CI_AI`. `database/001-baseline.sql` and `database/002-reference-data.sql` completed on each database. Each now has 35 tables, 4 roles, 2 sizes, 4 ingredient units, and 0 users; no demo menu/order seed was added. The API's `ConnectionStrings:BranchFlowDb` was set to Dev in local User Secrets without committing its value.
+
+`./database/Verify-Database.ps1 -Server '.\SQLEXPRESS'` ran twice on `BranchFlow_Test` and passed. The second run's [redacted local output](DatabaseSetupResult-2026-11-03.txt) records SQL metadata/constraints, counter 10000 boundary, transaction rollback, 12 distinct concurrent codes, and fixture cleanup. This changes the **SQL baseline readiness gate to Pass**. It does not turn QA-S4-038/039 or any other catalog case into Pass: the script tests DB rules and the counter procedure, not the missing order API/service transaction.
+
 ## Next execution log template
 
 Append one row for each attempted case. Preserve earlier runs when retesting. The `Actual` field must quote an observed status/body or SQL/UI fact, never copy the expected text.

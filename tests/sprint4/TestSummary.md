@@ -10,14 +10,14 @@ Counts reflect the explicit per-case initial state in [TestCases.md](TestCases.m
 
 ## Current assessment
 
-**Not ready for Sprint 4 demo acceptance on the inspected commit.** Auth and order API, demo seed and local SQL test environment are missing from this candidate; browser E2E and transaction proof cannot yet be run. The menu service/Web unit and transport tests provide limited confidence for those components only. No runtime defect is confirmed, and no bug has been closed or retested.
+**Not ready for Sprint 4 demo acceptance on the inspected commit.** The local Dev/Test SQL databases now have a verified baseline and reference seed, but auth and order API and demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. The menu service/Web unit and transport tests provide limited confidence for those components only. No runtime defect is confirmed, and no bug has been closed or retested.
 
 | Workstream | Evidence available | Remaining gate |
 |---|---|---|
 | SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md) | Khang review and shared evidence link |
 | SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet | Khang review; resolve actual seed IDs before execution |
 | SCRUM-89 Auth/permissions | [TestResults.md](TestResults.md) preflight only | BE1 auth API/seed; FE browser integration; direct HTTP results |
-| SCRUM-90 Price/validation/persistence | Existing 23-test baseline and [TestResults.md](TestResults.md) | BE2 order service/API, SQL Test DB, HTTP 400 and transaction results |
+| SCRUM-90 Price/validation/persistence | Existing 23-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
 | SCRUM-91 E2E | Case definitions QA-S4-043/044 | Integrated FE/API/DB, same-code UI/API/SQL evidence |
 | SCRUM-92 Retest/summary | This summary and [BugLog.md](BugLog.md) | Fix commits and original-case retests; release-candidate smoke |
 
