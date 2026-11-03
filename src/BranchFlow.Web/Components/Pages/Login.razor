@@ -1,0 +1,146 @@
+@page "/login"
+@layout AuthLayout
+@using BranchFlow.Web.Models.Auth
+@inject IJSRuntime JS
+@inject IWebHostEnvironment Environment
+@implements IAsyncDisposable
+
+<PageTitle>Đăng nhập | BranchFlow</PageTitle>
+
+<div class="login-container">
+    <section class="login-intro" aria-labelledby="intro-title">
+        <p class="eyebrow">CÙNG NHAU VẬN HÀNH TỐT HƠN</p>
+        <h2 id="intro-title">Mỗi cửa hàng.<br />Một nhịp kết nối.</h2>
+        <p class="intro-description">Không gian làm việc chung cho đội ngũ BranchFlow. Đăng nhập để bắt đầu công việc tại cửa hàng của bạn.</p>
+        <div class="intro-note">
+            <span class="note-line" aria-hidden="true"></span>
+            <p>Tập trung vào từng đơn hàng,<br />chăm chút từng trải nghiệm.</p>
+        </div>
+    </section>
+
+    <section class="login-card" aria-labelledby="login-title">
+        <p class="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
+        <h1 id="login-title">Đăng nhập</h1>
+        <p class="login-description" id="login-description">Sử dụng tài khoản được cấp để tiếp tục.</p>
+
+        @if (noticeMessage is not null)
+        {
+            <div class="alert alert-info" role="status">@noticeMessage</div>
+        }
+        <EditForm Model="form" OnValidSubmit="HandleValidSubmitAsync" OnInvalidSubmit="HandleInvalidSubmit"
+                  id="branchflow-login" action="/auth/login" method="post" data-enhance="false"
+                  FormName="login" aria-describedby="login-description" novalidate>
+            <AntiforgeryToken />
+            <DataAnnotationsValidator />
+
+            <div class="mb-4">
+                <label class="form-label" for="username">Tên đăng nhập</label>
+                <InputText id="username" name="username" class="form-control" @bind-Value="form.Username"
+                           autocomplete="username" autocapitalize="none" spellcheck="false"
+                           aria-required="true" aria-describedby="username-error" />
+                <div id="username-error" class="field-error" aria-live="polite">
+                    <ValidationMessage For="() => form.Username" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label" for="password">Mật khẩu</label>
+                <div class="password-control">
+                    <InputText id="password" name="password" class="form-control" @bind-Value="form.Password"
+                               type="@(showPassword ? "text" : "password")" autocomplete="current-password"
+                               aria-required="true" aria-describedby="password-error" />
+                    <button class="password-toggle" type="button" @onclick="TogglePassword"
+                            aria-controls="password" aria-pressed="@(showPassword ? "true" : "false")"
+                            aria-label="@(showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu")">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                            <circle cx="12" cy="12" r="3" />
+                            @if (showPassword)
+                            {
+                                <path d="m3 3 18 18" />
+                            }
+                        </svg>
+                    </button>
+                </div>
+                <div id="password-error" class="field-error" aria-live="polite">
+                    <ValidationMessage For="() => form.Password" />
+                </div>
+            </div>
+
+            @if (errorMessage is not null)
+            {
+                <div class="alert login-alert" role="alert">@errorMessage</div>
+            }
+
+            <button class="btn login-submit w-100" type="submit" disabled="@isSubmitting" aria-busy="@(isSubmitting ? "true" : "false")">
+                @(isSubmitting ? "Đang đăng nhập…" : "Đăng nhập")
+            </button>
+        </EditForm>
+
+        <p class="support-note">Bạn cần hỗ trợ tài khoản?<br /><strong>Vui lòng liên hệ quản lý của bạn.</strong></p>
+        @if (Environment.IsDevelopment())
+        {
+            <p class="support-note"><a href="/preview/orders">Xem thử menu và giỏ hàng (dữ liệu mẫu)</a></p>
+        }
+    </section>
+</div>
+
+@code {
+    private readonly LoginFormModel form = new();
+    private bool showPassword;
+    private string? errorMessage;
+    private string? noticeMessage;
+    private bool isSubmitting;
+    private IJSObjectReference? module;
+    [SupplyParameterFromQuery(Name = "error")] public string? Error { get; set; }
+    [SupplyParameterFromQuery(Name = "notice")] public string? Notice { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        errorMessage = Error switch
+        {
+            "credentials" => "Tên đăng nhập hoặc mật khẩu không đúng, hoặc tài khoản không khả dụng.",
+            "invalid" => "Vui lòng nhập tên đăng nhập và mật khẩu hợp lệ.",
+            "rate" => "Bạn đã thử quá nhiều lần. Vui lòng chờ một phút rồi thử lại.",
+            "service" => "Không kết nối được dịch vụ đăng nhập. Vui lòng thử lại sau.",
+            _ => null
+        };
+        noticeMessage = Notice switch
+        {
+            "logout" => "Bạn đã đăng xuất.",
+            "local-logout" => "Đã đăng xuất khỏi Web. Chưa xác nhận thu hồi phiên tại dịch vụ; vui lòng liên hệ quản lý nếu cần.",
+            "session" => "Vui lòng đăng nhập để tiếp tục.",
+            _ => null
+        };
+    }
+
+    private void TogglePassword() => showPassword = !showPassword;
+
+    private void HandleInvalidSubmit(EditContext _) => errorMessage = null;
+
+    private async Task HandleValidSubmitAsync()
+    {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        form.Username = form.Username.Trim();
+        errorMessage = null;
+        try
+        {
+            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/auth-form.js");
+            await module.InvokeVoidAsync("submitLogin");
+        }
+        catch (JSException)
+        {
+            isSubmitting = false;
+            errorMessage = "Không gửi được form. Vui lòng tải lại trang và thử lại.";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        form.Password = string.Empty;
+        if (module is not null)
+            try { await module.DisposeAsync(); } catch (JSDisconnectedException) { }
+    }
+}

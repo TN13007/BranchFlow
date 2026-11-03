@@ -1,0 +1,25 @@
+@inherits LayoutComponentBase
+@inject IWebHostEnvironment Environment
+
+<div class="employee-shell">
+    <aside class="employee-sidebar">
+        <a href="/" class="employee-brand"><span class="employee-mark">BF</span><span><strong>BranchFlow</strong><small>Không gian làm việc</small></span></a>
+        <nav aria-label="Điều hướng nhân viên">
+            <NavLink href="/orders/create"><img src="/images/icons/coffee.svg" alt="" />Gọi món</NavLink>
+            <NavLink href="/orders/mine"><img src="/images/icons/house.svg" alt="" />Đơn của tôi</NavLink>
+            @if (Environment.IsDevelopment()) { <NavLink href="/preview/orders">Xem thử dữ liệu mẫu</NavLink> }
+        </nav>
+        <div class="employee-user">
+            <AuthorizeView>
+                <Authorized Context="auth">
+                    <span>@auth.User.Identity?.Name</span>
+                    <form action="/auth/logout" method="post" data-enhance="false">
+                        <AntiforgeryToken /><button type="submit" class="logout-button">Đăng xuất</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized><a href="/login">Đăng nhập</a></NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </aside>
+    <main class="employee-main">@Body</main>
+</div>

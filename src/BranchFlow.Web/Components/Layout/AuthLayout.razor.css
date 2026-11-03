@@ -1,0 +1,56 @@
+.auth-shell {
+    --brand: #08796b;
+    --ink: #17252a;
+    --muted: #52676b;
+    --line: #dfe3df;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: #f5f4ef;
+    color: var(--ink);
+    font-family: "Noto Sans", "Segoe UI", sans-serif;
+}
+
+.auth-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #103d36;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.header-caption, .auth-footer { color: var(--muted); font-size: 13px; }
+.auth-content { flex: 1; display: grid; align-items: center; padding: 56px 24px; }
+.auth-footer { padding: 20px 24px; text-align: center; }
+.brand:focus-visible { outline: 3px solid var(--brand); outline-offset: 5px; }
+
+@media (max-width: 575.98px) {
+    .auth-header { padding: 16px 20px; }
+    .header-caption { display: none; }
+    .auth-content { padding: 32px 16px; }
+}

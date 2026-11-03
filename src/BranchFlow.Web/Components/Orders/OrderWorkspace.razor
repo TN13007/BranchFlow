@@ -1,0 +1,201 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<header class="page-heading">
+    <div><p class="eyebrow">@Menu.Branch.Name</p><h1>@(showCart ? "Đơn hiện tại" : "Gọi món")</h1><p>Giá tạm tính từ menu hiện hành. Giá xác nhận do hệ thống tính khi tạo đơn.</p></div>
+    <button class="btn btn-brand" @onclick="() => showCart = !showCart" disabled="@Busy">
+        @(showCart ? "← Tiếp tục gọi món" : $"Xem giỏ · {Cart.TotalQuantity} ly")
+    </button>
+</header>
+<div class="page-content">
+    <ApiError Message="@Error" NeedsLogin="NeedsLogin" />
+    <ApiError Message="@localError" />
+    @if (Cart.OutcomeUnknown)
+    {
+        <div class="alert alert-warning" role="alert">
+            Chưa xác định đơn đã được tạo hay chưa. Giỏ vẫn được giữ, hệ thống không tự gửi lại.
+            <a href="/orders/mine" class="alert-link">Kiểm tra đơn của tôi</a> trước khi xác nhận lại.
+            <div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="checked-orders" @bind="checkedHistory" />
+                <label for="checked-orders">Tôi đã kiểm tra danh sách và xác nhận chưa có đơn này.</label></div>
+            <button class="btn btn-outline-dark mt-2" disabled="@(!checkedHistory)" @onclick="Unlock">Cho phép xác nhận lại</button>
+        </div>
+    }
+    @if (!showCart)
+    {
+        <div class="menu-toolbar">
+            <input class="form-control menu-search" aria-label="Tìm tên món" placeholder="Tìm tên món" @bind="search" @bind:event="oninput" />
+            <div class="category-tabs" aria-label="Danh mục món">
+                <button class="chip @(categoryId == 0 ? "selected" : "")" @onclick="() => categoryId = 0" aria-pressed="@(categoryId == 0)">Tất cả</button>
+                @foreach (var category in Menu.Categories)
+                {
+                    <button class="chip @(categoryId == category.Id ? "selected" : "")" @onclick="() => categoryId = category.Id" aria-pressed="@(categoryId == category.Id)">@category.Name</button>
+                }
+            </div>
+        </div>
+        <div class="section-heading"><h2>Menu cửa hàng</h2><span>@Products.Count() món</span></div>
+        <div class="product-grid">
+            @foreach (var product in Products)
+            {
+                <button class="product-card" @onclick="() => Configure(product)" disabled="@(Busy || Cart.OutcomeUnknown || !CanOrder)" @key="product.Id">
+                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl)) { <img class="product-image" src="@product.ImageUrl" alt="@product.Name" loading="lazy" /> }
+                    else { <div class="product-image missing-image">Ảnh chưa có</div> }
+                    <div class="product-info"><strong>@product.Name</strong><span>@CategoryName(product.Id)</span><b>Từ @Money(product.MinPrice)</b></div>
+                </button>
+            }
+        </div>
+        @if (!Products.Any()) { <p class="empty-state">Chưa có món phù hợp. Hãy thử danh mục hoặc tên khác.</p> }
+    }
+    else
+    {
+        <div class="cart-layout">
+            <div>
+                @if (Cart.Lines.Count == 0) { <p class="empty-state">Giỏ hàng chưa có món. Chọn món để bắt đầu.</p> }
+                @foreach (var line in Cart.Lines)
+                {
+                    <article class="cart-line" @key="line.Key">
+                        @if (!string.IsNullOrWhiteSpace(line.ImageUrl)) { <img class="cart-image" src="@line.ImageUrl" alt="" /> }
+                        <div class="cart-description"><strong>@line.ProductName</strong><small>Size @line.SizeName · @line.Request.Quantity ly</small><small>@line.Description</small>
+                            <button class="text-button" @onclick="() => Edit(line)" disabled="@(Busy || Cart.OutcomeUnknown)">Chỉnh sửa món</button></div>
+                        <b>@Money(line.PreviewTotal)</b>
+                        <button class="icon-button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName"><img src="/images/icons/trash.svg" alt="" /></button>
+                    </article>
+                }
+            </div>
+            <aside class="cart-summary">
+                <p class="eyebrow">TỔNG ĐƠN TẠM TÍNH</p>
+                <div><span>Số ly</span><strong>@Cart.TotalQuantity</strong></div>
+                <div><span>Tổng tiền</span><strong>@Money(Cart.PreviewTotal)</strong></div>
+                <p>Giá cuối cùng và mã đơn được trả về sau khi xác nhận.</p>
+                @if (Preview) { <p class="preview-note">Bản xem thử không tạo đơn.</p> }
+                <button class="btn btn-brand w-100" disabled="@(Preview || Busy || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)" @onclick="OnConfirm" aria-busy="@(Busy ? "true" : "false")">
+                    @(Busy ? "Đang xác nhận…" : "Xác nhận tạo đơn")
+                </button>
+            </aside>
+        </div>
+    }
+</div>
+
+@if (selectedProduct is not null)
+{
+    <dialog id="product-options" class="configurator" aria-labelledby="product-options-title" @oncancel="Close">
+        <div class="configurator-head">
+            @if (!string.IsNullOrWhiteSpace(selectedProduct.ImageUrl)) { <img class="configurator-image" src="@selectedProduct.ImageUrl" alt="" /> }
+            <div class="configurator-title"><p class="eyebrow">TÙY CHỌN MÓN</p><h2 id="product-options-title">@selectedProduct.Name</h2><p>Chọn size trước khi thêm món vào đơn.</p></div>
+            <button class="dialog-close" aria-label="Đóng tùy chọn món" @onclick="Close">×</button>
+        </div>
+        <div class="configurator-scroll">
+            <ApiError Message="@draftError" />
+            <fieldset class="option-block"><legend>01 · Chọn size <small>Bắt buộc</small></legend><div class="option-choices">
+                @foreach (var size in selectedProduct.ProductSizes)
+                {
+                    <label class="option-choice"><input type="radio" name="size" value="@size.Id" checked="@(sizeId == size.Id)" @onchange="() => sizeId = size.Id" /> <strong>@size.SizeName</strong> @Money(size.Price)</label>
+                }
+            </div></fieldset>
+            <fieldset class="option-block"><legend>02 · Topping <small>Mỗi loại tối đa 3 phần/ly</small></legend>
+                @foreach (var group in Menu.ToppingGroups)
+                {
+                    @foreach (var topping in group.Toppings)
+                    {
+                        <div class="topping-row"><div><strong>@topping.Name</strong><small>@group.Name · @Money(topping.UnitPrice)</small></div>
+                            <div class="stepper"><button @onclick="() => ChangeTopping(topping, -1)" disabled="@(ToppingCount(topping.Id) == 0)" aria-label="Giảm @topping.Name">−</button>
+                                <output aria-live="polite">@ToppingCount(topping.Id)</output>
+                                <button @onclick="() => ChangeTopping(topping, 1)" disabled="@(ToppingCount(topping.Id) >= Math.Min(3, topping.MaxQuantity))" aria-label="Thêm @topping.Name">+</button></div></div>
+                    }
+                }
+            </fieldset>
+            <fieldset class="option-block"><legend>03 · Ghi chú nhanh <small>Mỗi nhóm chọn tối đa 1</small></legend>
+                @foreach (var group in Menu.NoteGroups)
+                {
+                    <div class="note-row"><strong>@group.Name</strong><div class="option-choices">
+                        <label class="option-choice"><input type="radio" name="note-@group.Id" checked="@(!notes.ContainsKey(group.Id))" @onchange="() => notes.Remove(group.Id)" /> Không chọn</label>
+                        @foreach (var option in group.Options)
+                        {
+                            <label class="option-choice"><input type="radio" name="note-@group.Id" checked="@(notes.GetValueOrDefault(group.Id) == option.Id)" @onchange="() => notes[group.Id] = option.Id" disabled="@(group.MaxSelections < 1)" /> @option.Name</label>
+                        }
+                    </div></div>
+                }
+            </fieldset>
+            <div class="option-block"><label for="cup-quantity" class="form-label">04 · Số ly</label><input id="cup-quantity" type="number" min="1" step="1" class="form-control" @bind="quantityInput" @bind:event="oninput" /></div>
+        </div>
+        <div class="configurator-action"><button class="btn btn-brand w-100" @onclick="Save">@(editingKey.HasValue ? "Lưu thay đổi" : "Thêm vào đơn") <span>@Money(DraftTotal())</span></button></div>
+    </dialog>
+}
+
+@code {
+    [Parameter, EditorRequired] public OrderMenu Menu { get; set; } = default!;
+    [Parameter, EditorRequired] public CartState Cart { get; set; } = default!;
+    [Parameter] public bool Preview { get; set; }
+    [Parameter] public bool CanOrder { get; set; } = true;
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public string? Error { get; set; }
+    [Parameter] public bool NeedsLogin { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    private string search = "";
+    private int categoryId;
+    private bool showCart;
+    private bool checkedHistory;
+    private MenuProduct? selectedProduct;
+    private int sizeId;
+    private string quantityInput = "1";
+    private Guid? editingKey;
+    private readonly Dictionary<int, int> toppings = [];
+    private readonly Dictionary<int, int> notes = [];
+    private string? draftError;
+    private string? localError;
+    private bool openDialog;
+    private IJSObjectReference? module;
+    private IEnumerable<MenuProduct> Products => Menu.Categories.Where(c => categoryId == 0 || c.Id == categoryId).SelectMany(c => c.Products)
+        .Where(p => p.Name.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase));
+    private string CategoryName(int id) => Menu.Categories.First(c => c.Products.Any(p => p.Id == id)).Name;
+    private static string Money(decimal amount) => Display.Money(amount);
+
+    private void Configure(MenuProduct product)
+    {
+        selectedProduct = product; sizeId = 0; quantityInput = "1"; editingKey = null;
+        toppings.Clear(); notes.Clear(); draftError = null; openDialog = true;
+    }
+    private void Edit(CartLine line)
+    {
+        var product = Menu.Categories.SelectMany(c => c.Products).FirstOrDefault(p => p.ProductSizes.Any(s => s.Id == line.Request.ProductSizeId));
+        if (product is null) { localError = "Món không còn trong menu. Vui lòng xóa dòng và chọn lại."; return; }
+        Configure(product); sizeId = line.Request.ProductSizeId; quantityInput = line.Request.Quantity.ToString(); editingKey = line.Key;
+        foreach (var t in line.Request.Toppings) toppings[t.ToppingId] = t.Quantity;
+        foreach (var id in line.Request.NoteOptionIds)
+        {
+            var group = Menu.NoteGroups.FirstOrDefault(g => g.Options.Any(o => o.Id == id));
+            if (group is not null) notes[group.Id] = id;
+        }
+    }
+    private int ToppingCount(int id) => toppings.GetValueOrDefault(id);
+    private void ChangeTopping(MenuTopping t, int delta)
+    {
+        var count = Math.Clamp(ToppingCount(t.Id) + delta, 0, Math.Min(3, t.MaxQuantity));
+        if (count == 0) toppings.Remove(t.Id); else toppings[t.Id] = count;
+    }
+    private CreateOrderItem Draft() => new(sizeId, int.TryParse(quantityInput, out var cups) ? cups : 0, toppings.Select(t => new CreateOrderTopping(t.Key, t.Value)).ToList(), notes.Values.ToList());
+    private decimal DraftTotal()
+    {
+        try { return CartState.BuildLine(Menu, Draft(), Guid.Empty).PreviewTotal; }
+        catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { return 0; }
+    }
+    private void Save()
+    {
+        try { Cart.Save(Menu, Draft(), editingKey); localError = null; selectedProduct = null; }
+        catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { draftError = ex is OverflowException ? "Số lượng vượt giới hạn." : ex.Message; }
+    }
+    private void Close() => selectedProduct = null;
+    private void Unlock() { Cart.AcknowledgeCheckedHistory(); checkedHistory = false; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (openDialog && selectedProduct is not null)
+        {
+            openDialog = false;
+            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/order-ui.js");
+            await module.InvokeVoidAsync("openOptions");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null) try { await module.DisposeAsync(); } catch (JSDisconnectedException) { }
+    }
+}

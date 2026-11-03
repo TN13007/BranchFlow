@@ -1,0 +1,15 @@
+@page "/account"
+@attribute [Authorize]
+@layout EmployeeLayout
+
+<PageTitle>Tài khoản | BranchFlow</PageTitle>
+<header class="page-heading"><h1>Tài khoản</h1><p>Bạn đã đăng nhập vào BranchFlow.</p></header>
+<div class="page-content">
+    <AuthorizeView>
+        <Authorized Context="auth">
+            <p>Xin chào, <strong>@auth.User.Identity?.Name</strong>.</p>
+            @if (auth.User.IsInRole("EMPLOYEE")) { <a href="/orders/create" class="btn btn-brand">Bắt đầu gọi món</a> }
+            else { <p>Chức năng gọi món trong Sprint này chỉ dành cho nhân viên. Các màn quản trị thuộc phạm vi triển khai tiếp theo.</p> }
+        </Authorized>
+    </AuthorizeView>
+</div>

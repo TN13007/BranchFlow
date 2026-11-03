@@ -1,0 +1,136 @@
+@page "/orders/create"
+@attribute [Authorize(Roles = "EMPLOYEE")]
+@layout EmployeeLayout
+@inject OrderApiClient Api
+@inject CartState Cart
+@inject NavigationManager Navigation
+
+<PageTitle>Gọi món | BranchFlow</PageTitle>
+@if (loading)
+{
+    <div class="page-content" role="status"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải menu cửa hàng…</div>
+}
+else
+{
+    @if (branches.Count > 1)
+    {
+        <div class="branch-picker">
+            <label for="branch-picker">Chi nhánh được phép truy cập</label>
+            <select id="branch-picker" class="form-select" value="@branchId" @onchange="ChangeBranchAsync" disabled="@(submitting || Cart.OutcomeUnknown)">
+                <option value="0">Chọn chi nhánh</option>
+                @foreach (var b in branches) { <option value="@b.Id">@b.Name</option> }
+            </select>
+            @if (Cart.Lines.Count > 0)
+            {
+                <label><input type="checkbox" @bind="allowDiscard" /> Tôi đồng ý bỏ giỏ hiện tại khi đổi chi nhánh.</label>
+            }
+        </div>
+    }
+    @if (menu is not null)
+    {
+        <OrderWorkspace Menu="menu" Cart="Cart" Busy="@(submitting || reloading)" CanOrder="canOrder" Error="@error" NeedsLogin="needsLogin" OnConfirm="ConfirmAsync" />
+        <div class="page-content pt-0"><button class="btn btn-outline-secondary" @onclick="ReloadMenuAsync" disabled="@submitting">Tải lại menu</button></div>
+    }
+    else
+    {
+        <header class="page-heading"><h1>Gọi món</h1></header>
+        <div class="page-content">
+            <ApiError Message="@error" NeedsLogin="needsLogin" />
+            @if (error is null && branches.Count == 0) { <p>Bạn chưa được phân công chi nhánh. Vui lòng liên hệ quản lý.</p> }
+            @if (error is not null) { <button class="btn btn-brand" @onclick="LoadAsync">Thử tải lại</button> }
+        </div>
+    }
+}
+
+@code {
+    private List<AccessibleBranch> branches = [];
+    private OrderMenu? menu;
+    private int branchId;
+    private bool loading = true;
+    private bool submitting;
+    private bool reloading;
+    private bool canOrder = true;
+    private bool allowDiscard;
+    private bool needsLogin;
+    private string? error;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) { await LoadAsync(); StateHasChanged(); }
+    }
+    private async Task LoadAsync()
+    {
+        loading = true; error = null; needsLogin = false;
+        try
+        {
+            var me = await Api.MeAsync();
+            if (me.Role != "EMPLOYEE") { Navigation.NavigateTo("/account", true); return; }
+            branches = await Api.BranchesAsync();
+            branchId = Cart.BranchId.HasValue && branches.Any(b => b.Id == Cart.BranchId) ? Cart.BranchId.Value : branches.Count == 1 ? branches[0].Id : 0;
+            if (branchId > 0) await LoadMenuAsync();
+        }
+        catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or InvalidOperationException) { SetError(ex); }
+        finally { loading = false; }
+    }
+    private async Task LoadMenuAsync()
+    {
+        var result = await Api.MenuAsync(branchId);
+        if (result.Branch.Id != branchId) throw new InvalidOperationException("Menu không khớp chi nhánh đã chọn.");
+        Cart.SetBranch(branchId);
+        menu = result;
+        canOrder = true;
+        Cart.Revalidate(result);
+    }
+    private async Task ChangeBranchAsync(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var next) || !branches.Any(b => b.Id == next)) return;
+        if (Cart.Lines.Count > 0 && !allowDiscard) { error = "Vui lòng xác nhận bỏ giỏ trước khi đổi chi nhánh."; return; }
+        if (Cart.OutcomeUnknown) return;
+        branchId = next; allowDiscard = false; menu = null;
+        await ReloadMenuAsync();
+    }
+    private async Task ReloadMenuAsync()
+    {
+        if (reloading) return;
+        reloading = true; error = null; needsLogin = false;
+        try { await LoadMenuAsync(); }
+        catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or InvalidOperationException) { SetError(ex); }
+        finally { reloading = false; }
+    }
+    private async Task ConfirmAsync()
+    {
+        if (submitting || reloading || !canOrder || menu is null || Cart.OutcomeUnknown) return;
+        submitting = true; error = null; needsLogin = false;
+        var sent = false;
+        try
+        {
+            var oldTotal = Cart.PreviewTotal;
+            await LoadMenuAsync();
+            var request = Cart.ToRequest(menu);
+            if (Cart.PreviewTotal != oldTotal) { error = "Giá menu vừa thay đổi. Vui lòng kiểm tra tổng tạm tính mới rồi xác nhận lại."; return; }
+            sent = true;
+            var result = await Api.CreateAsync(request);
+            if (result.Id <= 0 || string.IsNullOrWhiteSpace(result.Code) || result.BranchId != branchId)
+                throw new ApiException(System.Net.HttpStatusCode.BadGateway, "Phản hồi tạo đơn không hợp lệ. Hãy kiểm tra danh sách đơn.");
+            Cart.Complete(result);
+            Navigation.NavigateTo($"/orders/{result.Id}");
+        }
+        catch (ApiException ex)
+        {
+            if (sent && (int)ex.StatusCode >= 500) Cart.MarkUnknown();
+            SetError(ex);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
+        {
+            if (sent) Cart.MarkUnknown();
+            SetError(ex);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { SetError(ex); }
+        finally { submitting = false; }
+    }
+    private void SetError(Exception ex)
+    {
+        needsLogin = ex is ApiException { StatusCode: System.Net.HttpStatusCode.Unauthorized };
+        if (ex is ApiException { StatusCode: System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden }) canOrder = false;
+        error = ex is ApiException or InvalidOperationException ? ex.Message : "Không kết nối được dịch vụ. Giỏ hàng của bạn vẫn được giữ.";
+    }
+}

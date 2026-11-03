@@ -1,0 +1,13 @@
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider Authentication
+<p role="status">Đang kiểm tra quyền truy cập…</p>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var state = await Authentication.GetAuthenticationStateAsync();
+            Navigation.NavigateTo(state.User.Identity?.IsAuthenticated == true ? "/account" : "/login?notice=session", forceLoad: true);
+        }
+    }
+}
