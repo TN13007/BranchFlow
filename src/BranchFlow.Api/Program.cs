@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using BranchFlow.Application.Services;
 using BranchFlow.Infrastructure.Repositories;
+using BranchFlow.Api.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,11 @@ builder.Services.AddDbContext<BranchFlowDbContext>(options =>
 // Đăng ký menu repository và application service.
 builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
+builder.Services.AddBranchFlowJwt(builder.Configuration);
+builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
+    context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
 
 // Đăng ký controller và bộ sinh tài liệu Swagger cho API.
 builder.Services.AddControllers();
@@ -37,6 +43,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+// Lỗi ngoài dự kiến luôn trả ProblemDetails an toàn, không trả stack/SQL cho client.
+app.UseExceptionHandler();
 
 // Chỉ mở tài liệu Swagger trong môi trường phát triển.
 if (app.Environment.IsDevelopment())
@@ -50,6 +58,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

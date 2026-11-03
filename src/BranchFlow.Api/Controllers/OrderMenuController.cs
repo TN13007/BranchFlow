@@ -1,10 +1,12 @@
 using BranchFlow.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BranchFlow.Api.Controllers;
 
 [ApiController]
 [Route("api/order-menu")]
+[Authorize(Roles = "EMPLOYEE")]
 public sealed class OrderMenuController : ControllerBase
 {
     private readonly IOrderMenuService _orderMenuService;
@@ -19,14 +21,25 @@ public sealed class OrderMenuController : ControllerBase
     {
         if (!branchId.HasValue || branchId.Value <= 0)
         {
-            return BadRequest(new { message = "Branch ID must be greater than zero." });
+            return Problem(statusCode: 400, title: "Dữ liệu không hợp lệ", detail: "branchId phải là số nguyên dương.");
         }
 
-        var menu = await _orderMenuService.GetMenuByBranchAsync(branchId.Value, cancellationToken);
+        if (!int.TryParse(User.FindFirst("sub")?.Value, out var userId) || userId <= 0)
+            return Problem(statusCode: 401, title: "Chưa xác thực", detail: "Vui lòng đăng nhập lại.");
+
+        BranchFlow.Application.DTOs.Sprint4.OrderMenu? menu;
+        try
+        {
+            menu = await _orderMenuService.GetMenuByBranchAsync(userId, branchId.Value, cancellationToken);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Problem(statusCode: 403, title: "Không có quyền", detail: "Bạn không được phân công tại chi nhánh này.");
+        }
 
         if (menu is null)
         {
-            return NotFound(new { message = "Branch not found." });
+            return Problem(statusCode: 404, title: "Không tìm thấy", detail: "Chi nhánh không tồn tại hoặc không hoạt động.");
         }
 
         return Ok(menu);

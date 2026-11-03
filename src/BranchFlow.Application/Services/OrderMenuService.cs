@@ -6,13 +6,16 @@ namespace BranchFlow.Application.Services;
 public sealed class OrderMenuService : IOrderMenuService
 {
     private readonly IOrderMenuRepository _orderMenuRepository;
+    private readonly IMenuAccessRepository _access;
 
-    public OrderMenuService(IOrderMenuRepository orderMenuRepository)
+    public OrderMenuService(IOrderMenuRepository orderMenuRepository, IMenuAccessRepository access)
     {
         _orderMenuRepository = orderMenuRepository;
+        _access = access;
     }
 
     public async Task<OrderMenu?> GetMenuByBranchAsync(
+        int userId,
         int branchId,
         CancellationToken cancellationToken = default)
     {
@@ -22,6 +25,10 @@ public sealed class OrderMenuService : IOrderMenuService
                 nameof(branchId),
                 "Branch ID must be greater than zero.");
         }
+
+        // Kiểm tra phạm vi trước khi đọc menu, không tin branchId do client gửi.
+        if (!await _access.CanReadMenuAsync(userId, branchId, cancellationToken))
+            throw new UnauthorizedAccessException("Bạn không được phân công tại chi nhánh này.");
 
         var menuData = await _orderMenuRepository.GetMenuByBranchAsync(
             branchId,
