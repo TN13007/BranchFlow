@@ -1,6 +1,8 @@
 using BranchFlow.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using BranchFlow.Application.Services;
+using BranchFlow.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,10 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 builder.Services.AddDbContext<BranchFlowDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Đăng ký menu repository và application service.
+builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
+builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 
 // Đăng ký controller và bộ sinh tài liệu Swagger cho API.
 builder.Services.AddControllers();
