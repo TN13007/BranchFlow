@@ -17,7 +17,7 @@ builder.Services.AddSingleton<WebSessionStore>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<WebSessionStore>());
 builder.Services.AddScoped<AuthApiClient>();
 builder.Services.AddScoped<SessionApiTransport>();
-
+builder.Services.AddScoped<OrderApiClient>();
 builder.Services.AddScoped<CartState>();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
