@@ -1,6 +1,6 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 03/11/2026 (Asia/Ho_Chi_Minh). Candidate source commit: `ca9b56e593278595bcf1de250e222c6f39056439` on `origin/khang`. PM acceptance review: pending Khang.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 04/11/2026 (Asia/Ho_Chi_Minh). Original candidate source: `ca9b56e593278595bcf1de250e222c6f39056439`. Review rerun source: [4b0484d](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Khang delegated review/corrections to Codex; documentation review is complete, runtime Sprint acceptance remains pending.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
@@ -14,8 +14,8 @@ Counts use the initial 44-row catalog and the latest observed runs in [TestResul
 
 | Workstream | Evidence available | Remaining gate |
 |---|---|---|
-| SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md) | Khang review and shared evidence link |
-| SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet | Khang review; resolve actual seed IDs before execution |
+| SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md), reviewed 04/11 | Documentation scope complete; runtime tests are separate tasks |
+| SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet; UI quantity-zero expected corrected | Documentation scope complete; resolve actual seed IDs before runtime execution |
 | SCRUM-89 Auth/permissions | [Menu smoke](MenuSmokeResult-2026-11-03.txt) gives partial JWT/role/branch evidence | BE1 login/refresh/logout/me/accessible API and seed; FE browser integration |
 | SCRUM-90 Price/validation/persistence | Existing 23-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
 | SCRUM-91 E2E | Case definitions QA-S4-043/044 | Integrated FE/API/DB, same-code UI/API/SQL evidence |
@@ -35,4 +35,8 @@ Counts use the initial 44-row catalog and the latest observed runs in [TestResul
 - [ ] Every bug links its failing case, owner, fix SHA and actual retest on that SHA.
 - [ ] Final counts are recalculated from latest relevant case runs; demo readiness is reviewed by Khang.
 
-No Jira status, deadline, worklog, bug or attachment was changed by this local QA preparation. Do not mark the stories or runtime QA tasks Done from the baseline tests.
+The original local preparation did not update Jira. Review follow-up on 04/11 records the corrected documentation and runtime gates on SCRUM-87–92. Stories/runtime tasks are not accepted from baseline tests.
+
+## Review verification 04/11/2026
+
+Build Release: 0 warnings, 0 errors; 23 xUnit tests passed; [34 SQL/HTTP checks passed](MenuSmokeResult-2026-11-04.txt), with per-run fixture cleanup. Four catalog cases QA-S4-019–022 remain Pass, 40 remain Not Run. The revised smoke verifies a separate active note group remains visible while only the tested group's ID disappears. This validates fixture isolation, not completion of auth/order/E2E gates. Historical unavailable SHA values are retained with a traceability correction and links to published source; the new run pins an accessible test/API commit.

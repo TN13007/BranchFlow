@@ -101,6 +101,21 @@ The existing `tests/MenuSmoke` runner was expanded in test commit `c0f5ed58077f1
 
 The same runner also observed missing/malformed/expired/revoked JWT as 401, Owner role and wrong branch as 403, and expired/future branch assignment as 403. These are partial evidence for SCRUM-89. QA-S4-015/016 still include create-order actions, so they remain Not Run until the order endpoint exists. Login/refresh/logout and browser session behavior were not exercised. Run A's SQL-readiness row is historical; Run B supersedes it.
 
+## Run 2026-11-04-D: independent review rerun
+
+Runner: Codex assisting Khang, following delegated review of Thuận's QA package. Exact test/API source: [4b0484d2a40ee5d5588fbd172980535248e2c6ab](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Environment: localhost\SQLEXPRESS / BranchFlow_Test, existing schema v1/reference seed plus unique per-run fixture. No auth/order endpoint or browser E2E is inferred from this run.
+
+Build `BranchFlow.slnx -c Release`: 0 warnings, 0 errors. `dotnet test BranchFlow.slnx -c Release --no-build --no-restore`: 23 Passed, 0 Failed, 0 Skipped. The menu runner passed all 34 HTTP checks and cleaned its fixtures. A second active note group and option are created as a control; every 200 response must preserve that unrelated group, while negative note checks target only the fixture group's ID.
+
+| Case ID | Expected | Actual | Status | Evidence |
+|---|---|---|---|---|
+| QA-S4-019 | Menu uses permitted branch, ProductSizeId, DB price, topping max 3 and note max 1 | HTTP 200; fixture branch/ID matched; price 30000.50, topping max 3 and fixture note max 1 matched; control note group retained | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-020 | Inactive/deleted/unavailable fixture entries disappear without hiding unrelated note groups | Each controlled negative HTTP 200 check passed; tested note group absent by ID, control option remained visible; cleanup completed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-021 | Missing/zero/negative/malformed branchId gives 400 ProblemDetails | Four HTTP 400 checks passed with problem+json, status and traceId | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-022 | Foreign/nonexistent branch gives 403; assigned inactive branch gives 404 | Both 403 checks and assigned inactive/deleted branch 404 checks passed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+
+QA-S4-024's expected wording now distinguishes a UI decrement to zero (remove topping from payload) from an explicit invalid quantity-zero entry. The catalog case remains Not Run; editing expected text and passing existing unit tests does not complete its browser execution. Latest catalog totals remain 4 Pass and 40 Not Run.
+
 ## Next execution log template
 
 Append one row for each attempted case. Preserve earlier runs when retesting. The `Actual` field must quote an observed status/body or SQL/UI fact, never copy the expected text.
