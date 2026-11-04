@@ -6,6 +6,7 @@ using BranchFlow.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text;
@@ -55,7 +56,7 @@ builder.Services.AddScoped<IDemoSeedService, DemoSeedService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 
-await using IHost host = builder.Build();
+using IHost host = builder.Build();
 await using AsyncServiceScope scope = host.Services.CreateAsyncScope();
 
 string? passwordFromEnvironment = Environment.GetEnvironmentVariable("BRANCHFLOW_DEMO_PASSWORD");
