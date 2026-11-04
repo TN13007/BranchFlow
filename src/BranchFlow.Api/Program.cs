@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using BranchFlow.Application.Services;
 using BranchFlow.Infrastructure.Repositories;
+using BranchFlow.Infrastructure.UnitOfWork;
 using BranchFlow.Api.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddDbContext<BranchFlowDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Đăng ký menu repository và application service.
+// Đăng ký các thành phần dùng chung DbContext theo cùng request scope.
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddSingleton(TimeProvider.System);
