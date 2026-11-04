@@ -88,6 +88,8 @@ After run A, SQL Server 2025 Express `17.0.1000.7` was installed as `.\SQLEXPRES
 
 ## Run 2026-11-03-C: menu API with local SQL fixture
 
+Traceability correction 04/11/2026: the originally recorded local test SHA `c0f5ed58077f12244c4187a8057afda405ea3315` cannot be resolved from the fetched repository. The published menu test source is [cc4d432](https://github.com/TN13007/BranchFlow/commit/cc4d432); the published SQL setup record is [1fb7ea6](https://github.com/TN13007/BranchFlow/commit/1fb7ea6). The original SHA fields below are retained as historical records, not asserted to be reachable or byte-identical to published commits. A new run on the review fix is recorded separately after verification.
+
 The existing `tests/MenuSmoke` runner was expanded in test commit `c0f5ed58077f12244c4187a8057afda405ea3315` and run against `BranchFlow_Test` and the API source at `ca9b56e593278595bcf1de250e222c6f39056439`. It creates uniquely named branch/user/menu/session fixtures, generates test-only password hashes and JWT keys in memory, exercises the real HTTP host and SQL repository, then deletes its own fixtures. The [console evidence](MenuSmokeResult-2026-11-03.txt) shows **34 HTTP status checks**, all Pass, followed by zero remaining branch/product/session fixtures. These 34 checks complete four catalog cases; they are not 34 separate catalog case results.
 
 | Case ID | Expected | Observed actual | Status | Test source commit | Evidence | Bug | Runner |

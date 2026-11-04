@@ -1,6 +1,7 @@
 BranchFlow menu SQL/HTTP smoke
 Date: 2026-11-03 Asia/Ho_Chi_Minh
 Test source commit: c0f5ed58077f12244c4187a8057afda405ea3315
+Traceability correction 2026-11-04: the original local SHA above is not reachable in the fetched repository. Published test source: https://github.com/TN13007/BranchFlow/commit/cc4d432 . Original output is preserved; see TestResults.md for the independent review rerun.
 Database: local .\SQLEXPRESS / BranchFlow_Test
 Command: dotnet run --project tests/MenuSmoke/MenuSmoke.csproj -c Release -- (Get-Location).Path
 Output:
