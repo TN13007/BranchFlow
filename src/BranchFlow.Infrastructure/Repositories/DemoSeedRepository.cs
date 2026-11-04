@@ -48,6 +48,17 @@ public sealed class DemoSeedRepository : IDemoSeedRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    // Không dùng AsNoTracking vì service cần cập nhật PasswordHash của tài khoản demo.
+    public Task<List<AppUser>> GetUsersByUsernamesAsync(
+        IReadOnlyCollection<string> usernames,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.AppUsers
+            .Include(user => user.Role)
+            .Where(user => usernames.Contains(user.Username))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<EmployeeProfile?> GetEmployeeProfileByUserIdAsync(
         int userId,
         CancellationToken cancellationToken = default)
