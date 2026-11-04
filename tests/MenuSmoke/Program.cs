@@ -59,6 +59,9 @@ try
     var toppingAvailable = Add(new BranchTopping { Branch = branch, Topping = topping, IsAvailable = true });
     var notes = Add(new NoteGroup { Name = "Smoke " + suffix, IsActive = true });
     var option = Add(new NoteOption { NoteGroup = notes, Name = "Less sugar", IsActive = true });
+    // Nhóm ghi chú độc lập chứng minh test không giả định DB chỉ chứa fixture chính.
+    var controlNotes = Add(new NoteGroup { Name = "Other notes " + suffix, IsActive = true });
+    var controlOption = Add(new NoteOption { NoteGroup = controlNotes, Name = "Keep visible", IsActive = true });
     await db.SaveChangesAsync();
 
     var start = new ProcessStartInfo("dotnet") { WorkingDirectory = root, UseShellExecute = false,
@@ -98,6 +101,10 @@ try
         if (status >= 400 && (response.Content.Headers.ContentType?.MediaType != "application/problem+json" ||
             json.RootElement.GetProperty("status").GetInt32() != status || !json.RootElement.TryGetProperty("traceId", out _)))
             throw new Exception("Lỗi không đúng ProblemDetails/traceId.");
+        if (status == 200 && !json.RootElement.GetProperty("noteGroups").EnumerateArray().Any(g =>
+            g.GetProperty("id").GetInt32() == controlNotes.Id &&
+            g.GetProperty("options").EnumerateArray().Any(o => o.GetProperty("id").GetInt32() == controlOption.Id)))
+            throw new Exception("Nhóm ghi chú độc lập bị mất khỏi menu.");
         passed++; Console.WriteLine($"PASS HTTP {status} case {passed}");
         return json.RootElement.Clone();
     }
@@ -111,13 +118,14 @@ try
     if (menu.GetProperty("branch").GetProperty("id").GetInt32() != branch.Id ||
         menu.GetProperty("categories").GetArrayLength() != 1 ||
         menu.GetProperty("toppingGroups").GetArrayLength() != 1 ||
-        menu.GetProperty("noteGroups").GetArrayLength() != 1)
+        !menu.GetProperty("noteGroups").EnumerateArray().Any(g => g.GetProperty("id").GetInt32() == notes.Id))
         throw new Exception("Menu không khớp branch/collection của fixture.");
     var sizes = menu.GetProperty("categories")[0].GetProperty("products")[0].GetProperty("productSizes");
     if (sizes[0].GetProperty("id").GetInt32() != productSize.Id || sizes[0].GetProperty("price").GetDecimal() != 30000.50m ||
         menu.GetProperty("categories")[0].GetProperty("products")[0].GetProperty("minPrice").GetDecimal() != 30000.50m ||
         menu.GetProperty("toppingGroups")[0].GetProperty("toppings")[0].GetProperty("maxQuantity").GetInt32() != 3 ||
-        menu.GetProperty("noteGroups")[0].GetProperty("maxSelections").GetInt32() != 1)
+        menu.GetProperty("noteGroups").EnumerateArray().Single(g => g.GetProperty("id").GetInt32() == notes.Id)
+            .GetProperty("maxSelections").GetInt32() != 1)
         throw new Exception("Sai ID/giá/topping trong menu SQL thật.");
     async Task AssertEmptyCategoryAsync()
     {
@@ -134,7 +142,7 @@ try
     async Task AssertEmptyNoteGroupAsync()
     {
         var result = await Check(200, token);
-        if (result.GetProperty("noteGroups").GetArrayLength() != 0)
+        if (result.GetProperty("noteGroups").EnumerateArray().Any(g => g.GetProperty("id").GetInt32() == notes.Id))
             throw new Exception("Note không hợp lệ vẫn hiện trong menu.");
     }
     category.IsActive = false; await db.SaveChangesAsync(); await AssertEmptyCategoryAsync();

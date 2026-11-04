@@ -6,7 +6,7 @@ Updated: 03/11/2026 (Asia/Ho_Chi_Minh)
 
 Version under review: `origin/khang` at `ca9b56e593278595bcf1de250e222c6f39056439`
 
-Review: pending Khang; this document does not assert Jira approval.
+Review update 04/11/2026: Khang delegated the review and corrections to Codex. The document was checked for scope, environments, entry/exit conditions, severity, dependencies and Story/FR-range traceability. The Test Plan document meets SCRUM-87's documentation scope; runtime acceptance remains separate. See Jira SCRUM-87 for the recorded review outcome.
 
 ## Sources and scope
 

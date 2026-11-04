@@ -1,6 +1,7 @@
 BranchFlow local database setup verification
 Date: 2026-11-03 Asia/Ho_Chi_Minh
 Repo commit: 7321fe414382578add8c413f9f1c7e0ef885caf9
+Traceability correction 2026-11-04: the original local SHA above is not reachable in the fetched repository. Published setup evidence: https://github.com/TN13007/BranchFlow/commit/1fb7ea6 . Schema source: https://github.com/TN13007/BranchFlow/commit/2182dc4 . This annotation preserves the original run record; it does not assert the unavailable SHA is byte-identical to either published commit.
 Server: .\SQLEXPRESS (SQL Server 2025 Express 17.0.1000.7)
 Databases: BranchFlow_Dev, BranchFlow_Test
 Scripts: database/001-baseline.sql, database/002-reference-data.sql

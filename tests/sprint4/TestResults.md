@@ -88,6 +88,8 @@ After run A, SQL Server 2025 Express `17.0.1000.7` was installed as `.\SQLEXPRES
 
 ## Run 2026-11-03-C: menu API with local SQL fixture
 
+Traceability correction 04/11/2026: the originally recorded local test SHA `c0f5ed58077f12244c4187a8057afda405ea3315` cannot be resolved from the fetched repository. The published menu test source is [cc4d432](https://github.com/TN13007/BranchFlow/commit/cc4d432); the published SQL setup record is [1fb7ea6](https://github.com/TN13007/BranchFlow/commit/1fb7ea6). The original SHA fields below are retained as historical records, not asserted to be reachable or byte-identical to published commits. A new run on the review fix is recorded separately after verification.
+
 The existing `tests/MenuSmoke` runner was expanded in test commit `c0f5ed58077f12244c4187a8057afda405ea3315` and run against `BranchFlow_Test` and the API source at `ca9b56e593278595bcf1de250e222c6f39056439`. It creates uniquely named branch/user/menu/session fixtures, generates test-only password hashes and JWT keys in memory, exercises the real HTTP host and SQL repository, then deletes its own fixtures. The [console evidence](MenuSmokeResult-2026-11-03.txt) shows **34 HTTP status checks**, all Pass, followed by zero remaining branch/product/session fixtures. These 34 checks complete four catalog cases; they are not 34 separate catalog case results.
 
 | Case ID | Expected | Observed actual | Status | Test source commit | Evidence | Bug | Runner |
@@ -98,6 +100,21 @@ The existing `tests/MenuSmoke` runner was expanded in test commit `c0f5ed58077f1
 | QA-S4-022 | Out-of-scope/nonexistent branch 403; assigned inactive branch 404 | HTTP 403 for both out-of-scope and nonexistent branch; HTTP 404 for assigned branch made inactive/deleted | Pass | `c0f5ed5` | [MenuSmoke output](MenuSmokeResult-2026-11-03.txt) | — | Codex assisting Thuận |
 
 The same runner also observed missing/malformed/expired/revoked JWT as 401, Owner role and wrong branch as 403, and expired/future branch assignment as 403. These are partial evidence for SCRUM-89. QA-S4-015/016 still include create-order actions, so they remain Not Run until the order endpoint exists. Login/refresh/logout and browser session behavior were not exercised. Run A's SQL-readiness row is historical; Run B supersedes it.
+
+## Run 2026-11-04-D: independent review rerun
+
+Runner: Codex assisting Khang, following delegated review of Thuận's QA package. Exact test/API source: [4b0484d2a40ee5d5588fbd172980535248e2c6ab](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Environment: localhost\SQLEXPRESS / BranchFlow_Test, existing schema v1/reference seed plus unique per-run fixture. No auth/order endpoint or browser E2E is inferred from this run.
+
+Build `BranchFlow.slnx -c Release`: 0 warnings, 0 errors. `dotnet test BranchFlow.slnx -c Release --no-build --no-restore`: 23 Passed, 0 Failed, 0 Skipped. The menu runner passed all 34 HTTP checks and cleaned its fixtures. A second active note group and option are created as a control; every 200 response must preserve that unrelated group, while negative note checks target only the fixture group's ID.
+
+| Case ID | Expected | Actual | Status | Evidence |
+|---|---|---|---|---|
+| QA-S4-019 | Menu uses permitted branch, ProductSizeId, DB price, topping max 3 and note max 1 | HTTP 200; fixture branch/ID matched; price 30000.50, topping max 3 and fixture note max 1 matched; control note group retained | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-020 | Inactive/deleted/unavailable fixture entries disappear without hiding unrelated note groups | Each controlled negative HTTP 200 check passed; tested note group absent by ID, control option remained visible; cleanup completed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-021 | Missing/zero/negative/malformed branchId gives 400 ProblemDetails | Four HTTP 400 checks passed with problem+json, status and traceId | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+| QA-S4-022 | Foreign/nonexistent branch gives 403; assigned inactive branch gives 404 | Both 403 checks and assigned inactive/deleted branch 404 checks passed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
+
+QA-S4-024's expected wording now distinguishes a UI decrement to zero (remove topping from payload) from an explicit invalid quantity-zero entry. The catalog case remains Not Run; editing expected text and passing existing unit tests does not complete its browser execution. Latest catalog totals remain 4 Pass and 40 Not Run.
 
 ## Next execution log template
 
