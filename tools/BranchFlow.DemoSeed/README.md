@@ -39,6 +39,20 @@ Khi chạy, nhập một mật khẩu demo dài ít nhất 12 ký tự. Ký tự
 
 Tất cả tài khoản **được tạo mới trong cùng một lần chạy** sẽ dùng mật khẩu vừa nhập. Mật khẩu đã lưu của tài khoản tồn tại không bị thay đổi khi chạy lại. Cần chia sẻ mật khẩu demo cho nhóm qua kênh nội bộ riêng, không qua Git hoặc ảnh chụp màn hình.
 
+## Đặt lại mật khẩu khi không nhớ mật khẩu đã seed
+
+Nếu đã tạo dữ liệu demo nhưng không nhớ mật khẩu, không cần xóa database hoặc chạy lại seed. Dùng chế độ đặt lại mật khẩu:
+
+```powershell
+dotnet run --project tools/BranchFlow.DemoSeed -- --reset-demo-passwords
+```
+
+Công cụ yêu cầu gõ chính xác `RESET` để xác nhận, sau đó nhập mật khẩu mới hai lần. Khi gõ, màn hình hiển thị dấu `*`; phím Backspace cũng xóa dấu tương ứng.
+
+Chế độ này chỉ cập nhật `PasswordHash` của đúng 9 username demo được liệt kê trong bảng phía trên. Công cụ kiểm tra đủ 9 tài khoản và đúng role trước khi lưu trong transaction. Không thay đổi trạng thái tài khoản, chi nhánh, hồ sơ nhân viên hoặc phân công. Nếu xác nhận sai, thiếu tài khoản hoặc sai role, transaction bị hủy.
+
+Lần chạy seed bình thường không thay đổi mật khẩu tài khoản đã tồn tại. Chỉ dùng cờ `--reset-demo-passwords` khi thật sự cần đổi mật khẩu demo.
+
 ## Hành vi an toàn và tính lặp lại
 
 - Chi nhánh được nhận diện bằng `Branch.Code`, role bằng `Role.Code`, tài khoản bằng `Username`; không dùng ID số cố định.
