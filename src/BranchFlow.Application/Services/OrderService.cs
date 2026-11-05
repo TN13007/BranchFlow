@@ -19,6 +19,8 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
         {
             if (input is null || input.Quantity is < 1 or > 999 || input.Toppings is null || input.NoteOptionIds is null || input.Toppings.Count > 100 || input.NoteOptionIds.Count > 100)
                 throw new OrderValidationException("Mỗi dòng phải có từ 1 đến 999 ly và danh sách topping/ghi chú hợp lệ.");
+            if (input.ProductSizeId <= 0)
+                throw new OrderValidationException("ProductSizeId phải là số nguyên dương.");
             var product = menu.Categories.SelectMany(c => c.Products).SingleOrDefault(p => p.ProductSizes.Any(s => s.Id == input.ProductSizeId))
                 ?? throw new OrderValidationException("Món hoặc size không còn được bán tại chi nhánh.");
             var size = product.ProductSizes.Single(s => s.Id == input.ProductSizeId);
@@ -28,7 +30,11 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             HashSet<int> toppingIds = [];
             foreach (var selected in input.Toppings)
             {
-                if (selected is null || selected.Quantity is < 1 or > 3 || !toppingIds.Add(selected.ToppingId))
+                if (selected is null)
+                    throw new OrderValidationException("Topping không được null.");
+                if (selected.ToppingId <= 0)
+                    throw new OrderValidationException("ToppingId phải là số nguyên dương.");
+                if (selected.Quantity is < 1 or > 3 || !toppingIds.Add(selected.ToppingId))
                     throw new OrderValidationException("Mỗi topping chỉ xuất hiện một lần, từ 1 đến 3 phần trên mỗi ly.");
                 var topping = menu.ToppingGroups.SelectMany(g => g.Toppings).SingleOrDefault(t => t.Id == selected.ToppingId)
                     ?? throw new OrderValidationException("Topping không còn được bán tại chi nhánh.");
@@ -40,6 +46,9 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             HashSet<int> noteIds = [], groups = [];
             foreach (var id in input.NoteOptionIds)
             {
+                if (id <= 0)
+                    throw new OrderValidationException("NoteOptionId phải là số nguyên dương.");
+
                 var group = menu.NoteGroups.SingleOrDefault(g => g.Options.Any(o => o.Id == id));
                 if (group is null || group.MaxSelections < 1 || !noteIds.Add(id) || !groups.Add(group.Id))
                     throw new OrderValidationException("Ghi chú không hợp lệ; mỗi nhóm được chọn tối đa một lựa chọn.");
@@ -48,8 +57,19 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             item.SubtotalAmount = checked(cupPrice * input.Quantity);
             items.Add(item);
         }
-        var total = items.Sum(i => i.SubtotalAmount);
-        if (total < 0 || total > 9999999999999999.99m) throw new OrderValidationException("Giá trị đơn vượt giới hạn.");
+        decimal total;
+
+        try{
+            total = items.Aggregate(0m,(current, item) => checked(current + item.SubtotalAmount));
+        }
+        catch (OverflowException){
+            throw new OrderValidationException("Giá trị đơn vượt giới hạn.");
+        }
+
+        if (total < 0 || total > 9999999999999999.99m)
+        {
+            throw new OrderValidationException("Giá trị đơn vượt giới hạn.");
+        }
         return items;
     }
 
@@ -66,9 +86,11 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             var number = await orders.AllocateCodeAsync(request.BranchId, date, ct);
             var menu = await menus.GetMenuByBranchAsync(userId, request.BranchId, ct) ?? throw new OrderBranchUnavailableException();
             var items = PriceItems(menu, request);
+            var total = items.Aggregate(0m,(current, item) => checked(current + item.SubtotalAmount));
+
             var order = new SalesOrder { Code = number.Code, DailySequence = number.Sequence, BranchId = request.BranchId,
                 CreatedByUserId = userId, BusinessDate = date, CreatedAt = now.UtcDateTime, Status = "COMPLETED",
-                TotalAmount = items.Sum(i => i.SubtotalAmount), OrderItems = items };
+                TotalAmount = total, OrderItems = items };
             orders.Add(order);
             await work.SaveChangesAsync(ct);
             await work.CommitTransactionAsync(ct);
