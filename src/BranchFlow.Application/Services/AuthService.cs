@@ -69,7 +69,7 @@ public sealed class AuthService : IAuthService
             username.Trim(),
             cancellationToken);
 
-        if (user is null)
+        if (user is null || !IsSupportedRole(user.RoleCode))
         {
             return null;
         }
@@ -193,7 +193,10 @@ public sealed class AuthService : IAuthService
                 return null;
             }
 
-            if (!user.IsActive || user.Deleted || user.Role.Deleted)
+            if (!user.IsActive ||
+                user.Deleted ||
+                user.Role.Deleted ||
+                !IsSupportedRole(user.Role.Code))
             {
                 await _repository.RevokeSessionAsync(
                     session.Id,
@@ -324,6 +327,11 @@ public sealed class AuthService : IAuthService
             signingCredentials);
 
         return new JwtSecurityTokenHandler().WriteToken(jwt);
+    }
+
+    private static bool IsSupportedRole(string roleCode)
+    {
+        return roleCode is "OWNER" or "SYSTEM_ADMIN" or "BRANCH_ADMIN" or "EMPLOYEE";
     }
 
     private static DateTimeOffset GetAccessTokenExpiry(
