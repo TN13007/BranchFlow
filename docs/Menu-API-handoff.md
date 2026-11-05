@@ -14,7 +14,15 @@ dotnet user-secrets set 'Jwt:Issuer' 'BranchFlow.Api' --project src/BranchFlow.A
 dotnet user-secrets set 'Jwt:Audience' 'BranchFlow.Web' --project src/BranchFlow.Api
 ```
 
-Chỉ tạo key khi máy chưa có cấu hình; thay key làm token hiện có mất hiệu lực. Mỗi máy local có thể dùng key riêng. Thuần dùng cùng ba cấu hình này và các claim trên khi hoàn thiện login/refresh/logout; không thêm một bộ JWT middleware thứ hai. Chưa có endpoint phát token trong thay đổi này. Production phải cấp cấu hình môi trường riêng.
+Chỉ tạo key khi máy chưa có cấu hình; thay key làm token hiện có mất hiệu lực. Mỗi máy local có thể dùng key riêng. Thuần dùng cùng ba cấu hình này và các claim trên khi hoàn thiện login/refresh/logout; không thêm một bộ JWT middleware thứ hai. API login/refresh được triển khai theo contract Sprint 4:
+- POST `/api/auth/login`, body `{ "username": "...", "password": "..." }`; username được trim, password giữ nguyên. Thiếu trường bắt buộc trả 400; thông tin sai hoặc tài khoản khóa/xóa trả cùng lỗi 401.
+- POST `/api/auth/refresh`, body `{ "refreshToken": "..." }`; endpoint không yêu cầu access JWT. Token sai, hết hạn, bị thu hồi hoặc session không còn hiệu lực trả lỗi 401 chung.
+- Login giới hạn 5 lần/phút/IP; vượt giới hạn trả 429 và `Retry-After`.
+- Login và refresh trả `Cache-Control: no-store`. Không ghi access token, refresh token, token hash hoặc JWT key vào log.
+- Access JWT có thời hạn 15 phút và claim `sub`, `sid`, `role`. Refresh token được sinh ngẫu nhiên; SQL chỉ lưu SHA-256 hash (64 ký tự hex).
+- Session có thời hạn tuyệt đối 7 ngày từ lúc login. Token refresh mới giữ nguyên `AuthSession.ExpiresAt`, không kéo dài session. Refresh token cũ chỉ dùng một lần; reuse sẽ thu hồi session và làm access JWT thuộc session đó bị middleware từ chối.
+
+Production phải cấp cấu hình môi trường riêng.
 
 ## Flow và kiểm tra
 
