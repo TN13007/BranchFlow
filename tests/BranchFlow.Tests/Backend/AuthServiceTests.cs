@@ -144,6 +144,51 @@ public sealed class AuthServiceTests
     }
 
     [Fact]
+    public async Task LoginForUnknownUserDoesNotCreateSession()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetActiveUserByUsernameAsync("missing.user", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AuthUserData?)null);
+
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        TokenPair? result = await service.LoginAsync("missing.user", "Some-Password-2026!");
+
+        Assert.Null(result);
+        unitOfWork.Verify(unit => unit.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        repository.Verify(repo => repo.AddSession(It.IsAny<AuthSession>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ExpiredRefreshTokenCannotBeRotated()
+    {
+        const string oldRawToken = "expired-refresh-token";
+        RefreshToken oldToken = CreateRefreshToken(oldRawToken, FixedNow.UtcDateTime);
+        oldToken.ExpiresAt = FixedNow.AddMinutes(-1).UtcDateTime;
+
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetRefreshTokenByHashAsync(HashRefreshToken(oldRawToken), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(oldToken);
+
+        Mock<IUnitOfWork> unitOfWork = CreateUnitOfWork();
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        TokenPair? result = await service.RefreshAsync(oldRawToken);
+
+        Assert.Null(result);
+        unitOfWork.Verify(unit => unit.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        repository.Verify(repo => repo.TryMarkRefreshTokenUsedAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<byte[]>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task ReusingRefreshTokenRevokesItsSession()
     {
         const string oldRawToken = "already-used-refresh-token";
