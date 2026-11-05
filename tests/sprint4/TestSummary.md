@@ -1,23 +1,23 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 04/11/2026 (Asia/Ho_Chi_Minh). Original candidate source: `ca9b56e593278595bcf1de250e222c6f39056439`. Review rerun source: [4b0484d](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Khang delegated review/corrections to Codex; documentation review is complete, runtime Sprint acceptance remains pending.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Original candidate source: `ca9b56e593278595bcf1de250e222c6f39056439`. Review rerun source: [4b0484d](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Current integrated API source: `d66121fc5c17b9b6bc909ce540ca7661ecefb4d5`; current cart QA test source: `b59a1df` on `Thuanaj`. Khang delegated review/corrections to Codex; documentation review is complete, runtime Sprint acceptance remains pending.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
-| 44 | 4 | 0 | 0 | 40 | 0 |
+| 44 | 5 | 0 | 0 | 39 | 0 |
 
-Counts use the initial 44-row catalog and the latest observed runs in [TestResults.md](TestResults.md): QA-S4-019–022 passed with a real local SQL/HTTP fixture; 40 cases have not run. The menu runner reported 34 passing HTTP checks, which map to those four catalog cases plus partial auth evidence. The repository xUnit suite ran **23/23 Pass** on the inspected commit, including a local TRX run, and solution build passed after restore. Those 23 tests are a separate baseline observation and are not added to the 44 Sprint QA case count.
+Counts use the 44-row catalog and the latest observed runs in [TestResults.md](TestResults.md): QA-S4-019–022 passed with a real local SQL/HTTP fixture, and QA-S4-023 passed with the integrated Web cart unit fixture. The menu runner's 34 HTTP checks map to four catalog cases; the current full xUnit suite passed **26/26**, including the named QA-S4-023 unit test. QA-S4-024's unit portion passed but its UI step has not run, so it remains Not Run. The 13 auth passes on an unmerged feature branch are recorded separately and excluded from these integrated counts.
 
 ## Current assessment
 
-**Not ready for Sprint 4 demo acceptance on the inspected commit.** The local Dev/Test SQL databases have a verified baseline and reference seed, and the menu API has four passing catalog cases on a temporary SQL fixture. Auth and order API and a repeatable demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. No runtime defect is confirmed, and no bug has been closed or retested.
+**Not ready for Sprint 4 demo acceptance on the integrated candidate.** The local Dev/Test SQL databases have a verified baseline and reference seed, the menu API has four passing catalog cases on a temporary SQL fixture, and the Web cart has one passing unit case. Auth and order API and a repeatable demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. No runtime defect is confirmed, and no bug has been closed or retested.
 
 | Workstream | Evidence available | Remaining gate |
 |---|---|---|
-| SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md), reviewed 04/11 | Documentation scope complete; runtime tests are separate tasks |
-| SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet; UI quantity-zero expected corrected | Documentation scope complete; resolve actual seed IDs before runtime execution |
-| SCRUM-89 Auth/permissions | [Menu smoke](MenuSmokeResult-2026-11-03.txt) gives partial JWT/role/branch evidence | BE1 login/refresh/logout/me/accessible API and seed; FE browser integration |
-| SCRUM-90 Price/validation/persistence | Existing 23-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
+| SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md), reviewed 04/11; Jira Done | Documentation scope complete; runtime tests are separate tasks |
+| SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet; UI quantity-zero expected corrected; Jira Done | Documentation scope complete; resolve actual seed IDs before runtime execution |
+| SCRUM-89 Auth/permissions | [Preliminary auth SQL/HTTP run](AuthSmokeResult-2026-11-05.txt): 13 case passes on feature source `6e603d9` | Merge auth into current main; rerun on integrated build; expiry fixture and browser integration |
+| SCRUM-90 Price/validation/persistence | Current 24-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
 | SCRUM-91 E2E | Case definitions QA-S4-043/044 | Integrated FE/API/DB, same-code UI/API/SQL evidence |
 | SCRUM-92 Retest/summary | This summary and [BugLog.md](BugLog.md) | Fix commits and original-case retests; release-candidate smoke |
 
@@ -29,8 +29,8 @@ Counts use the initial 44-row catalog and the latest observed runs in [TestResul
 
 ## Evidence link checklist before handoff
 
-- [ ] PR/commit link for this QA package opens for Khang; local paths alone are not shared evidence.
-- [ ] Jira SCRUM-87/88 link the reviewed plan/cases; reviewer comment is recorded.
+- [x] [PR #12](https://github.com/TN13007/BranchFlow/pull/12) and published QA commits are linked for Khang's review.
+- [x] Jira SCRUM-87/88 link the reviewed plan/cases and are Done after the 04/11 review.
 - [ ] SCRUM-89/90/91 results cite exact FE/API SHAs, DB schema/seed, date, expected/actual and redacted evidence.
 - [ ] Every bug links its failing case, owner, fix SHA and actual retest on that SHA.
 - [ ] Final counts are recalculated from latest relevant case runs; demo readiness is reviewed by Khang.
@@ -40,3 +40,15 @@ The original local preparation did not update Jira. Review follow-up on 04/11 re
 ## Review verification 04/11/2026
 
 Build Release: 0 warnings, 0 errors; 23 xUnit tests passed; [34 SQL/HTTP checks passed](MenuSmokeResult-2026-11-04.txt), with per-run fixture cleanup. Four catalog cases QA-S4-019–022 remain Pass, 40 remain Not Run. The revised smoke verifies a separate active note group remains visible while only the tested group's ID disappears. This validates fixture isolation, not completion of auth/order/E2E gates. Historical unavailable SHA values are retained with a traceability correction and links to published source; the new run pins an accessible test/API commit.
+
+## Integration check 05/11/2026
+
+`origin/main` at `d66121f` was fast-forwarded into `Thuanaj` and pushed. The [new run](MainSyncResult-2026-11-05.txt) passed 24/24 xUnit tests, built the API with 0 warnings/errors, and passed all 34 menu SQL/HTTP checks after building the API DLL in this worktree. The four menu catalog cases remain Pass; 40 cases remain Not Run. The current integrated API has no auth or create-order controller. A separate auth feature branch at `6e603d9` passes 55/55 xUnit tests and builds, but is not part of this integrated candidate; direct auth HTTP and order/E2E acceptance still await integration and fixtures.
+
+## Preliminary auth execution 05/11/2026
+
+The [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` exercised the API at feature SHA `6e603d9` with live local SQL/HTTP, then cleaned all fixture users and branches. [Run evidence](AuthSmokeResult-2026-11-05.txt) records **13/13 Pass, 0 Fail** for QA-S4-001–012 and 014. This is useful evidence for BE1 review but is excluded from the integrated Pass count. QA-S4-013 still needs natural TTL expiry; 015–016 need create-order actions; 017–018 need browser integration. Rerun the 13 cases on the combined release candidate before changing their integrated statuses.
+
+## Cart unit execution 05/11/2026
+
+On integrated `Thuanaj` test source `b59a1df`, the [named cart tests](CartUnitResult-2026-11-05.txt) and full 26/26 xUnit suite passed. QA-S4-023 is now Pass: 98,000 for two cups, 49,000 after editing the selected line to one cup, with the other line unchanged and removal isolated. QA-S4-024's invalid explicit topping/note and accepted quantities 1–3 passed at unit level, but the UI decrement-to-zero step remains unrun; the case remains Not Run. Current integrated totals are **5 Pass / 39 Not Run**.

@@ -1,6 +1,6 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 03/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. No Sprint 4 case is marked Pass from source inspection or from a mock test.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. No Sprint 4 case is marked Pass from source inspection or from a mock test.
 
 ## Run 2026-11-03-A: current integrated branch preflight
 
@@ -115,6 +115,45 @@ Build `BranchFlow.slnx -c Release`: 0 warnings, 0 errors. `dotnet test BranchFlo
 | QA-S4-022 | Foreign/nonexistent branch gives 403; assigned inactive branch gives 404 | Both 403 checks and assigned inactive/deleted branch 404 checks passed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
 
 QA-S4-024's expected wording now distinguishes a UI decrement to zero (remove topping from payload) from an explicit invalid quantity-zero entry. The catalog case remains Not Run; editing expected text and passing existing unit tests does not complete its browser execution. Latest catalog totals remain 4 Pass and 40 Not Run.
+
+## Run 2026-11-05-E: main synced into Thuanaj
+
+`Thuanaj` fast-forwarded to `origin/main` at `d66121fc5c17b9b6bc909ce540ca7661ecefb4d5` and was pushed. On this integrated source, the Release solution test run passed **24/24** xUnit tests. After building the API project (0 warnings, 0 errors), the menu SQL/HTTP runner passed **34/34** checks and cleaned its fixtures. The first menu attempt stopped before HTTP checks because the API DLL was absent from this worktree; it was a build setup issue, and the runner cleaned its fixture. Commands and observed results are in [MainSyncResult-2026-11-05.txt](MainSyncResult-2026-11-05.txt).
+
+The latest menu run reconfirms QA-S4-019–022 as Pass. No additional catalog case was completed, so the latest total remains **4 Pass / 40 Not Run**. The integrated source still has no auth or create-order controller. An isolated read-only check of `origin/feat/scrum-73-auth-logout` at `6e603d9` built its API and passed 55/55 xUnit tests; that feature branch is not merged with current `main`, and no direct HTTP auth case was run or marked Pass from it.
+
+## Run 2026-11-05-F: auth feature branch preliminary SQL/HTTP execution
+
+The committed [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` launched API source `6e603d9` from `origin/feat/scrum-73-auth-logout` against local `BranchFlow_Test` with unique test-only users, branches, assignments, random passwords and signing key. It restarted the host between cases to isolate the login limiter, observed live HTTP responses and SQL session/refresh state, and deleted its fixtures. The [redacted console log](AuthSmokeResult-2026-11-05.txt) records **13/13 catalog cases Pass, 0 Fail**, exit code 0, and zero remaining test users/branches. No token, password, hash or key value was printed.
+
+| Case ID | Expected and observed actual on feature source `6e603d9` | Feature result | Integrated `Thuanaj` status |
+|---|---|---|---|
+| QA-S4-001 | Valid login HTTP 200 with pair/UTC expiries and no-store; one SQL session created | Pass | Not Run |
+| QA-S4-002 | Wrong password and nonexistent user both HTTP 401 with same generic detail; no session created | Pass | Not Run |
+| QA-S4-003 | Inactive locked user HTTP 401 with no-store | Pass | Not Run |
+| QA-S4-004 | Missing username/password and whitespace username each HTTP 400 ProblemDetails; no session | Pass | Not Run |
+| QA-S4-005 | Sixth invalid login in one minute HTTP 429 with Retry-After 60 and no-store | Pass | Not Run |
+| QA-S4-006 | Missing, malformed and expired access JWT each HTTP 401 ProblemDetails with traceId | Pass | Not Run |
+| QA-S4-007 | Refresh HTTP 200/no-store rotates pair; new access works at `/api/auth/me`; expiry bounded by original session | Pass | Not Run |
+| QA-S4-008 | Old refresh reuse HTTP 401; rotated access then HTTP 401 under reuse revocation policy | Pass | Not Run |
+| QA-S4-009 | Two concurrent refresh calls yielded one HTTP 200 and one HTTP 401; SQL session has exactly initial and one descendant token | Pass | Not Run |
+| QA-S4-010 | Logout HTTP 204/no-store; old access and refresh HTTP 401; SQL session revoked | Pass | Not Run |
+| QA-S4-011 | Logout of session 1 left session 2 `/me` HTTP 200 and refresh HTTP 200 | Pass | Not Run |
+| QA-S4-012 | Locking the fixture user after login made `/me` and refresh HTTP 401; fixture restored | Pass | Not Run |
+| QA-S4-014 | Owner, System Admin, Branch Admin and Employee `/me` HTTP 200 with DB role; branch lists matched full active scope and omitted inactive/deleted branches | Pass | Not Run |
+
+This run is **preliminary** because the auth feature source is not merged with current `main`/`Thuanaj`. It does not change the integrated candidate's 4 Pass / 40 Not Run count. QA-S4-013 still needs a short-lived TTL fixture and observed natural expiry; QA-S4-015/016 also require create-order actions; QA-S4-017/018 require browser integration. Rerun these 13 cases on the release candidate before recording integrated Pass.
+
+## Run 2026-11-05-G: integrated cart unit acceptance
+
+On `Thuanaj` source `b59a1df`, the full Release xUnit suite passed **26/26**. The filtered [named test output](CartUnitResult-2026-11-05.txt) passed both new cart tests with the `PreviewMenu.Create()` fixture; no SQL or live API was involved.
+
+| Case ID | Expected | Observed actual | Integrated status | Source | Evidence |
+|---|---|---|---|---|---|
+| QA-S4-023 | Two cups with T1×3 and T2×1 per cup preview 98,000; edit selected line to one cup previews 49,000; other line unchanged; remove selected line | xUnit passed: first line 98,000, selected line 49,000 after edit, second line 38,000 unchanged, cart 87,000, then only second line remained at 38,000 | Pass | `b59a1df` | [Cart unit output](CartUnitResult-2026-11-05.txt) |
+| QA-S4-024 | Reject invalid explicit topping/note states and preserve cart; accept topping quantities 1–3; UI decrement 1→0 removes topping from payload | xUnit passed invalid 0/4/duplicate/same-group checks, preserved 98,000 cart, and accepted quantities 1–3. UI decrement behavior was not run | Not Run (unit portion passed) | `b59a1df` | [Cart unit output](CartUnitResult-2026-11-05.txt) |
+
+The latest integrated total is **5 Pass / 39 Not Run**. The preliminary auth feature results in run F remain outside this count.
 
 ## Next execution log template
 
