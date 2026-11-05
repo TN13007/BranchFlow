@@ -295,6 +295,82 @@ public sealed class AuthServiceTests
         unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task RevokedSessionOrRefreshTokenCannotBeRotated(
+        bool revokeSession,
+        bool revokeRefreshToken)
+    {
+        const string oldRawToken = "revoked-refresh-token";
+        RefreshToken oldToken = CreateRefreshToken(oldRawToken, FixedNow.UtcDateTime);
+        if (revokeSession)
+        {
+            oldToken.Session.RevokedAt = FixedNow.AddMinutes(-1).UtcDateTime;
+        }
+
+        if (revokeRefreshToken)
+        {
+            oldToken.RevokedAt = FixedNow.AddMinutes(-1).UtcDateTime;
+        }
+
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetRefreshTokenByHashAsync(HashRefreshToken(oldRawToken), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(oldToken);
+
+        Mock<IUnitOfWork> unitOfWork = CreateUnitOfWork();
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        TokenPair? result = await service.RefreshAsync(oldRawToken);
+
+        Assert.Null(result);
+        unitOfWork.Verify(unit => unit.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        repository.Verify(repo => repo.TryMarkRefreshTokenUsedAsync(
+            It.IsAny<Guid>(),
+            It.IsAny<byte[]>(),
+            It.IsAny<DateTime>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    public async Task DeletedUserOrRoleCannotRefreshAndItsSessionIsRevoked(
+        bool deleteUser,
+        bool deleteRole)
+    {
+        const string oldRawToken = "deleted-user-refresh-token";
+        RefreshToken oldToken = CreateRefreshToken(oldRawToken, FixedNow.UtcDateTime);
+        oldToken.Session.User.Deleted = deleteUser;
+        oldToken.Session.User.Role.Deleted = deleteRole;
+
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetRefreshTokenByHashAsync(HashRefreshToken(oldRawToken), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(oldToken);
+        repository
+            .Setup(repo => repo.RevokeSessionAsync(
+                oldToken.SessionId,
+                FixedNow.UtcDateTime,
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IUnitOfWork> unitOfWork = CreateUnitOfWork();
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        TokenPair? result = await service.RefreshAsync(oldRawToken);
+
+        Assert.Null(result);
+        repository.Verify(repo => repo.RevokeSessionAsync(
+            oldToken.SessionId,
+            FixedNow.UtcDateTime,
+            It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static Mock<IUnitOfWork> CreateUnitOfWork()
     {
         Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
