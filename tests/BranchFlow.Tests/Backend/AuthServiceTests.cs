@@ -371,6 +371,47 @@ public sealed class AuthServiceTests
         unitOfWork.Verify(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task GetCurrentUserReturnsActiveUserIdentityWithoutPasswordData()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(42, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthCurrentUserData(42, "demo.employee.a", "EMPLOYEE"));
+
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        CurrentUser? result = await service.GetCurrentUserAsync(42);
+
+        Assert.Equal(new CurrentUser(42, "demo.employee.a", "EMPLOYEE"), result);
+        repository.VerifyAll();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserReturnsNullForMissingOrUnsupportedUser()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(42, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AuthCurrentUserData?)null);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(43, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthCurrentUserData(43, "legacy.user", "ADMIN"));
+
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        CurrentUser? missingUser = await service.GetCurrentUserAsync(42);
+        CurrentUser? unsupportedRole = await service.GetCurrentUserAsync(43);
+
+        Assert.Null(missingUser);
+        Assert.Null(unsupportedRole);
+        repository.VerifyAll();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
     private static Mock<IUnitOfWork> CreateUnitOfWork()
     {
         Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
