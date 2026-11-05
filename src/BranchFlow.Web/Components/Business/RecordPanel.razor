@@ -1,0 +1,13 @@
+<section class="business-panel" aria-label="@Title">
+    <div class="panel-heading"><h2>@Title</h2><span class="business-status">Chờ dữ liệu</span></div>
+    <div class="business-toolbar"><label class="search-control"><span class="visually-hidden">Tìm @Title</span><input type="search" placeholder="Tìm kiếm" disabled /></label><span class="muted">@Scope</span></div>
+    <div class="business-table-wrap"><table class="business-table"><thead><tr>@foreach (var column in Columns) { <th>@column</th> }</tr></thead><tbody></tbody></table></div>
+    <div class="business-empty" role="status"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><h3>Chưa có dữ liệu</h3><p>@Description</p></div>
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Danh sách";
+    [Parameter] public string Scope { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "Chức năng đang chờ kết nối API.";
+    [Parameter] public string[] Columns { get; set; } = [];
+}
