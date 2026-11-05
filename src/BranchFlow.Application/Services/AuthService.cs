@@ -54,6 +54,27 @@ public sealed class AuthService : IAuthService
         _signingKey = Encoding.UTF8.GetBytes(tokenSettings.Key);
     }
 
+    public async Task<CurrentUser?> GetCurrentUserAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0)
+        {
+            return null;
+        }
+
+        AuthCurrentUserData? user = await _repository.GetActiveUserByIdAsync(
+            userId,
+            cancellationToken);
+
+        if (user is null || !IsSupportedRole(user.RoleCode))
+        {
+            return null;
+        }
+
+        return new CurrentUser(user.Id, user.Username, user.RoleCode);
+    }
+
     // Kiểm tra thông tin đăng nhập trước, sau đó tạo session và refresh token trong một transaction.
     public async Task<TokenPair?> LoginAsync(
         string username,
