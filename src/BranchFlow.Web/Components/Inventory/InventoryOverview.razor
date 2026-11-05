@@ -1,0 +1,47 @@
+@using BranchFlow.Web.Models.Inventory
+@using System.Globalization
+
+<div class="inventory-summary">
+    <article><span class="metric-icon"><img src="/images/christmas/icons/icon-box.svg" alt="" /></span><div><span>Nguyên liệu</span><strong>@(Items is null ? "—" : Items.Count.ToString())</strong></div></article>
+    <article><span class="metric-icon warning"><img src="/images/christmas/icons/icon-alert.svg" alt="" /></span><div><span>Dưới ngưỡng</span><strong>@(Items is null ? "—" : Items.Count(item => item.IsLow).ToString())</strong></div></article>
+    <article><span class="metric-icon"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /></span><div><span>Cập nhật</span><strong class="metric-small">@(LastUpdated ?? "Chưa có dữ liệu")</strong></div></article>
+</div>
+<section class="business-panel inventory-panel" aria-labelledby="inventory-title">
+    <div class="panel-heading"><div><p class="section-kicker">TỒN KHO</p><h2 id="inventory-title">Nguyên liệu</h2></div><span class="muted">@ScopeLabel</span></div>
+    <div class="business-toolbar">
+        <label class="search-control"><span class="visually-hidden">Tìm nguyên liệu</span><input type="search" placeholder="Tìm mã, tên nguyên liệu" @bind="keyword" @bind:event="oninput" disabled="@(Items is null)" /></label>
+        <label><span class="visually-hidden">Lọc trạng thái tồn</span><select @bind="state" disabled="@(Items is null)"><option value="all">Tất cả trạng thái</option><option value="low">Dưới ngưỡng</option><option value="ready">Đủ hàng</option></select></label>
+        <span class="table-count">@(Items is null ? "Chờ dữ liệu" : $"{Filtered.Count()} nguyên liệu")</span>
+    </div>
+    <div class="business-table-wrap">
+        <table class="business-table inventory-table">
+            <thead><tr><th>Nguyên liệu</th><th class="num">Tồn hiện tại</th><th class="num">Ngưỡng cảnh báo</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+                @foreach (var item in Filtered)
+                {
+                    <tr @key="item.Id">
+                        <td data-label="Nguyên liệu"><div class="ingredient-cell"><span class="ingredient-icon" aria-hidden="true">@(string.IsNullOrWhiteSpace(item.Name) ? "NL" : item.Name[..1])</span><div><strong>@item.Name</strong><small>@item.Code · @item.Unit</small></div></div></td>
+                        <td data-label="Tồn hiện tại" class="num"><strong>@Number(item.Quantity) @item.Unit</strong></td>
+                        <td data-label="Ngưỡng cảnh báo" class="num">@(item.AlertThreshold.HasValue ? $"{Number(item.AlertThreshold.Value)} {item.Unit}" : "Chưa đặt")</td>
+                        <td data-label="Trạng thái"><span class="business-status @(item.IsLow ? "warning" : "success")">@(item.IsLow ? "! Dưới ngưỡng" : "✓ Đủ hàng")</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Filtered.Any())
+    {
+        <div class="business-empty" role="status"><img src="/images/christmas/icons/icon-box.svg" alt="" /><h3>@(Items is null ? "Chưa có dữ liệu tồn kho" : keyword.Length > 0 || state != "all" ? "Không tìm thấy nguyên liệu" : "Kho chưa có nguyên liệu")</h3><p>@(Items is null ? "Dữ liệu sẽ hiển thị khi API kho được kết nối." : "Thử đổi bộ lọc hoặc kiểm tra lại danh mục.")</p></div>
+    }
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<InventoryBalance>? Items { get; set; }
+    [Parameter] public string ScopeLabel { get; set; } = "Chi nhánh hiện tại";
+    private string keyword = "", state = "all";
+    private IEnumerable<InventoryBalance> Filtered => (Items ?? []).Where(item =>
+        (string.IsNullOrWhiteSpace(keyword) || item.Name.Contains(keyword.Trim(), StringComparison.OrdinalIgnoreCase) || item.Code.Contains(keyword.Trim(), StringComparison.OrdinalIgnoreCase)) &&
+        (state == "all" || (state == "low" ? item.IsLow : !item.IsLow)));
+    private string? LastUpdated => Items?.MaxBy(item => item.UpdatedAt)?.UpdatedAt is { } updated ? updated.ToOffset(TimeSpan.FromHours(7)).ToString("dd/MM HH:mm") : null;
+    private static string Number(decimal value) => value.ToString("N2", CultureInfo.GetCultureInfo("vi-VN"));
+}
