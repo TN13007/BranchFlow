@@ -1,12 +1,18 @@
-# Run 2026-11-05-I: bản demo tích hợp PR 26/27
-
-Kết quả và phạm vi từng nhóm ca: [FinalDemoAssessment-2026-11-05.md](FinalDemoAssessment-2026-11-05.md). Order 101 API/SQL checks, auth 13 ca, menu 34 checks; UI tạo đơn BF-DEMO-01-20261105-0002, 98.000đ và SQL cùng mã. 39 Pass / 5 Not Run. Các lần H và trước đó dưới đây được giữ để truy vết lịch sử.
-
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. Source inspection or mock tests do not establish runtime API/SQL/browser acceptance; unit-only results are explicitly labeled.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current integrated candidate: `b24905a` on `Thuanaj`. Latest catalog result: **39 Pass / 5 Not Run**, with no Fail, Blocked or Skipped.
 
-Current execution is run H below: merged base `2128070` plus review fixes. Older runs A–G are historical, not the present candidate. QA-S4-023 is explicitly a cart-unit result; browser-dependent cases remain Not Run.
+## Run 2026-11-05-J: independent automated rerun on Thuanaj
+
+After fast-forwarding `origin/main` into `Thuanaj`, [the rerun record](ThuanajRerun-2026-11-05.txt) confirms Release build 0 warnings/errors, 65/65 unit tests, auth 13/13 catalog cases, menu 34/34 checks and order 101/101 checks on local `BranchFlow_Test`; each smoke runner cleaned its fixture. This independently verifies the automated parts of run I on the branch now pushed for Thuận. The browser/SQL demo evidence below was produced by Khang's agent and was not rerun here. QA-S4-013, 017, 026, 041 and 044 remain Not Run.
+
+## Run 2026-11-05-I: integrated PR 26/27 demo
+
+Case scope and outcomes: [FinalDemoAssessment-2026-11-05.md](FinalDemoAssessment-2026-11-05.md). Order 101 API/SQL checks, auth 13 catalog cases, menu 34 checks; the browser created order BF-DEMO-01-20261105-0002 for 98,000đ and SQL held the same code. 39 Pass / 5 Not Run. Run H and earlier remain below for history.
+
+## Historical integrated review at run H
+
+Run H's source was merged base `2128070` plus review fixes. Its 18 Pass / 26 Not Run count was superseded by runs I–J above. QA-S4-023 was explicitly a cart-unit result at that point.
 
 ## Run 2026-11-05-H: integrated review and menu regression retest
 
