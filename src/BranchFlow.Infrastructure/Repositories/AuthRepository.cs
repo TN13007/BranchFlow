@@ -43,6 +43,127 @@ public sealed class AuthRepository : IAuthRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+
+    // Chỉ trả về thông tin cơ bản của người dùng hiện tại; không đưa password hash vào DTO.
+    public Task<AuthCurrentUserData?> GetActiveUserByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0)
+        {
+            return Task.FromResult<AuthCurrentUserData?>(null);
+        }
+
+        return _context.AppUsers
+            .AsNoTracking()
+            .Where(user =>
+                user.Id == userId &&
+                user.IsActive &&
+                !user.Deleted &&
+                !user.Role.Deleted)
+            .Select(user => new AuthCurrentUserData(
+                user.Id,
+                user.Username,
+                user.Role.Code))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    // Read the complete refresh-token/session/user state without tracking it.
+    public Task<RefreshToken?> GetRefreshTokenByHashAsync(
+        string tokenHash,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.RefreshTokens
+            .AsNoTracking()
+            .Include(refreshToken => refreshToken.Session)
+                .ThenInclude(session => session.User)
+                    .ThenInclude(user => user.Role)
+            .FirstOrDefaultAsync(
+                refreshToken => refreshToken.TokenHash == tokenHash,
+                cancellationToken);
+    }
+
+    // UsedAt and RowVersion form the atomic one-time-use guard for refresh rotation.
+    public async Task<bool> TryMarkRefreshTokenUsedAsync(
+        Guid refreshTokenId,
+        byte[] expectedRowVersion,
+        DateTime usedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        int affectedRows = await _context.RefreshTokens
+            .Where(refreshToken =>
+                refreshToken.Id == refreshTokenId &&
+                refreshToken.UsedAt == null &&
+                refreshToken.RevokedAt == null &&
+                refreshToken.ExpiresAt > usedAtUtc &&
+                refreshToken.RowVersion == expectedRowVersion)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(refreshToken => refreshToken.UsedAt, usedAtUtc),
+                cancellationToken);
+
+        return affectedRows == 1;
+    }
+
+    public async Task RevokeSessionAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        await _context.AuthSessions
+            .Where(session => session.Id == sessionId && session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+    }
+
+    public async Task<bool> RevokeCurrentSessionAsync(
+        Guid sessionId,
+        int userId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        int affectedSessions = await _context.AuthSessions
+            .Where(session =>
+                session.Id == sessionId &&
+                session.UserId == userId &&
+                session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+
+        if (affectedSessions != 1)
+        {
+            return false;
+        }
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+        return true;
+    }
+
+    private async Task RevokeRefreshTokensAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken)
+    {
+        await _context.RefreshTokens
+            .Where(token => token.SessionId == sessionId && token.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(token => token.RevokedAt, revokedAtUtc),
+                cancellationToken);
+    }
+
+    public void AddSession(AuthSession session)
+    {
+        _context.AuthSessions.Add(session);
+    }
+
+    public void AddRefreshToken(RefreshToken refreshToken)
+    {
+        _context.RefreshTokens.Add(refreshToken);
+    }
+
     // Trả về các chi nhánh mà tài khoản đang có quyền truy cập tại thời điểm UTC hiện tại.
     public async Task<IReadOnlyList<AccessibleBranchData>> GetAccessibleBranchesAsync(
         int userId,
