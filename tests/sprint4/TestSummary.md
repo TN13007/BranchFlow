@@ -16,7 +16,7 @@ Counts use the initial 44-row catalog and the latest observed runs in [TestResul
 |---|---|---|
 | SCRUM-87 Test Plan | [TestPlan.md](TestPlan.md), reviewed 04/11; Jira Done | Documentation scope complete; runtime tests are separate tasks |
 | SCRUM-88 Cases / expected | [TestCases.md](TestCases.md), independent 98,000 worksheet; UI quantity-zero expected corrected; Jira Done | Documentation scope complete; resolve actual seed IDs before runtime execution |
-| SCRUM-89 Auth/permissions | [Menu smoke](MenuSmokeResult-2026-11-03.txt) gives partial JWT/role/branch evidence | BE1 login/refresh/logout/me/accessible API and seed; FE browser integration |
+| SCRUM-89 Auth/permissions | [Preliminary auth SQL/HTTP run](AuthSmokeResult-2026-11-05.txt): 13 case passes on feature source `6e603d9` | Merge auth into current main; rerun on integrated build; expiry fixture and browser integration |
 | SCRUM-90 Price/validation/persistence | Current 24-test baseline and [SQL baseline verification](DatabaseSetupResult-2026-11-03.txt) | BE2 order service/API and demo seed; HTTP 400 and order transaction results |
 | SCRUM-91 E2E | Case definitions QA-S4-043/044 | Integrated FE/API/DB, same-code UI/API/SQL evidence |
 | SCRUM-92 Retest/summary | This summary and [BugLog.md](BugLog.md) | Fix commits and original-case retests; release-candidate smoke |
@@ -44,3 +44,7 @@ Build Release: 0 warnings, 0 errors; 23 xUnit tests passed; [34 SQL/HTTP checks 
 ## Integration check 05/11/2026
 
 `origin/main` at `d66121f` was fast-forwarded into `Thuanaj` and pushed. The [new run](MainSyncResult-2026-11-05.txt) passed 24/24 xUnit tests, built the API with 0 warnings/errors, and passed all 34 menu SQL/HTTP checks after building the API DLL in this worktree. The four menu catalog cases remain Pass; 40 cases remain Not Run. The current integrated API has no auth or create-order controller. A separate auth feature branch at `6e603d9` passes 55/55 xUnit tests and builds, but is not part of this integrated candidate; direct auth HTTP and order/E2E acceptance still await integration and fixtures.
+
+## Preliminary auth execution 05/11/2026
+
+The [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` exercised the API at feature SHA `6e603d9` with live local SQL/HTTP, then cleaned all fixture users and branches. [Run evidence](AuthSmokeResult-2026-11-05.txt) records **13/13 Pass, 0 Fail** for QA-S4-001–012 except 013, plus 014. This is useful evidence for BE1 review but is excluded from the integrated 4/44 Pass count. QA-S4-013 still needs natural TTL expiry; 015–016 need create-order actions; 017–018 need browser integration. Rerun the 13 cases on the combined release candidate before changing their integrated statuses.

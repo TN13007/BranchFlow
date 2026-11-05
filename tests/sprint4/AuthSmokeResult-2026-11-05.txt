@@ -1,0 +1,30 @@
+BranchFlow auth SQL/HTTP smoke
+Date: 2026-11-05 Asia/Ho_Chi_Minh
+Test source: dd0708d on Thuanaj (AuthSmoke base c584ed0)
+API feature source: 6e603d9 on origin/feat/scrum-73-auth-logout
+Database: local .\SQLEXPRESS / BranchFlow_Test
+Command: dotnet tests/AuthSmoke/bin/Release/net10.0/AuthSmoke.dll <auth checkout>
+Output:
+PASS QA-S4-001
+PASS QA-S4-002
+PASS QA-S4-003
+PASS QA-S4-004
+PASS QA-S4-006
+PASS QA-S4-007
+PASS QA-S4-008
+PASS QA-S4-009
+PASS QA-S4-010
+PASS QA-S4-011
+PASS QA-S4-012
+PASS QA-S4-014
+PASS QA-S4-005
+Auth SQL/HTTP smoke: 13 catalog cases passed, 0 failed.
+Cleaned this run's SQL fixtures.
+ExitCode: 0
+Fixture cleanup verification:
+AuthQaUsers
+-----------
+0
+AuthQaBranches
+--------------
+0

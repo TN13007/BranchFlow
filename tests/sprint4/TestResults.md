@@ -122,6 +122,28 @@ QA-S4-024's expected wording now distinguishes a UI decrement to zero (remove to
 
 The latest menu run reconfirms QA-S4-019–022 as Pass. No additional catalog case was completed, so the latest total remains **4 Pass / 40 Not Run**. The integrated source still has no auth or create-order controller. An isolated read-only check of `origin/feat/scrum-73-auth-logout` at `6e603d9` built its API and passed 55/55 xUnit tests; that feature branch is not merged with current `main`, and no direct HTTP auth case was run or marked Pass from it.
 
+## Run 2026-11-05-F: auth feature branch preliminary SQL/HTTP execution
+
+The committed [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` launched API source `6e603d9` from `origin/feat/scrum-73-auth-logout` against local `BranchFlow_Test` with unique test-only users, branches, assignments, random passwords and signing key. It restarted the host between cases to isolate the login limiter, observed live HTTP responses and SQL session/refresh state, and deleted its fixtures. The [redacted console log](AuthSmokeResult-2026-11-05.txt) records **13/13 catalog cases Pass, 0 Fail**, exit code 0, and zero remaining test users/branches. No token, password, hash or key value was printed.
+
+| Case ID | Expected and observed actual on feature source `6e603d9` | Feature result | Integrated `Thuanaj` status |
+|---|---|---|---|
+| QA-S4-001 | Valid login HTTP 200 with pair/UTC expiries and no-store; one SQL session created | Pass | Not Run |
+| QA-S4-002 | Wrong password and nonexistent user both HTTP 401 with same generic detail; no session created | Pass | Not Run |
+| QA-S4-003 | Inactive locked user HTTP 401 with no-store | Pass | Not Run |
+| QA-S4-004 | Missing username/password and whitespace username each HTTP 400 ProblemDetails; no session | Pass | Not Run |
+| QA-S4-005 | Sixth invalid login in one minute HTTP 429 with Retry-After 60 and no-store | Pass | Not Run |
+| QA-S4-006 | Missing, malformed and expired access JWT each HTTP 401 ProblemDetails with traceId | Pass | Not Run |
+| QA-S4-007 | Refresh HTTP 200/no-store rotates pair; new access works at `/api/auth/me`; expiry bounded by original session | Pass | Not Run |
+| QA-S4-008 | Old refresh reuse HTTP 401; rotated access then HTTP 401 under reuse revocation policy | Pass | Not Run |
+| QA-S4-009 | Two concurrent refresh calls yielded one HTTP 200 and one HTTP 401; SQL session has exactly initial and one descendant token | Pass | Not Run |
+| QA-S4-010 | Logout HTTP 204/no-store; old access and refresh HTTP 401; SQL session revoked | Pass | Not Run |
+| QA-S4-011 | Logout of session 1 left session 2 `/me` HTTP 200 and refresh HTTP 200 | Pass | Not Run |
+| QA-S4-012 | Locking the fixture user after login made `/me` and refresh HTTP 401; fixture restored | Pass | Not Run |
+| QA-S4-014 | Owner, System Admin, Branch Admin and Employee `/me` HTTP 200 with DB role; branch lists matched full active scope and omitted inactive/deleted branches | Pass | Not Run |
+
+This run is **preliminary** because the auth feature source is not merged with current `main`/`Thuanaj`. It does not change the integrated candidate's 4 Pass / 40 Not Run count. QA-S4-013 still needs a short-lived TTL fixture and observed natural expiry; QA-S4-015/016 also require create-order actions; QA-S4-017/018 require browser integration. Rerun these 13 cases on the release candidate before recording integrated Pass.
+
 ## Next execution log template
 
 Append one row for each attempted case. Preserve earlier runs when retesting. The `Actual` field must quote an observed status/body or SQL/UI fact, never copy the expected text.
