@@ -1,14 +1,14 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `Thuanaj` based on `b24905a`. The [latest test record](TestResults.md) records **41/44 catalog cases Pass**; three browser cases remain Not Run. The main login → menu → order → SQL → logout flow can be demonstrated, while full catalog acceptance remains pending.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `Thuanaj` at `a04630b` plus this QA record. The [latest test record](TestResults.md#run-2026-11-06-l-independent-browser-and-sql-closeout) records **43/44 catalog cases Pass and 1 Fail**. Full catalog acceptance remains pending on QA-S4-044.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
-| 44 | 41 | 0 | 0 | 3 | 0 |
+| 44 | 43 | 1 | 0 | 0 | 0 |
 
-The [independent automated rerun on Thuanaj](ThuanajRerun-2026-11-05.txt) confirms Release build 0 warnings/errors and **65/65 unit tests**. The subsequent [Auth TTL run](AuthSmokeResult-2026-11-05-Ttl.txt) passed **14/14 catalog cases**, and the [Order boundary run](OrderSmokeResult-2026-11-05-Boundary.txt) passed **106/106 checks**, both with local fixture cleanup. Khang's [browser/SQL evidence](BrowserDemoResult-2026-11-05.md) supports the integrated UI cases and was not independently rerun here. QA-S4-017 (two browser contexts), 026 (live menu change) and 044 (uncertain POST outcome) remain Not Run.
+The fresh Release unit run passed **65/65** after the machine owner disabled Windows Application Control. The [Auth TTL run](AuthSmokeResult-2026-11-05-Ttl.txt) passed **14/14 catalog cases**, and the [Order boundary run](OrderSmokeResult-2026-11-05-Boundary.txt) passed **106/106 checks**. Browser/SQL execution on 06/11 passed QA-S4-017 and 026. QA-S4-044 failed its 401-after-commit branch: the Web does not warn that the create result is uncertain, and the cart is lost on relogin. See [BF-LOCAL-003](BugLog.md).
 
-The latest full unit test attempt was interrupted by Windows Application Control: 36/65 passed and 29 could not load `BranchFlow.Web.dll` (0x800711C7). The policy also blocked the demo seeder needed to prepare `BranchFlow_Test` for browser checks. See [run K details](TestResults.md); the earlier 65/65 result predates these test-control changes.
+The earlier Windows Application Control interruption is historical; the machine owner changed that setting and the 06/11 unit run and demo seed completed. The two fault-injection orders remain only in `BranchFlow_Test` as local evidence.
 
 ## Historical review snapshot before order and browser integration
 

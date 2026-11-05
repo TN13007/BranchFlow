@@ -1,6 +1,18 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current integrated candidate: `Thuanaj` based on `b24905a` with the local QA clock/TTL test controls in this change. Latest catalog result: **41 Pass / 3 Not Run**, with no Fail, Blocked or Skipped.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current integrated candidate: `Thuanaj` at `a04630b` plus this QA record. Latest catalog result: **43 Pass / 1 Fail**, with no Blocked, Not Run or Skipped.
+
+## Run 2026-11-06-L: independent browser and SQL closeout
+
+Windows Application Control was disabled by the machine owner. A fresh Release solution unit run passed **65/65**. The demo seeder populated the local `BranchFlow_Test` database. The API and Web were run on HTTPS localhost with the test database; Edge and Chrome were separate browser contexts. The local fault proxy [qa-fault-proxy.ps1](qa-fault-proxy.ps1) forwarded requests to the real API and altered only a successful create-order response. This run supersedes the environment block described in run K below.
+
+| Case | Actual observed | Result |
+|---|---|---|
+| QA-S4-017 | Edge employee A saw BF-DEMO-01; Chrome employee B saw BF-DEMO-02. A survived refresh and a new Edge tab. Logging out A sent both Edge tabs to login while Chrome B remained logged in and scoped to BF-DEMO-02. Cookie security flags are also checked by Web configuration. | Pass |
+| QA-S4-026 | Cart initially showed size M at 29,000đ. Changing the test DB price to 31,000đ and reloading the menu updated the preview. Disabling the product caused submit to show “Món hoặc size không còn được bán”, retained the cart and left BF-DEMO-01 order count at zero. Price and product state were restored to 29,000đ/active. | Pass |
+| QA-S4-044 | Double-click sent one create POST. The timeout proxy withheld the response after upstream 201; SQL held one 29,000đ order (`BF-DEMO-01-20261106-0001`), while Web kept the cart, showed an uncertain-outcome warning, disabled resend and linked “Đơn của tôi”; that list showed the same order. With a 401 substituted after a second upstream 201, SQL held one more order (`...-0002`) and Web kept the cart in the current view but only showed a login-expired error. It did not show the uncertain-outcome warning; relogin loses the scoped cart. | **Fail** — BF-LOCAL-003 |
+
+The two created orders remain in the local test database as evidence. The demo menu was restored. No production database was used. Case 044 needs a product fix and a complete rerun before Sprint 4 catalog acceptance.
 
 ## Run 2026-11-05-K: natural TTL and Vietnam date boundary
 
