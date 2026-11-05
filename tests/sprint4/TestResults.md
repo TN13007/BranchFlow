@@ -1,6 +1,42 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. No Sprint 4 case is marked Pass from source inspection or from a mock test.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. Source inspection or mock tests do not establish runtime API/SQL/browser acceptance; unit-only results are explicitly labeled.
+
+Current execution is run H below: merged base `2128070` plus review fixes. Older runs A–G are historical, not the present candidate. QA-S4-023 is explicitly a cart-unit result; browser-dependent cases remain Not Run.
+
+## Run 2026-11-05-H: integrated review and menu regression retest
+
+Runner: Codex, authorized by Khang. Source: `2128070` plus the review-fix code committed with this record. Local SQL Server `localhost\SQLEXPRESS`, database `BranchFlow_Test`, existing baseline/reference data. Both runners create uniquely identified fixtures and remove their own data in finally; no Dev/cloud seed/reset was run.
+
+### Defects observed before correction
+
+- BF-LOCAL-001 / QA-S4-022: menu smoke passed 28 HTTP checks, then assigned inactive branch returned 403 where 404 was expected. Shared accessible-branch filtering removed inactive/deleted branches before checking assignment. Fixed by using branch scope independent of resource state for menu; active accessible lists and CanAccessBranchAsync retain their filters.
+- BF-LOCAL-002 / QA-S4-009: initial integrated auth rerun passed 12/13 cases, but simultaneous refresh returned 200/500. See [failure output](AuthSmokeResult-2026-11-05-BeforeRefreshFix.txt). Follow-up diagnostic identified SQL error 547. Reading/reusing a token can wait for the winning transaction; a timestamp captured before that wait can precede the descendant token's CreatedAt and violate the revoked-time constraint. Refresh now samples time after reading token state, and again after the losing compare-and-update reread. No schema constraints were removed; RowVersion/reuse revocation remain enforced.
+
+### Post-fix verification
+
+| Verification | Observed result | Evidence |
+|---|---|---|
+| Release solution build | 0 warnings / 0 errors | Agent execution; command `dotnet build BranchFlow.slnx -c Release` |
+| Full unit suite | 59 passed, 0 failed, 0 skipped; includes unavailable assigned branch and post-read refresh clock regressions | Agent execution; `dotnet test BranchFlow.slnx -c Release --no-build --no-restore` |
+| Menu SQL/HTTP | 34/34 status checks passed; assigned inactive/deleted branch 404, foreign/nonexistent branch 403; fixture cleanup completed | [Menu rerun](MenuSmokeResult-2026-11-05-ReviewFix.txt) |
+| Integrated auth SQL/HTTP | 13/13 catalog cases passed; concurrent refresh repeated three times with 200/401, exactly one descendant and revoked winning session after reuse; fixture cleanup completed | [Auth rerun](AuthSmokeResult-2026-11-05-IntegratedReview.txt) |
+| Independent confirmation run on the same fixed candidate | Auth 13/13 passed again; three more concurrent-refresh attempts passed, both fixture cleanups completed | [Confirmation output](AuthSmokeResult-2026-11-05-Confirmation.txt) |
+
+Latest integrated case outcomes:
+
+| Cases | Result | Scope / limitation |
+|---|---|---|
+| QA-S4-001–012, QA-S4-014 | Pass | Real API/SQL auth and branch scope with unique fixtures; no browser acceptance claimed |
+| QA-S4-019–022 | Pass | Real API/SQL menu rerun after scope correction |
+| QA-S4-023 | Pass (unit scope) | Full suite reruns selected-line preview/edit/remove fixture; no browser claim |
+| QA-S4-013, 015–018, 024–044 | Not Run | Natural expiry, remaining order, UI and E2E acceptance are not established; 024 has partial unit coverage only |
+
+Catalog total: **18 Pass / 0 Fail / 0 Blocked / 26 Not Run**, after the recorded successful retests. The earlier failures remain in this log and BugLog; the total describes latest outcomes, not the absence of historical defects. No Jira statuses were changed. Account seeder code is integrated and unit-tested, but this review did not run the interactive seeder or establish priced demo-menu readiness. Sprint Goal and browser/order acceptance remain pending.
+
+---
+
+## Historical executions
 
 ## Run 2026-11-03-A: current integrated branch preflight
 

@@ -12,4 +12,9 @@ public interface IBranchAccessService
         int userId,
         int branchId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> HasBranchScopeAsync(
+        int userId,
+        int branchId,
+        CancellationToken cancellationToken = default);
 }

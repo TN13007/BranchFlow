@@ -68,7 +68,7 @@ public sealed class AuthRepository : IAuthRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    // Read the complete refresh-token/session/user state without tracking it.
+    // Đọc trạng thái hiện tại không tracking; RowVersion bảo vệ phép dùng token một lần.
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(
         string tokenHash,
         CancellationToken cancellationToken = default)
@@ -169,9 +169,37 @@ public sealed class AuthRepository : IAuthRepository
         int userId,
         CancellationToken cancellationToken = default)
     {
+        IQueryable<Branch> branches = await GetBranchesInScopeAsync(userId, cancellationToken);
+        return await branches
+            .Where(branch => branch.IsActive && !branch.Deleted)
+            .OrderBy(branch => branch.Code)
+            .Select(branch => new AccessibleBranchData(branch.Id, branch.Code, branch.Name))
+            .ToListAsync(cancellationToken);
+    }
+
+    // Chỉ kiểm tra quyền; trạng thái chi nhánh được service nghiệp vụ kiểm tra riêng.
+    public async Task<bool> HasBranchScopeAsync(
+        int userId,
+        int branchId,
+        CancellationToken cancellationToken = default)
+    {
+        if (branchId <= 0)
+        {
+            return false;
+        }
+
+        IQueryable<Branch> branches = await GetBranchesInScopeAsync(userId, cancellationToken);
+        return await branches.AnyAsync(branch => branch.Id == branchId, cancellationToken);
+    }
+
+    // Dùng chung quy tắc role và phân công hiệu lực, chưa lọc active/deleted của chi nhánh.
+    private async Task<IQueryable<Branch>> GetBranchesInScopeAsync(
+        int userId,
+        CancellationToken cancellationToken)
+    {
         if (userId <= 0)
         {
-            return Array.Empty<AccessibleBranchData>();
+            return _context.Branches.AsNoTracking().Where(branch => false);
         }
 
         string? roleCode = await _context.AppUsers
@@ -186,7 +214,7 @@ public sealed class AuthRepository : IAuthRepository
 
         if (roleCode is null)
         {
-            return Array.Empty<AccessibleBranchData>();
+            return _context.Branches.AsNoTracking().Where(branch => false);
         }
 
         DateTime now = _clock.GetUtcNow().UtcDateTime;
@@ -221,16 +249,9 @@ public sealed class AuthRepository : IAuthRepository
                 break;
 
             default:
-                return Array.Empty<AccessibleBranchData>();
+                return _context.Branches.AsNoTracking().Where(branch => false);
         }
 
-        return await accessibleBranches
-            .Where(branch => branch.IsActive && !branch.Deleted)
-            .OrderBy(branch => branch.Code)
-            .Select(branch => new AccessibleBranchData(
-                branch.Id,
-                branch.Code,
-                branch.Name))
-            .ToListAsync(cancellationToken);
+        return accessibleBranches;
     }
 }

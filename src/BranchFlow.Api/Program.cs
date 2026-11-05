@@ -24,6 +24,8 @@ builder.Services.AddDbContext<BranchFlowDbContext>(options =>
 
 // Đăng ký các thành phần dùng chung DbContext theo cùng request scope.
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ISalesDemoSeedRepository, SalesDemoSeedRepository>();
+builder.Services.AddScoped<ISalesDemoSeedService, SalesDemoSeedService>();
 builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddSingleton(TimeProvider.System);

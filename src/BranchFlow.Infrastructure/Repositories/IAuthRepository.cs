@@ -16,6 +16,11 @@ public interface IAuthRepository
         int userId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> HasBranchScopeAsync(
+        int userId,
+        int branchId,
+        CancellationToken cancellationToken = default);
+
     Task<RefreshToken?> GetRefreshTokenByHashAsync(
         string tokenHash,
         CancellationToken cancellationToken = default);

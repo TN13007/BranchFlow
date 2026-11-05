@@ -152,6 +152,16 @@ async Task RunAsync(string caseId, Func<Task> body)
     {
         failed.Add(caseId);
         Console.WriteLine($"FAIL {caseId}: {error.GetType().Name}: {error.Message}");
+        await Task.Delay(200);
+        // Chỉ in loại lỗi SQL, không xuất log host có thể chứa thông tin nhạy cảm.
+        lock (hostLogs)
+        {
+            if (hostLogs.ToString().Contains("deadlock", StringComparison.OrdinalIgnoreCase))
+                Console.WriteLine("Host diagnostic: SQL deadlock reported (details redacted).");
+            foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(
+                hostLogs.ToString(), @"(?:[A-Za-z_]\w*\.)+[A-Za-z_]\w*Exception|Error Number:\d+"))
+                Console.WriteLine($"Host error type: {match.Value}");
+        }
     }
     finally { await StopHostAsync(); }
 }
@@ -279,16 +289,24 @@ try
 
     await RunAsync("QA-S4-009", async () =>
     {
-        var old = await LoginAsync(employeeA);
-        var sessionId = Guid.Parse(new JwtSecurityTokenHandler().ReadJwtToken(old.Access)
-            .Claims.Single(c => c.Type == "sid").Value);
-        var results = await Task.WhenAll(
-            SendAsync(HttpMethod.Post, "/api/auth/refresh", new { refreshToken = old.Refresh }),
-            SendAsync(HttpMethod.Post, "/api/auth/refresh", new { refreshToken = old.Refresh }));
-        Require(results.Count(r => r.Status == 200) == 1 && results.Count(r => r.Status == 401) == 1,
-            $"Concurrent refresh statuses were {results[0].Status}/{results[1].Status}.");
-        Require(await db.RefreshTokens.AsNoTracking().CountAsync(t => t.SessionId == sessionId) == 2,
-            "Concurrent refresh created duplicate descendants.");
+        // Lặp 3 lần để tăng khả năng phát hiện lỗi tranh chấp; vẫn là một catalog case.
+        for (var attempt = 1; attempt <= 3; attempt++)
+        {
+            var old = await LoginAsync(employeeA);
+            var sessionId = Guid.Parse(new JwtSecurityTokenHandler().ReadJwtToken(old.Access)
+                .Claims.Single(c => c.Type == "sid").Value);
+            var results = await Task.WhenAll(
+                SendAsync(HttpMethod.Post, "/api/auth/refresh", new { refreshToken = old.Refresh }),
+                SendAsync(HttpMethod.Post, "/api/auth/refresh", new { refreshToken = old.Refresh }));
+            Require(results.Count(r => r.Status == 200) == 1 && results.Count(r => r.Status == 401) == 1,
+                $"Concurrent refresh statuses were {results[0].Status}/{results[1].Status}.");
+            Require(await db.RefreshTokens.AsNoTracking().CountAsync(t => t.SessionId == sessionId) == 2,
+                "Concurrent refresh created duplicate descendants.");
+            var winningAccess = results.Single(r => r.Status == 200).Json!.Value
+                .GetProperty("accessToken").GetString() ?? "";
+            ExpectProblem(await SendAsync(HttpMethod.Get, "/api/auth/me", access: winningAccess), 401);
+            Console.WriteLine($"PASS concurrent refresh attempt {attempt}: 200/401, one descendant, reused session revoked");
+        }
     });
 
     await RunAsync("QA-S4-010", async () =>

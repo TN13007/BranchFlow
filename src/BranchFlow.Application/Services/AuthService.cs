@@ -210,8 +210,6 @@ public sealed class AuthService : IAuthService
             return null;
         }
 
-        DateTimeOffset now = _clock.GetUtcNow();
-        DateTime nowUtc = now.UtcDateTime;
         string tokenHash = HashRefreshToken(refreshToken);
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
@@ -227,6 +225,11 @@ public sealed class AuthService : IAuthService
                 await RollbackSafelyAsync();
                 return null;
             }
+
+            // Lấy thời gian sau khi đọc DB: request có thể đã chờ rotation khác commit.
+            // Không dùng thời điểm đầu request để revoke token kế tiếp được tạo muộn hơn.
+            DateTimeOffset now = _clock.GetUtcNow();
+            DateTime nowUtc = now.UtcDateTime;
 
             if (currentToken.UsedAt is not null)
             {
@@ -281,7 +284,7 @@ public sealed class AuthService : IAuthService
                 {
                     await _repository.RevokeSessionAsync(
                         latestToken.SessionId,
-                        nowUtc,
+                        _clock.GetUtcNow().UtcDateTime,
                         cancellationToken);
 
                     await _unitOfWork.CommitTransactionAsync(cancellationToken);
