@@ -2,31 +2,16 @@
 @layout AuthLayout
 @using BranchFlow.Web.Models.Auth
 @inject IJSRuntime JS
-@inject IWebHostEnvironment Environment
 @implements IAsyncDisposable
 
 <PageTitle>Đăng nhập | BranchFlow</PageTitle>
 
 <div class="login-container @(errorMessage is not null ? "is-error-state" : "")">
-    <section class="login-intro" aria-labelledby="intro-title">
-        <span class="eyebrow">XƯỞNG QUÀ NGÔI LÀNG MÙA ĐÔNG</span>
-        <h2 id="intro-title">Mỗi cửa hàng. <br />Một nhịp kết nối ấm áp.</h2>
-        <p class="intro-description">
-            Đăng nhập trước giờ lên đèn để mở quầy pha chế, tạo đơn chuẩn giá máy chủ và đồng bộ nhịp vận hành tại chi nhánh của bạn.
-        </p>
-
-        <div class="intro-highlights" aria-hidden="true">
-            <span class="highlight-pill">✓ Quầy gọi món nhanh</span>
-            <span class="highlight-pill">✓ Snapshot đơn chính xác</span>
-            <span class="highlight-pill">✓ Phân quyền theo ca</span>
-        </div>
-    </section>
-
     <section class="login-card" aria-labelledby="login-title">
         <div class="login-card-header">
-            <span class="card-season-tag">CA LÀM VIỆC MÙA ĐÔNG</span>
+            <span class="card-season-tag">CHÀO MỪNG TRỞ LẠI</span>
             <h1 id="login-title">Đăng nhập</h1>
-            <p class="login-description" id="login-description">Sử dụng tài khoản được cấp để mở không gian làm việc.</p>
+            <p class="login-description" id="login-description">Sử dụng tài khoản được cấp.</p>
         </div>
 
         @if (noticeMessage is not null)
@@ -46,7 +31,7 @@
                 <InputText id="username" name="username" class="form-control" @bind-Value="form.Username" disabled="@(!ready)"
                            autocomplete="username" autocapitalize="none" spellcheck="false"
                            aria-required="true" aria-describedby="username-hint username-error" />
-                <small id="username-hint" class="field-hint">Nhập mã nhân viên hoặc tài khoản được phân quyền.</small>
+                <small id="username-hint" class="field-hint">Tài khoản do quản lý cung cấp.</small>
                 <div id="username-error" class="field-error" aria-live="polite">
                     <ValidationMessage For="() => form.Username" />
                 </div>
@@ -85,27 +70,14 @@
             }
 
             <button class="btn login-submit w-100" type="submit" disabled="@(isSubmitting || !ready)" aria-busy="@(isSubmitting || !ready ? "true" : "false")">
-                @(!ready ? "Đang kết nối…" : isSubmitting ? "Đang đăng nhập…" : "Đăng nhập vào ca làm")
+                @(!ready ? "Đang kết nối…" : isSubmitting ? "Đang đăng nhập…" : "Đăng nhập")
             </button>
         </EditForm>
 
         <div class="support-box">
             <p class="support-note">
-                Cần hỗ trợ cấp lại mật khẩu hoặc kiểm tra phân công?
-                <strong>Vui lòng liên hệ quản lý chi nhánh hoặc quản trị viên của bạn.</strong>
+                Quên mật khẩu? Liên hệ quản lý để được hỗ trợ.
             </p>
-            @if (Environment.IsDevelopment())
-            {
-                <div class="dev-preview-links">
-                    <span class="dev-preview-title">Xem thử giao diện tĩnh (Dữ liệu mẫu):</span>
-                    <div class="dev-preview-actions">
-                        <a href="/preview/orders">Quầy gọi món</a>
-                        <a href="/preview/owner">Chủ sở hữu</a>
-                        <a href="/preview/admin">Quản trị</a>
-                        <a href="/preview/employee">Nhân viên</a>
-                    </div>
-                </div>
-            }
         </div>
     </section>
 </div>
