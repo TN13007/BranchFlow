@@ -16,7 +16,7 @@ public sealed class CartState
     public bool OutcomeUnknown { get; private set; }
     public CreatedOrder? LastCreated { get; private set; }
     public decimal PreviewTotal => lines.Sum(l => l.PreviewTotal);
-    public int TotalQuantity => lines.Sum(l => l.Request.Quantity);
+    public long TotalQuantity => lines.Sum(l => (long)l.Request.Quantity);
 
     public void SetBranch(int branchId)
     {
