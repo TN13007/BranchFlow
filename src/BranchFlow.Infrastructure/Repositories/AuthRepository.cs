@@ -44,6 +44,30 @@ public sealed class AuthRepository : IAuthRepository
     }
 
 
+    // Chỉ trả về thông tin cơ bản của người dùng hiện tại; không đưa password hash vào DTO.
+    public Task<AuthCurrentUserData?> GetActiveUserByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0)
+        {
+            return Task.FromResult<AuthCurrentUserData?>(null);
+        }
+
+        return _context.AppUsers
+            .AsNoTracking()
+            .Where(user =>
+                user.Id == userId &&
+                user.IsActive &&
+                !user.Deleted &&
+                !user.Role.Deleted)
+            .Select(user => new AuthCurrentUserData(
+                user.Id,
+                user.Username,
+                user.Role.Code))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     // Read the complete refresh-token/session/user state without tracking it.
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(
         string tokenHash,
