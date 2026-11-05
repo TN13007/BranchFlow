@@ -59,6 +59,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IDemoSeedRepository, DemoSeedRepository>();
 builder.Services.AddScoped<IDemoSeedService, DemoSeedService>();
+builder.Services.AddScoped<ISalesDemoSeedRepository, SalesDemoSeedRepository>();
+builder.Services.AddScoped<ISalesDemoSeedService, SalesDemoSeedService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 
@@ -89,7 +91,11 @@ try
 
         DemoSeedResult seedResult = await seedService.SeedAsync(password);
         await VerifyQueryMatrixAsync(authRepository, seedResult);
+        
+        ISalesDemoSeedService salesSeedService = scope.ServiceProvider.GetRequiredService<ISalesDemoSeedService>();
+        await salesSeedService.SeedAsync();
 
+        Console.WriteLine("Sales demo data đã sẵn sàng.");
         Console.WriteLine();
         Console.WriteLine("Demo data đã sẵn sàng.");
         Console.WriteLine("Mật khẩu nhập ở đầu chương trình chỉ áp dụng cho tài khoản được tạo mới.");

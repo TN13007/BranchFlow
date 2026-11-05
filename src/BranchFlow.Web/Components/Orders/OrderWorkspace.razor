@@ -1,74 +1,181 @@
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<header class="page-heading">
-    <div><p class="eyebrow">@Menu.Branch.Name</p><h1>@(showCart ? "Đơn hiện tại" : "Gọi món")</h1><p>Giá tạm tính từ menu hiện hành. Giá xác nhận do hệ thống tính khi tạo đơn.</p></div>
-    <button class="btn btn-brand" @onclick="() => showCart = !showCart" disabled="@Busy">
-        @(showCart ? "← Tiếp tục gọi món" : $"Xem giỏ · {Cart.TotalQuantity} ly")
+<section class="tavern-workspace" @ref="workspace">
+<header class="page-heading context-scene-drink-counter">
+    <div>
+        <p class="eyebrow">@Menu.Branch.Code · @Menu.Branch.Name · QUẦY PHA CHẾ</p>
+        <h1>@(showCart ? "Giỏ hàng & Xác nhận đơn" : "Gọi món")</h1>
+        <p>Giá tạm tính từ menu hiện hành. Giá cuối cùng và mã đơn do hệ thống tính khi xác nhận.</p>
+    </div>
+    <button class="@(showCart ? "btn btn-brand return-to-menu" : "basket-cart-button")" type="button"
+            @onclick="() => showCart = !showCart" disabled="@Busy"
+            aria-label="@(showCart ? "Tiếp tục gọi món" : $"Mở giỏ hàng, {Cart.TotalQuantity} ly, tạm tính {Money(Cart.PreviewTotal)}")"
+            aria-controls="order-workspace-content" aria-expanded="@(showCart ? "true" : "false")">
+        @if (showCart)
+        {
+            <span>← Tiếp tục gọi món</span>
+        }
+        else
+        {
+            <img class="basket-cart-image" src="/images/christmas/icons/picnic-basket-cart-v1.png" alt="" width="210" height="140" />
+            <span class="basket-cart-caption" aria-live="polite" aria-atomic="true">
+                <strong>Giỏ hàng</strong>
+                <span>@Cart.TotalQuantity ly · @Money(Cart.PreviewTotal)</span>
+            </span>
+        }
     </button>
 </header>
-<div class="page-content">
-    <ApiError Message="@Error" NeedsLogin="NeedsLogin" />
+
+<div id="order-workspace-content" class="page-content tavern-menu-content">
+    <ApiError Message="@Error" NeedsLogin="NeedsLogin" Unavailable="Unavailable" OnRetry="OnReload" Busy="Busy" />
     <ApiError Message="@localError" />
+
     @if (Cart.OutcomeUnknown)
     {
         <div class="alert alert-warning" role="alert">
-            Chưa xác định đơn đã được tạo hay chưa. Giỏ vẫn được giữ, hệ thống không tự gửi lại.
-            <a href="/orders/mine" class="alert-link">Kiểm tra đơn của tôi</a> trước khi xác nhận lại.
-            <div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="checked-orders" @bind="checkedHistory" />
-                <label for="checked-orders">Tôi đã kiểm tra danh sách và xác nhận chưa có đơn này.</label></div>
-            <button class="btn btn-outline-dark mt-2" disabled="@(!checkedHistory)" @onclick="Unlock">Cho phép xác nhận lại</button>
+            <strong>Chưa xác định kết quả tạo đơn:</strong> Hệ thống chưa nhận được phản hồi cuối cùng từ máy chủ. Giỏ hàng vẫn được giữ nguyên và <strong>không tự gửi lại</strong> để tránh trùng đơn.
+            <div class="mt-2">
+                <a href="/orders/mine" class="alert-link">Mở Đơn của tôi để kiểm tra</a> trước khi quyết định xác nhận lại.
+            </div>
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="checked-orders" @bind="checkedHistory" />
+                <label class="form-check-label" for="checked-orders">Tôi đã kiểm tra danh sách Đơn của tôi và xác nhận đơn này chưa được tạo.</label>
+            </div>
+            <button class="btn btn-outline-dark mt-2" type="button" style="min-height:44px;" disabled="@(!checkedHistory)" @onclick="Unlock">Cho phép xác nhận lại</button>
         </div>
     }
+
     @if (!showCart)
     {
         <div class="menu-toolbar">
-            <input class="form-control menu-search" aria-label="Tìm tên món" placeholder="Tìm tên món" @bind="search" @bind:event="oninput" />
-            <div class="category-tabs" aria-label="Danh mục món">
-                <button class="chip @(categoryId == 0 ? "selected" : "")" @onclick="() => categoryId = 0" aria-pressed="@(categoryId == 0)">Tất cả</button>
+            <span class="toolbar-hangers" aria-hidden="true"><span></span><span></span></span>
+            <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 360px;">
+                <label for="menu-search-input" class="visually-hidden">Tìm tên món</label>
+                <input id="menu-search-input" class="form-control menu-search" aria-label="Tìm tên món"
+                       placeholder="Tìm theo tên đồ uống…" @bind="search" @bind:event="oninput" />
+                @if (!string.IsNullOrWhiteSpace(search) || categoryId != 0)
+                {
+                    <button class="btn btn-outline-secondary" type="button" style="min-height:44px; white-space:nowrap;"
+                            @onclick="ResetFilter">Bỏ lọc</button>
+                }
+            </div>
+            <div class="category-tabs" role="group" aria-label="Danh mục món">
+                <button class="chip @(categoryId == 0 ? "selected" : "")" type="button"
+                        @onclick="() => categoryId = 0" aria-pressed="@(categoryId == 0 ? "true" : "false")">Tất cả</button>
                 @foreach (var category in Menu.Categories)
                 {
-                    <button class="chip @(categoryId == category.Id ? "selected" : "")" @onclick="() => categoryId = category.Id" aria-pressed="@(categoryId == category.Id)">@category.Name</button>
+                    <button class="chip @(categoryId == category.Id ? "selected" : "")" type="button"
+                            @onclick="() => categoryId = category.Id" aria-pressed="@(categoryId == category.Id ? "true" : "false")">@category.Name</button>
                 }
             </div>
         </div>
-        <div class="section-heading"><h2>Menu cửa hàng</h2><span>@Products.Count() món</span></div>
-        <div class="product-grid">
-            @foreach (var product in Products)
-            {
-                <button class="product-card" @onclick="() => Configure(product)" disabled="@(Busy || Cart.OutcomeUnknown || !CanOrder)" @key="product.Id">
-                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl)) { <img class="product-image" src="@product.ImageUrl" alt="@product.Name" loading="lazy" /> }
-                    else { <div class="product-image missing-image">Ảnh chưa có</div> }
-                    <div class="product-info"><strong>@product.Name</strong><span>@CategoryName(product.Id)</span><b>Từ @Money(product.MinPrice)</b></div>
-                </button>
-            }
+
+        <div class="section-heading">
+            <div><h2>Thực đơn quán mùa đông</h2><p id="menu-hanging-hint" class="hanging-hint">Bấm thẻ để chọn món · Kéo núm tròn xuống để mở</p></div>
+            <span>@Products.Count() món khả dụng</span>
         </div>
-        @if (!Products.Any()) { <p class="empty-state">Chưa có món phù hợp. Hãy thử danh mục hoặc tên khác.</p> }
+
+        @if (!AllMenuProducts.Any())
+        {
+            <div class="empty-state" role="status">
+                <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
+                <strong>Menu chi nhánh hiện chưa có món mở bán</strong>
+                <p class="mb-0 mt-1">Vui lòng tải lại menu hoặc liên hệ quản lý chi nhánh để kiểm tra danh mục bán hàng.</p>
+            </div>
+        }
+        else if (!Products.Any())
+        {
+            <div class="empty-state" role="status">
+                <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
+                <strong>Không tìm thấy món phù hợp với bộ lọc</strong>
+                <p class="mb-2 mt-1">Hãy thử từ khóa khác hoặc chuyển về danh mục Tất cả.</p>
+                <button class="btn btn-outline-secondary" type="button" style="min-height:44px;" @onclick="ResetFilter">Xem toàn bộ menu</button>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var product in Products)
+                {
+                    <div class="hanging-menu-item" @key="product.Id">
+                    <span class="card-hangers" aria-hidden="true"><span></span><span></span></span>
+                    <button class="product-card" type="button" @onclick="() => Configure(product)" disabled="@(Busy || Cart.OutcomeUnknown || !CanOrder)"
+                            data-product-id="@product.Id" aria-describedby="menu-hanging-hint" aria-haspopup="dialog" draggable="false">
+                        <div class="product-art">
+                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                        {
+                            <img class="product-image" src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="product-image missing-image">Ảnh chưa có</div>
+                        }
+                        </div>
+                        <div class="product-info">
+                            <strong>@product.Name</strong>
+                            <span>@CategoryName(product.Id) · @product.ProductSizes.Count size</span>
+                            <b>Từ @Money(product.MinPrice)</b>
+                        </div>
+                        <span class="card-pull-handle" aria-hidden="true"><span>⌄</span></span>
+                    </button>
+                    </div>
+                }
+            </div>
+        }
     }
     else
     {
         <div class="cart-layout">
             <div>
-                @if (Cart.Lines.Count == 0) { <p class="empty-state">Giỏ hàng chưa có món. Chọn món để bắt đầu.</p> }
+                @if (Cart.Lines.Count == 0)
+                {
+                    <div class="empty-state" role="status">
+                        <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
+                        <strong>Giỏ hàng chưa có món</strong>
+                        <p class="mb-2 mt-1">Chọn đồ uống từ menu quầy pha chế để bắt đầu tạo đơn hàng mới.</p>
+                        <button class="btn btn-brand mt-1" type="button" @onclick="() => showCart = false">Quay lại chọn món</button>
+                    </div>
+                }
                 @foreach (var line in Cart.Lines)
                 {
                     <article class="cart-line" @key="line.Key">
-                        @if (!string.IsNullOrWhiteSpace(line.ImageUrl)) { <img class="cart-image" src="@line.ImageUrl" alt="" /> }
-                        <div class="cart-description"><strong>@line.ProductName</strong><small>Size @line.SizeName · @line.Request.Quantity ly</small><small>@line.Description</small>
-                            <button class="text-button" @onclick="() => Edit(line)" disabled="@(Busy || Cart.OutcomeUnknown)">Chỉnh sửa món</button></div>
+                        @if (!string.IsNullOrWhiteSpace(line.ImageUrl))
+                        {
+                            <img class="cart-image" src="@line.ImageUrl" alt="" />
+                        }
+                        <div class="cart-description">
+                            <strong>@line.ProductName</strong>
+                            <small>Size @line.SizeName · @line.Request.Quantity ly × @Money(line.PreviewUnitPrice)</small>
+                            @if (!string.IsNullOrWhiteSpace(line.Description))
+                            {
+                                <small>@line.Description</small>
+                            }
+                            <button class="text-button" type="button" @onclick="() => Edit(line)" disabled="@(Busy || Cart.OutcomeUnknown)">Chỉnh sửa tùy chọn</button>
+                        </div>
                         <b>@Money(line.PreviewTotal)</b>
-                        <button class="icon-button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName"><img src="/images/icons/trash.svg" alt="" /></button>
+                        <button class="icon-button" type="button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName">
+                            <img src="/images/icons/trash.svg" alt="" />
+                        </button>
                     </article>
                 }
             </div>
-            <aside class="cart-summary">
+
+            <aside class="cart-summary" aria-label="Tổng đơn tạm tính">
+                <img class="cart-summary-ribbon decor-non-interactive" src="/images/christmas/decorations/bell-bauble-sprig.svg" alt="" aria-hidden="true" />
                 <p class="eyebrow">TỔNG ĐƠN TẠM TÍNH</p>
-                <div><span>Số ly</span><strong>@Cart.TotalQuantity</strong></div>
-                <div><span>Tổng tiền</span><strong>@Money(Cart.PreviewTotal)</strong></div>
-                <p>Giá cuối cùng và mã đơn được trả về sau khi xác nhận.</p>
-                @if (Preview) { <p class="preview-note">Bản xem thử không tạo đơn.</p> }
-                <button class="btn btn-brand w-100" disabled="@(Preview || Busy || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)" @onclick="OnConfirm" aria-busy="@(Busy ? "true" : "false")">
-                    @(Busy ? "Đang xác nhận…" : "Xác nhận tạo đơn")
+                <div><span>Số dòng món</span><strong>@Cart.Lines.Count</strong></div>
+                <div><span>Tổng số ly</span><strong>@Cart.TotalQuantity</strong></div>
+                <div><span>Tạm tính</span><strong>@Money(Cart.PreviewTotal)</strong></div>
+                <p>Giá cuối cùng, ngày kinh doanh và mã đơn chính thức được máy chủ tính khi xác nhận.</p>
+                @if (Preview)
+                {
+                    <p class="preview-note">Bản xem thử tĩnh không gửi API và không ghi đơn vào cơ sở dữ liệu.</p>
+                }
+                <button class="btn btn-brand w-100" type="button"
+                        disabled="@(Preview || Busy || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)"
+                        @onclick="OnConfirm" aria-busy="@(Busy ? "true" : "false")">
+                    @(Busy ? "Đang gửi…" : "Xác nhận tạo đơn")
                 </button>
             </aside>
         </div>
@@ -77,51 +184,105 @@
 
 @if (selectedProduct is not null)
 {
-    <dialog id="product-options" class="configurator" aria-labelledby="product-options-title" @oncancel="Close">
+    <dialog id="product-options" class="configurator tavern-configurator" aria-labelledby="product-options-title">
         <div class="configurator-head">
-            @if (!string.IsNullOrWhiteSpace(selectedProduct.ImageUrl)) { <img class="configurator-image" src="@selectedProduct.ImageUrl" alt="" /> }
-            <div class="configurator-title"><p class="eyebrow">TÙY CHỌN MÓN</p><h2 id="product-options-title">@selectedProduct.Name</h2><p>Chọn size trước khi thêm món vào đơn.</p></div>
-            <button class="dialog-close" aria-label="Đóng tùy chọn món" @onclick="Close">×</button>
+            @if (!string.IsNullOrWhiteSpace(selectedProduct.ImageUrl))
+            {
+                <img class="configurator-image" src="@selectedProduct.ImageUrl" alt="" />
+            }
+            <div class="configurator-title">
+                <p class="eyebrow">QUẦY ĐỒ UỐNG · TÙY CHỌN MÓN</p>
+                <h2 id="product-options-title">@selectedProduct.Name</h2>
+                <p>Chọn size bắt buộc, topping và ghi chú trước khi thêm món vào giỏ hàng.</p>
+            </div>
+            <button class="dialog-close" type="button" aria-label="Đóng tùy chọn món" @onclick="Close">×</button>
         </div>
         <div class="configurator-scroll">
             <ApiError Message="@draftError" />
-            <fieldset class="option-block"><legend>01 · Chọn size <small>Bắt buộc</small></legend><div class="option-choices">
-                @foreach (var size in selectedProduct.ProductSizes)
-                {
-                    <label class="option-choice"><input type="radio" name="size" value="@size.Id" checked="@(sizeId == size.Id)" @onchange="() => sizeId = size.Id" /> <strong>@size.SizeName</strong> @Money(size.Price)</label>
-                }
-            </div></fieldset>
-            <fieldset class="option-block"><legend>02 · Topping <small>Mỗi loại tối đa 3 phần/ly</small></legend>
+
+            <fieldset class="option-block">
+                <legend>01 · Chọn size <small>Bắt buộc (chọn 1)</small></legend>
+                <div class="option-choices">
+                    @foreach (var size in selectedProduct.ProductSizes)
+                    {
+                        <label class="option-choice">
+                            <input type="radio" name="size" value="@size.Id" checked="@(sizeId == size.Id)" @onchange="() => { sizeId = size.Id; draftError = null; }" />
+                            <strong>Size @size.SizeName</strong>
+                            <span>@Money(size.Price)</span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+
+            <fieldset class="option-block">
+                <legend>02 · Topping <small>Mỗi loại tối đa 3 phần/ly, được chọn nhiều loại</small></legend>
                 @foreach (var group in Menu.ToppingGroups)
                 {
                     @foreach (var topping in group.Toppings)
                     {
-                        <div class="topping-row"><div><strong>@topping.Name</strong><small>@group.Name · @Money(topping.UnitPrice)</small></div>
-                            <div class="stepper"><button @onclick="() => ChangeTopping(topping, -1)" disabled="@(ToppingCount(topping.Id) == 0)" aria-label="Giảm @topping.Name">−</button>
+                        <div class="topping-row">
+                            <div>
+                                <strong>@topping.Name</strong>
+                                <small>@group.Name · @Money(topping.UnitPrice)/phần (tối đa @Math.Min(3, topping.MaxQuantity))</small>
+                            </div>
+                            <div class="stepper">
+                                <button type="button" @onclick="() => ChangeTopping(topping, -1)" disabled="@(ToppingCount(topping.Id) == 0)" aria-label="Giảm @topping.Name">−</button>
                                 <output aria-live="polite">@ToppingCount(topping.Id)</output>
-                                <button @onclick="() => ChangeTopping(topping, 1)" disabled="@(ToppingCount(topping.Id) >= Math.Min(3, topping.MaxQuantity))" aria-label="Thêm @topping.Name">+</button></div></div>
+                                <button type="button" @onclick="() => ChangeTopping(topping, 1)" disabled="@(ToppingCount(topping.Id) >= Math.Min(3, topping.MaxQuantity))" aria-label="Thêm @topping.Name">+</button>
+                            </div>
+                        </div>
                     }
                 }
             </fieldset>
-            <fieldset class="option-block"><legend>03 · Ghi chú nhanh <small>Mỗi nhóm chọn tối đa 1</small></legend>
+
+            <fieldset class="option-block">
+                <legend>03 · Ghi chú nhanh <small>Mỗi nhóm chọn tối đa 1 tùy chọn</small></legend>
                 @foreach (var group in Menu.NoteGroups)
                 {
-                    <div class="note-row"><strong>@group.Name</strong><div class="option-choices">
-                        <label class="option-choice"><input type="radio" name="note-@group.Id" checked="@(!notes.ContainsKey(group.Id))" @onchange="() => notes.Remove(group.Id)" /> Không chọn</label>
-                        @foreach (var option in group.Options)
-                        {
-                            <label class="option-choice"><input type="radio" name="note-@group.Id" checked="@(notes.GetValueOrDefault(group.Id) == option.Id)" @onchange="() => notes[group.Id] = option.Id" disabled="@(group.MaxSelections < 1)" /> @option.Name</label>
-                        }
-                    </div></div>
+                    <div class="note-row">
+                        <strong>@group.Name</strong>
+                        <div class="option-choices">
+                            <label class="option-choice">
+                                <input type="radio" name="note-@group.Id" checked="@(!notes.ContainsKey(group.Id))" @onchange="() => notes.Remove(group.Id)" />
+                                <span>Mặc định (Không chọn)</span>
+                            </label>
+                            @foreach (var option in group.Options)
+                            {
+                                <label class="option-choice">
+                                    <input type="radio" name="note-@group.Id" checked="@(notes.GetValueOrDefault(group.Id) == option.Id)" @onchange="() => notes[group.Id] = option.Id" disabled="@(group.MaxSelections < 1)" />
+                                    <span>@option.Name</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
                 }
             </fieldset>
-            <div class="option-block"><label for="cup-quantity" class="form-label">04 · Số ly</label><input id="cup-quantity" type="number" min="1" step="1" class="form-control" @bind="quantityInput" @bind:event="oninput" /></div>
+
+            <div class="option-block">
+                <label for="cup-quantity" class="form-label fw-semibold">04 · Số lượng ly <small class="text-secondary fw-normal ms-1">(Số nguyên dương)</small></label>
+                <div class="d-flex align-items-center gap-2" style="max-width: 240px;">
+                    <button type="button" class="btn btn-outline-secondary" style="width:44px;height:44px;font-weight:600;"
+                            @onclick="() => AdjustQuantity(-1)" aria-label="Giảm số ly">−</button>
+                    <input id="cup-quantity" type="number" min="1" step="1" class="form-control text-center fw-semibold"
+                           style="min-height:44px;" @bind="quantityInput" @bind:event="oninput" />
+                    <button type="button" class="btn btn-outline-secondary" style="width:44px;height:44px;font-weight:600;"
+                            @onclick="() => AdjustQuantity(1)" aria-label="Tăng số ly">+</button>
+                </div>
+            </div>
         </div>
-        <div class="configurator-action"><button class="btn btn-brand w-100" @onclick="Save">@(editingKey.HasValue ? "Lưu thay đổi" : "Thêm vào đơn") <span>@Money(DraftTotal())</span></button></div>
+        <div class="configurator-action d-flex gap-2">
+            <button class="btn btn-outline-secondary" type="button" style="min-height:50px; padding:0 18px; font-weight:600;" @onclick="Close">Hủy</button>
+            <button class="btn btn-brand flex-grow-1" type="button" @onclick="Save">
+                <span>@(editingKey.HasValue ? "Lưu thay đổi" : "Thêm vào đơn")</span>
+                <strong>@Money(DraftTotal())</strong>
+            </button>
+        </div>
     </dialog>
 }
+</section>
 
 @code {
+    private ElementReference workspace;
     [Parameter, EditorRequired] public OrderMenu Menu { get; set; } = default!;
     [Parameter, EditorRequired] public CartState Cart { get; set; } = default!;
     [Parameter] public bool Preview { get; set; }
@@ -129,6 +290,8 @@
     [Parameter] public bool Busy { get; set; }
     [Parameter] public string? Error { get; set; }
     [Parameter] public bool NeedsLogin { get; set; }
+    [Parameter] public bool Unavailable { get; set; }
+    [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
     private string search = "";
     private int categoryId;
@@ -144,10 +307,25 @@
     private string? localError;
     private bool openDialog;
     private IJSObjectReference? module;
+    private IEnumerable<MenuProduct> AllMenuProducts => Menu.Categories.SelectMany(c => c.Products);
     private IEnumerable<MenuProduct> Products => Menu.Categories.Where(c => categoryId == 0 || c.Id == categoryId).SelectMany(c => c.Products)
         .Where(p => p.Name.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase));
     private string CategoryName(int id) => Menu.Categories.First(c => c.Products.Any(p => p.Id == id)).Name;
     private static string Money(decimal amount) => Display.Money(amount);
+
+    private void ResetFilter()
+    {
+        search = "";
+        categoryId = 0;
+    }
+
+    private void AdjustQuantity(int delta)
+    {
+        var current = long.TryParse(quantityInput.Trim(), out var parsed) ? parsed : 1L;
+        var next = Math.Clamp(Math.Clamp(current, 1L, int.MaxValue) + delta, 1L, int.MaxValue);
+        quantityInput = next.ToString();
+        draftError = null;
+    }
 
     private void Configure(MenuProduct product)
     {
@@ -178,24 +356,45 @@
         try { return CartState.BuildLine(Menu, Draft(), Guid.Empty).PreviewTotal; }
         catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { return 0; }
     }
-    private void Save()
+    private async Task Save()
     {
-        try { Cart.Save(Menu, Draft(), editingKey); localError = null; selectedProduct = null; }
+        if (closingDialog) return;
+        try { Cart.Save(Menu, Draft(), editingKey); localError = null; await Close(); }
         catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { draftError = ex is OverflowException ? "Số lượng vượt giới hạn." : ex.Message; }
     }
-    private void Close() => selectedProduct = null;
+    private bool closingDialog;
+    private async Task Close()
+    {
+        if (closingDialog) return;
+        closingDialog = true;
+        try
+        {
+            if (module is not null) await module.InvokeVoidAsync("closeOptions", workspace);
+            selectedProduct = null;
+        }
+        finally { closingDialog = false; }
+    }
     private void Unlock() { Cart.AcknowledgeCheckedHistory(); checkedHistory = false; }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-ui.js");
+            await module.InvokeVoidAsync("initTavern", workspace);
+        }
         if (openDialog && selectedProduct is not null)
         {
             openDialog = false;
-            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/order-ui.js");
-            await module.InvokeVoidAsync("openOptions");
+            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-ui.js");
+            await module.InvokeVoidAsync("openOptions", workspace);
         }
     }
     public async ValueTask DisposeAsync()
     {
-        if (module is not null) try { await module.DisposeAsync(); } catch (JSDisconnectedException) { }
+        if (module is not null) try
+        {
+            await module.InvokeVoidAsync("disposeTavern", workspace);
+            await module.DisposeAsync();
+        } catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException) { }
     }
 }

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 96" fill="none" aria-hidden="true" focusable="false">
+  <!-- Minh họa tĩnh khay gỗ & cốc sứ mùa đông cho trạng thái rỗng -->
+  <ellipse cx="60" cy="78" rx="46" ry="10" fill="#EBDDC3"/>
+  <ellipse cx="60" cy="75" rx="42" ry="8" fill="#FFF8E9" stroke="#C9B28B" stroke-width="1.5"/>
+  <!-- Nhánh thông nhỏ trên khay -->
+  <path d="M26 74 Q 40 66, 52 73" stroke="#137B4F" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="38" cy="70" r="2.8" fill="#CF3D2D"/>
+  <circle cx="44" cy="72" r="2.4" fill="#D9A63A"/>
+  <!-- Thân cốc sứ trắng tuyết -->
+  <path d="M42 34 H78 V58 C78 68 70 74 60 74 C50 74 42 68 42 58 V34 Z" fill="#FFFDF7" stroke="#137B4F" stroke-width="2"/>
+  <!-- Quai cốc -->
+  <path d="M78 40 H84 C88 40 91 43 91 48 C91 53 88 56 84 56 H78" stroke="#137B4F" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Họa tiết sọc lễ hội trên cốc -->
+  <line x1="43" y1="44" x2="77" y2="44" stroke="#CF3D2D" stroke-width="2.5"/>
+  <line x1="43" y1="50" x2="77" y2="50" stroke="#D9A63A" stroke-width="1.8"/>
+  <!-- Làn hơi ấm tĩnh -->
+  <path d="M53 26 Q 50 18, 55 12" stroke="#D9A63A" stroke-width="2" stroke-linecap="round" opacity="0.65"/>
+  <path d="M65 24 Q 68 16, 63 10" stroke="#137B4F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+</svg>

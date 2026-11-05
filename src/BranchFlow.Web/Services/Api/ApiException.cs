@@ -16,6 +16,8 @@ public sealed class ApiException(HttpStatusCode statusCode, string message) : Ex
             HttpStatusCode.Forbidden => "Bạn không có quyền thực hiện thao tác tại chi nhánh này.",
             HttpStatusCode.NotFound => "Không tìm thấy dữ liệu trong phạm vi truy cập của bạn.",
             HttpStatusCode.Conflict => "Dữ liệu đã thay đổi. Vui lòng tải lại và kiểm tra trước khi tiếp tục.",
+            HttpStatusCode.ServiceUnavailable => "Dịch vụ tạm thời chưa sẵn sàng. Vui lòng thử kết nối lại sau.",
+            HttpStatusCode.BadGateway or HttpStatusCode.GatewayTimeout => "Chưa nhận được phản hồi từ dịch vụ. Vui lòng thử lại sau.",
             HttpStatusCode.TooManyRequests => "Bạn đã thử quá nhiều lần. Vui lòng chờ một phút rồi thử lại.",
             _ => "Dịch vụ đang gặp sự cố. Vui lòng thử lại sau."
         };

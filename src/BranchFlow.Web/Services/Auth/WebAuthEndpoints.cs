@@ -53,7 +53,13 @@ public static class WebAuthEndpoints
         catch (ApiException ex)
         {
             if (newKey is not null) store.Remove(newKey);
-            var error = ex.StatusCode == HttpStatusCode.Unauthorized ? "credentials" : ex.StatusCode == HttpStatusCode.TooManyRequests ? "rate" : "service";
+            var error = ex.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => "credentials",
+                HttpStatusCode.TooManyRequests => "rate",
+                HttpStatusCode.ServiceUnavailable => "unavailable",
+                _ => "service"
+            };
             return Results.LocalRedirect($"/login?error={error}");
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException or JsonException or InvalidOperationException)

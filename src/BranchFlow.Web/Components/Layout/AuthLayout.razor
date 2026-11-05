@@ -1,17 +1,34 @@
 @inherits LayoutComponentBase
 
 <div class="auth-shell">
+    <a class="skip-link" href="#main-content">Chuyển đến nội dung chính</a>
+
+    <div class="auth-garland decor-non-interactive" aria-hidden="true">
+        <img src="/images/christmas/decorations/warm-bulb-garland.svg" alt="" />
+    </div>
+
     <header class="auth-header">
         <a class="brand" href="/login" aria-label="BranchFlow — Đăng nhập">
-            <span class="brand-mark" aria-hidden="true">BF</span>
-            <span>BranchFlow</span>
+            <span class="brand-mark-wrap" aria-hidden="true">
+                <span class="brand-mark">BF</span>
+                <img class="brand-hat decor-non-interactive" src="/images/christmas/decorations/bf-santa-hat.svg" alt="" />
+            </span>
+            <span class="brand-text">
+                <strong>BranchFlow</strong>
+                <small>Xưởng quà ngôi làng mùa đông</small>
+            </span>
         </a>
-        <span class="header-caption">Quản lý chuỗi cửa hàng đồ uống</span>
+        <div class="header-meta">
+            <span class="season-pill" aria-hidden="true">Mùa lễ hội · Ca sáng</span>
+            <img class="header-bell decor-non-interactive" src="/images/christmas/decorations/bell-bauble-sprig.svg" alt="" aria-hidden="true" />
+        </div>
     </header>
 
     <main id="main-content" class="auth-content">
         @Body
     </main>
 
-    <footer class="auth-footer">BranchFlow · Không gian làm việc của bạn</footer>
+    <footer class="auth-footer">
+        <span>BranchFlow · Không gian vận hành chuỗi đồ uống mùa lễ hội</span>
+    </footer>
 </div>

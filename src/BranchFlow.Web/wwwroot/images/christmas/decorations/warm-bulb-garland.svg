@@ -1,0 +1,25 @@
+<svg width="260" height="44" viewBox="0 0 260 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft layered pine garland -->
+  <path d="M0 0 H260 V16 C244 25, 224 23, 208 15 C192 26, 168 25, 152 15 C134 26, 110 25, 94 14 C76 25, 52 24, 36 15 C20 23, 8 21, 0 15 Z" fill="#17583D"/>
+  <path d="M0 0 H260 V10 C246 18, 228 16, 214 9 C198 18, 176 18, 160 9 C142 18, 118 18, 102 9 C84 18, 60 17, 44 9 C26 17, 10 15, 0 10 Z" fill="#217250"/>
+  <!-- Soft snow caps -->
+  <path d="M0 0 H260 V6 C245 11, 228 9, 214 5 C196 11, 176 10, 160 5 C142 11, 120 10, 102 5 C84 11, 62 10, 44 5 C26 10, 10 9, 0 6 Z" fill="#F2FAF6" fill-opacity="0.9"/>
+  <!-- Cord -->
+  <path d="M4 12 Q45 30 90 14 Q135 30 180 14 Q220 28 256 12" stroke="#4A3219" stroke-width="1.6" fill="none"/>
+  <!-- Droplet warm bulbs & baubles -->
+  <g>
+    <circle cx="34" cy="21" r="6" fill="#FFE596" fill-opacity="0.35"/>
+    <path d="M34 16 C31.5 19, 31.5 23, 34 24.5 C36.5 23, 36.5 19, 34 16 Z" fill="#FFD56B" stroke="#8C6214" stroke-width="1"/>
+    <circle cx="66" cy="21" r="4" fill="#CF3D2D" stroke="#FFFDF7" stroke-width="1"/>
+    <circle cx="112" cy="21" r="6" fill="#FFE596" fill-opacity="0.35"/>
+    <path d="M112 16 C109.5 19, 109.5 23, 112 24.5 C114.5 23, 114.5 19, 112 16 Z" fill="#FFD56B" stroke="#8C6214" stroke-width="1"/>
+    <!-- Pastel candy cane accent -->
+    <g transform="translate(148, 12) rotate(14)">
+      <path d="M4 16 V5 C4 2, 9 2, 9 5" stroke="#FFFDF7" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M4 13 V10 M4 6 V4" stroke="#E57B92" stroke-width="3.2" stroke-linecap="round"/>
+    </g>
+    <circle cx="198" cy="21" r="6" fill="#FFE596" fill-opacity="0.35"/>
+    <path d="M198 16 C195.5 19, 195.5 23, 198 24.5 C200.5 23, 200.5 19, 198 16 Z" fill="#FFD56B" stroke="#8C6214" stroke-width="1"/>
+    <circle cx="232" cy="19" r="3.8" fill="#CF3D2D" stroke="#FFFDF7" stroke-width="1"/>
+  </g>
+</svg>

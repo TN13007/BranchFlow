@@ -1,0 +1,68 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="warmRoom" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFBF2"/>
+      <stop offset="65%" stop-color="#FFF8E9"/>
+      <stop offset="100%" stop-color="#F6EBD4"/>
+    </linearGradient>
+    <linearGradient id="outSky" x1="1300" y1="80" x2="1300" y2="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DCEPF5"/>
+      <stop offset="100%" stop-color="#F2FAF7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Broad calm warm vanilla background for profile & payroll tables -->
+  <rect width="1600" height="900" fill="url(#warmRoom)"/>
+
+  <!-- Soft warm sunbeam glow from right window -->
+  <path d="M1120 120 L480 900 H1600 V120 Z" fill="#FFFDF7" fill-opacity="0.55"/>
+
+  <!-- Right edge: Cozy cartoon wooden window overlooking snowy village -->
+  <g transform="translate(1140, 70)">
+    <!-- Window frame outer -->
+    <rect x="40" y="20" width="380" height="490" rx="22" fill="#A66D40" stroke="#4D2E15" stroke-width="4"/>
+    <!-- Window glass sky -->
+    <rect x="68" y="48" width="324" height="434" rx="12" fill="#E4F2EE" stroke="#5E3819" stroke-width="3"/>
+
+    <!-- Outside snowy hills & pine silhouettes inside window -->
+    <path d="M68 350 C140 325, 240 340, 392 315 V482 H68 Z" fill="#CFE5DC"/>
+    <!-- Distant cute pine & cottage roof in window -->
+    <path d="M145 235 C122 275, 114 298, 134 302 C116 332, 110 355, 180 355 C180 355, 174 332, 156 302 C176 298, 168 275, 145 235 Z" fill="#68A389"/>
+    <rect x="255" y="295" width="76" height="55" rx="6" fill="#9E683C"/>
+    <path d="M244 302 C244 275, 272 256, 293 256 C314 256, 342 275, 342 302 Z" fill="#FFFDF7"/>
+    <rect x="282" y="310" width="22" height="22" rx="4" fill="#FFE28A"/>
+    <path d="M68 395 C175 365, 285 405, 392 375 V482 H68 Z" fill="#FFFDF7"/>
+
+    <!-- Snow drifts on window panes -->
+    <path d="M68 262 C110 248, 165 256, 226 262 M234 262 C285 248, 345 255, 392 262" stroke="#FFFDF7" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Window cross bars -->
+    <path d="M230 48 V482 M68 265 H392" stroke="#8C5830" stroke-width="14"/>
+    <path d="M230 48 V482 M68 265 H392" stroke="#4D2E15" stroke-width="3"/>
+
+    <!-- Top pine branch & golden bell with red ribbon -->
+    <path d="M20 26 C95 68, 195 58, 280 24 C210 12, 110 8, 20 26 Z" fill="#198255" stroke="#0D3826" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M120 20 C190 55, 290 52, 370 22 C300 10, 200 8, 120 20 Z" fill="#219663" stroke="#0D3826" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Golden Bell -->
+    <g transform="translate(205, 32)">
+      <path d="M25 18 C12 18, 6 32, 3 50 H47 C44 32, 38 18, 25 18 Z" fill="#F2C14E" stroke="#6E480B" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="25" cy="54" r="6" fill="#B87D14" stroke="#6E480B" stroke-width="2.5"/>
+      <path d="M25 15 C12 4, 2 10, 8 22 C15 25, 21 19, 25 15 Z" fill="#CF3D2D" stroke="#7A1C12" stroke-width="2.5"/>
+      <path d="M25 15 C38 4, 48 10, 42 22 C35 25, 29 19, 25 15 Z" fill="#CF3D2D" stroke="#7A1C12" stroke-width="2.5"/>
+      <circle cx="25" cy="16" r="5" fill="#962215"/>
+    </g>
+
+    <!-- Windowsill with plain warm ceramic cup -->
+    <rect x="16" y="502" width="428" height="34" rx="12" fill="#B87B48" stroke="#4D2E15" stroke-width="4"/>
+    <!-- Plain ceramic mug on sill -->
+    <g transform="translate(105, 434)">
+      <path d="M58 22 H72 C82 22, 82 52, 72 52 H58" stroke="#FFFDF7" stroke-width="8" stroke-linecap="round"/>
+      <path d="M58 22 H72 C82 22, 82 52, 72 52 H58" stroke="#5E4534" stroke-width="3" stroke-linecap="round"/>
+      <rect x="6" y="10" width="56" height="62" rx="12" fill="#FFFDF7" stroke="#5E4534" stroke-width="3.5"/>
+      <ellipse cx="34" cy="14" rx="22" ry="5" fill="#9E6236"/>
+    </g>
+  </g>
+
+  <!-- Subtle bottom wooden sill line -->
+  <rect x="0" y="868" width="1600" height="32" fill="#E8D8B9" fill-opacity="0.55"/>
+</svg>
