@@ -1,12 +1,14 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `b24905a` on `Thuanaj` after merging `origin/main`. The [final demo assessment](FinalDemoAssessment-2026-11-05.md) records **39/44 catalog cases Pass**; five remain Not Run. The main login → menu → order → SQL → logout flow can be demonstrated, while full catalog acceptance remains pending.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `Thuanaj` based on `b24905a`. The [latest test record](TestResults.md) records **41/44 catalog cases Pass**; three browser cases remain Not Run. The main login → menu → order → SQL → logout flow can be demonstrated, while full catalog acceptance remains pending.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
-| 44 | 39 | 0 | 0 | 5 | 0 |
+| 44 | 41 | 0 | 0 | 3 | 0 |
 
-The [independent automated rerun on Thuanaj](ThuanajRerun-2026-11-05.txt) confirms Release build 0 warnings/errors, **65/65 unit tests**, auth **13/13 catalog cases**, menu **34/34 checks** and order **101/101 checks** with local test fixture cleanup. Khang's [browser/SQL evidence](BrowserDemoResult-2026-11-05.md) supports the integrated UI cases and was not independently rerun in this check. The open cases are QA-S4-013 (natural TTL), 017 (two browser contexts), 026 (live menu change), 041 (Vietnam date boundary) and 044 (uncertain POST outcome). These remain Not Run; run them with the required test controls before marking the Sprint catalog complete.
+The [independent automated rerun on Thuanaj](ThuanajRerun-2026-11-05.txt) confirms Release build 0 warnings/errors and **65/65 unit tests**. The subsequent [Auth TTL run](AuthSmokeResult-2026-11-05-Ttl.txt) passed **14/14 catalog cases**, and the [Order boundary run](OrderSmokeResult-2026-11-05-Boundary.txt) passed **106/106 checks**, both with local fixture cleanup. Khang's [browser/SQL evidence](BrowserDemoResult-2026-11-05.md) supports the integrated UI cases and was not independently rerun here. QA-S4-017 (two browser contexts), 026 (live menu change) and 044 (uncertain POST outcome) remain Not Run.
+
+The latest full unit test attempt was interrupted by Windows Application Control: 36/65 passed and 29 could not load `BranchFlow.Web.dll` (0x800711C7). The policy also blocked the demo seeder needed to prepare `BranchFlow_Test` for browser checks. See [run K details](TestResults.md); the earlier 65/65 result predates these test-control changes.
 
 ## Historical review snapshot before order and browser integration
 

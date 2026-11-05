@@ -44,19 +44,26 @@ try
  var n2=Add(new NoteOption{NoteGroup=ng,Name="None "+suffix,IsActive=true});
  var profile=Add(new EmployeeProfile{User=user,EmployeeCode="O"+suffix,HireDate=DateOnly.FromDateTime(now)});
  Add(new EmployeeBranchAssignment{EmployeeProfile=profile,Branch=branch,EffectiveFrom=now.AddDays(-1),AssignedByUser=owner});
- var session=Add(new AuthSession{Id=Guid.NewGuid(),User=user,CreatedAt=now,ExpiresAt=now.AddHours(1)});
+ var session=Add(new AuthSession{Id=Guid.NewGuid(),User=user,CreatedAt=now,ExpiresAt=now.AddDays(2)});
  var otherSession=Add(new AuthSession{Id=Guid.NewGuid(),User=other,CreatedAt=now,ExpiresAt=now.AddHours(1)});
  var ownerSession=Add(new AuthSession{Id=Guid.NewGuid(),User=owner,CreatedAt=now,ExpiresAt=now.AddHours(1)});
  await db.SaveChangesAsync(); branchId=branch.Id;fixtureSaved=true;
  string key=Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
- var start=new ProcessStartInfo("dotnet"){WorkingDirectory=root,UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
- foreach(var a in new[]{Path.Combine(root,"src/BranchFlow.Api/bin/Release/net10.0/BranchFlow.Api.dll"),"--urls","http://localhost:19119","--contentRoot",Path.Combine(root,"src/BranchFlow.Api")}) start.ArgumentList.Add(a);
- start.Environment["ASPNETCORE_ENVIRONMENT"]="Production";start.Environment["ConnectionStrings__BranchFlowDb"]=connection;
- start.Environment["Jwt__Key"]=key;start.Environment["Jwt__Issuer"]="OrderSmoke";start.Environment["Jwt__Audience"]="OrderSmoke";
- host=Process.Start(start)!; host.OutputDataReceived+=(_,e)=>{lock(logs)logs.AppendLine(e.Data);};host.ErrorDataReceived+=(_,e)=>{lock(logs)logs.AppendLine(e.Data);};host.BeginOutputReadLine();host.BeginErrorReadLine();
  using var http=new HttpClient{BaseAddress=new Uri("http://localhost:19119"),Timeout=TimeSpan.FromSeconds(20)};
- bool ready=false; for(int i=0;i<80;i++){try{using var probe=await http.GetAsync("/api/orders/mine");ready=true;break;}catch(HttpRequestException){await Task.Delay(150);}}
- if(!ready)throw new Exception("Host not ready");
+ async Task StartHost(string? qaUtc = null)
+ {
+  if(host is not null){if(!host.HasExited){host.Kill(true);await host.WaitForExitAsync();}host.Dispose();}
+  var start=new ProcessStartInfo("dotnet"){WorkingDirectory=root,UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
+  foreach(var a in new[]{Path.Combine(root,"src/BranchFlow.Api/bin/Release/net10.0/BranchFlow.Api.dll"),"--urls","http://localhost:19119","--contentRoot",Path.Combine(root,"src/BranchFlow.Api")}) start.ArgumentList.Add(a);
+  start.Environment["ASPNETCORE_ENVIRONMENT"]=qaUtc is null?"Production":"Testing";
+  if(qaUtc is not null)start.Environment["Qa__UtcNow"]=qaUtc;
+  start.Environment["ConnectionStrings__BranchFlowDb"]=connection;
+  start.Environment["Jwt__Key"]=key;start.Environment["Jwt__Issuer"]="OrderSmoke";start.Environment["Jwt__Audience"]="OrderSmoke";
+  host=Process.Start(start)!;host.OutputDataReceived+=(_,e)=>{lock(logs)logs.AppendLine(e.Data);};host.ErrorDataReceived+=(_,e)=>{lock(logs)logs.AppendLine(e.Data);};host.BeginOutputReadLine();host.BeginErrorReadLine();
+  bool ready=false;for(int i=0;i<80;i++){try{using var probe=await http.GetAsync("/api/orders/mine");ready=true;break;}catch(HttpRequestException){await Task.Delay(150);}}
+  if(!ready)throw new Exception("Host not ready");
+ }
+ await StartHost();
  string Token(AppUser u,AuthSession s,string r)=>new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken("OrderSmoke","OrderSmoke",[new Claim("sub",u.Id.ToString()),new Claim("sid",s.Id.ToString()),new Claim("role",r)],now.AddMinutes(-1),now.AddMinutes(30),new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),SecurityAlgorithms.HmacSha256)));
  string token=Token(user,session,"EMPLOYEE");
  object Item(int cups=2,object[]? toppings=null,int[]? notes=null,int? productSize=null)=>new {productSizeId=productSize??ps.Id,quantity=cups,toppings=toppings??[new{toppingId=t1.Id,quantity=3},new{toppingId=t2.Id,quantity=1}],noteOptionIds=notes??[n1.Id]};
@@ -135,6 +142,21 @@ try
  var changed=await Send("POST","/api/orders",201,Body());Require(changed.GetProperty("totalAmount").GetDecimal()==101000,"Current topping SQL price is applied");
  var oldDetail=await Send("GET","/api/orders/"+id,200);
  Require(oldDetail.GetProperty("totalAmount").GetDecimal()==98000 && oldDetail.GetProperty("items")[0].GetProperty("toppings").EnumerateArray().Any(t=>t.GetProperty("name").GetString()=="Jelly "+suffix && t.GetProperty("unitPrice").GetDecimal()==4000),"Old topping name/price snapshot preserved");
+ // QA-S4-041: two real HTTP inserts against a controlled API clock, then SQL assertions.
+ var boundaryDate=DateTime.UtcNow.Date;
+ if(DateTime.UtcNow>=boundaryDate.AddHours(16).AddMinutes(59).AddSeconds(50))boundaryDate=boundaryDate.AddDays(1);
+ var beforeMidnight=new DateTimeOffset(boundaryDate.AddHours(16).AddMinutes(59).AddSeconds(59),TimeSpan.Zero);
+ var afterMidnight=beforeMidnight.AddSeconds(1);
+ await StartHost(beforeMidnight.ToString("O"));
+ var firstBoundary=await Send("POST","/api/orders",201,Body());
+ await StartHost(afterMidnight.ToString("O"));
+ var secondBoundary=await Send("POST","/api/orders",201,Body());
+ var firstId=firstBoundary.GetProperty("id").GetInt32();var secondId=secondBoundary.GetProperty("id").GetInt32();
+ var boundaryRows=await db.SalesOrders.AsNoTracking().Where(o=>o.Id==firstId||o.Id==secondId).ToDictionaryAsync(o=>o.Id);
+ Require(boundaryRows[firstId].BusinessDate==DateOnly.FromDateTime(boundaryDate) && boundaryRows[secondId].BusinessDate==DateOnly.FromDateTime(boundaryDate.AddDays(1)),"QA-S4-041 Vietnam business date changes at 17:00:00Z");
+ Require(boundaryRows[firstId].CreatedAt==beforeMidnight.UtcDateTime && boundaryRows[secondId].CreatedAt==afterMidnight.UtcDateTime,"QA-S4-041 SQL CreatedAt remains exact UTC");
+ Require(firstBoundary.GetProperty("businessDate").GetDateTime().Date==boundaryDate.Date && secondBoundary.GetProperty("businessDate").GetDateTime().Date==boundaryDate.AddDays(1).Date,"QA-S4-041 HTTP business dates match SQL");
+ await StartHost();
  branch.IsActive=false;await db.SaveChangesAsync();await Send("POST","/api/orders",404,Body());
  Console.WriteLine($"RESULT: {checks} checks PASS. API/SQL transaction, scope, price, snapshots and concurrency verified.");
 }

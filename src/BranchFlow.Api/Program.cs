@@ -9,6 +9,8 @@ using BranchFlow.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Microsoft.Data.SqlClient;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,13 +32,36 @@ builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddSingleton(TimeProvider.System);
+// QA clock/TTL overrides are accepted only by a Testing host bound to local BranchFlow_Test.
+string? qaUtc = builder.Configuration["Qa:UtcNow"];
+int? qaAccessSeconds = builder.Configuration.GetValue<int?>("Qa:AccessTokenLifetimeSeconds");
+int? qaSessionSeconds = builder.Configuration.GetValue<int?>("Qa:SessionLifetimeSeconds");
+bool hasQaOverride = qaUtc is not null || qaAccessSeconds.HasValue || qaSessionSeconds.HasValue;
+if (hasQaOverride)
+{
+    var sql = new SqlConnectionStringBuilder(connectionString);
+    if (!builder.Environment.IsEnvironment("Testing") ||
+        !sql.InitialCatalog.Equals("BranchFlow_Test", StringComparison.OrdinalIgnoreCase) ||
+        !(sql.DataSource.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+          sql.DataSource.StartsWith("localhost\\", StringComparison.OrdinalIgnoreCase)))
+        throw new InvalidOperationException("QA time overrides require Testing and local BranchFlow_Test.");
+    if ((qaAccessSeconds.HasValue || qaSessionSeconds.HasValue) &&
+        (qaAccessSeconds is < 1 or > 3600 || qaSessionSeconds is < 2 or > 86400 ||
+         qaAccessSeconds is null || qaSessionSeconds is null || qaSessionSeconds <= qaAccessSeconds))
+        throw new InvalidOperationException("QA token lifetimes are invalid.");
+}
+TimeProvider apiClock = qaUtc is null ? TimeProvider.System :
+    new FixedUtcTimeProvider(DateTimeOffset.Parse(qaUtc, CultureInfo.InvariantCulture,
+        DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+builder.Services.AddSingleton(apiClock);
 builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton(new AuthTokenSettings(
     builder.Configuration["Jwt:Key"] ?? string.Empty,
     builder.Configuration["Jwt:Issuer"] ?? string.Empty,
-    builder.Configuration["Jwt:Audience"] ?? string.Empty));
+    builder.Configuration["Jwt:Audience"] ?? string.Empty,
+    qaAccessSeconds.HasValue ? TimeSpan.FromSeconds(qaAccessSeconds.Value) : null,
+    qaSessionSeconds.HasValue ? TimeSpan.FromSeconds(qaSessionSeconds.Value) : null));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBranchAccessService, BranchAccessService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
