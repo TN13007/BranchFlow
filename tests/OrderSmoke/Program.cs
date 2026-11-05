@@ -22,7 +22,7 @@ await using var db=new BranchFlowDbContext(new DbContextOptionsBuilder<BranchFlo
 var suffix=Guid.NewGuid().ToString("N")[..10]; var now=DateTime.UtcNow; var created=new List<object>();
 T Add<T>(T entity) where T:class { db.Add(entity); created.Add(entity); return entity; }
 Process? host=null; var logs=new StringBuilder(); int checks=0; int branchId=0; bool fixtureSaved=false; string trigger="OrderSmoke_"+suffix;
-void Require(bool condition,string label){ if(!condition)throw new Exception(label); Console.WriteLine($"PASS {++checks}: {label}"); }
+void Require(bool condition,string label){ if(!condition)throw new Exception(label); Console.WriteLine($"PASS {Interlocked.Increment(ref checks)}: {label}"); }
 try
 {
  var role=await db.Roles.SingleAsync(r=>r.Code=="EMPLOYEE"); var ownerRole=await db.Roles.SingleAsync(r=>r.Code=="OWNER");

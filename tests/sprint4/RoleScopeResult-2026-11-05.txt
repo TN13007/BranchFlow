@@ -1,0 +1,10 @@
+PASS demo.owner /api/order-menu?branchId=1 -> 403; validated role/branch at API
+PASS demo.owner /api/orders -> 403; validated role/branch at API
+PASS demo.systemadmin /api/order-menu?branchId=1 -> 403; validated role/branch at API
+PASS demo.systemadmin /api/orders -> 403; validated role/branch at API
+PASS demo.branchadmin.01 /api/order-menu?branchId=1 -> 403; validated role/branch at API
+PASS demo.branchadmin.01 /api/orders -> 403; validated role/branch at API
+PASS demo.employee.a /api/order-menu?branchId=2 -> 403; validated role/branch at API
+PASS demo.employee.a /api/orders -> 403; validated role/branch at API
+PASS client userId rejected with 400; no client identity accepted
+PASS QA-S4-015/016; role/scope variants complete; credentials/tokens omitted.

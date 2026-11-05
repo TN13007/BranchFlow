@@ -25,6 +25,8 @@ Khi chạy, nhập một mật khẩu demo dài ít nhất 12 ký tự. Ký tự
 
 ## Tài khoản và phạm vi
 
+Sau bước tài khoản, công cụ gọi `SalesDemoSeedService` từ PR #26 để tạo menu bán hàng có size/giá/topping/ghi chú và khả dụng khác nhau theo chi nhánh. Chạy lại không đổi giá/trạng thái đã tồn tại; xung đột phải được kiểm tra thủ công. Có thể chạy thêm `database/003-demo-menu.sql` cho bộ đồ uống minh họa 98.000đ; đây là dữ liệu bổ sung local, không thay menu của thành viên.
+
 | Username | Role | Trạng thái | Chi nhánh |
 |---|---|---|---|
 | `demo.owner` | OWNER | Active | Tất cả 3 chi nhánh |

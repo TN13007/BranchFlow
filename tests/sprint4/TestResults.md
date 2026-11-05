@@ -1,3 +1,7 @@
+# Run 2026-11-05-I: bản demo tích hợp PR 26/27
+
+Kết quả và phạm vi từng nhóm ca: [FinalDemoAssessment-2026-11-05.md](FinalDemoAssessment-2026-11-05.md). Order 101 API/SQL checks, auth 13 ca, menu 34 checks; UI tạo đơn BF-DEMO-01-20261105-0002, 98.000đ và SQL cùng mã. 39 Pass / 5 Not Run. Các lần H và trước đó dưới đây được giữ để truy vết lịch sử.
+
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
 Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. Source inspection or mock tests do not establish runtime API/SQL/browser acceptance; unit-only results are explicitly labeled.
