@@ -1,0 +1,378 @@
+@page "/preview/owner"
+@layout EmployeeLayout
+@inject IWebHostEnvironment Environment
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<PageTitle>Xem thử Chủ sở hữu (OWNER) | BranchFlow</PageTitle>
+
+@if (Environment.IsDevelopment())
+{
+    <div class="preview-banner @ActiveSceneClass" role="status">
+        <span><strong>DỮ LIỆU MẪU (DEVELOPMENT)</strong> · Page Figma <code>152:973</code> (Giáng sinh · 01 Chủ sở hữu). Vai trò <strong>OWNER chỉ đọc dữ liệu</strong>, không tạo đơn hoặc sửa cấu hình.</span>
+        <PreviewRoleSwitcher CurrentRole="owner" />
+    </div>
+
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">CHỦ SỞ HỮU (OWNER) · CHẾ ĐỘ CHỈ ĐỌC · MỐC FIGMA @ActiveNodeId</p>
+            <h1>@ActiveTitle</h1>
+            <p>Góc nhìn toàn cảnh chuỗi cửa hàng BranchFlow trong mùa lễ hội. Mọi số liệu dưới đây là dữ liệu mẫu tĩnh phục vụ kiểm duyệt giao diện.</p>
+        </div>
+        <span class="status-badge completed">Chế độ xem: OWNER (Read-Only)</span>
+    </header>
+
+    <div class="page-content">
+        <div id="owner-tablist" class="atelier-subnav" role="tablist" aria-label="Các màn hình Chủ sở hữu">
+            @for (var i = 0; i < tabs.Count; i++)
+            {
+                var idx = i;
+                var tab = tabs[i];
+                var isSelected = activeTab == tab.Key;
+                <button id="owner-tab-@tab.Key"
+                        type="button"
+                        class="chip @(isSelected ? "selected" : "")"
+                        role="tab"
+                        aria-selected="@(isSelected ? "true" : "false")"
+                        aria-controls="owner-tabpanel"
+                        tabindex="@(isSelected ? 0 : -1)"
+                        @onclick="() => activeTab = tab.Key"
+                        @onkeydown="e => OnTabKeyDownAsync(e, idx)">
+                    @tab.Label
+                </button>
+            }
+        </div>
+
+        <div id="owner-tabpanel" role="tabpanel" aria-labelledby="owner-tab-@activeTab">
+            @if (activeTab == "overview")
+            {
+                <div class="kpi-grid">
+                    <section class="kpi-card">
+                        <div class="kpi-label">DOANH THU TOÀN CHUỖI (HÔM NAY)</div>
+                        <div class="kpi-value">42.850.000đ</div>
+                        <div class="kpi-note">3 chi nhánh đang mở bán · Ngày kinh doanh 04/11/2026</div>
+                    </section>
+                    <section class="kpi-card kpi-gold">
+                        <div class="kpi-label">ĐƠN HOÀN TẤT</div>
+                        <div class="kpi-value">618 đơn</div>
+                        <div class="kpi-note">1.240 ly đồ uống · Giá trị trung bình 69.336đ/đơn</div>
+                    </section>
+                    <section class="kpi-card">
+                        <div class="kpi-label">NHÂN SỰ ĐANG TRỰC CA</div>
+                        <div class="kpi-value">24 nhân viên</div>
+                        <div class="kpi-note">3 Quản lý chi nhánh · 21 Nhân viên pha chế</div>
+                    </section>
+                    <section class="kpi-card kpi-red">
+                        <div class="kpi-label">CẢNH BÁO TỒN KHO</div>
+                        <div class="kpi-value">2 nguyên liệu</div>
+                        <div class="kpi-note">Hạt trân châu đen (Q3) và Bột Matcha (Q1) gần chạm ngưỡng</div>
+                    </section>
+                </div>
+
+                <section class="surface-card">
+                    <h2>Hiệu suất hoạt động theo chi nhánh (Node 165:27101)</h2>
+                    <div class="table-scroll">
+                        <table class="atelier-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã CN</th>
+                                    <th>Tên chi nhánh</th>
+                                    <th>Quản lý phụ trách</th>
+                                    <th class="num">Số đơn</th>
+                                    <th class="num">Doanh thu ngày</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Q1</strong></td>
+                                    <td>Chi nhánh Quận 1 · Nguyễn Huệ</td>
+                                    <td>Trần Minh Quân</td>
+                                    <td class="num">264</td>
+                                    <td class="num">18.920.000đ</td>
+                                    <td><StatusBadge Status="COMPLETED" /></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Q3</strong></td>
+                                    <td>Chi nhánh Quận 3 · Võ Văn Tần</td>
+                                    <td>Lê Thu Hà</td>
+                                    <td class="num">198</td>
+                                    <td class="num">13.450.000đ</td>
+                                    <td><StatusBadge Status="COMPLETED" /></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>TD</strong></td>
+                                    <td>Chi nhánh Thủ Đức · Thảo Điền</td>
+                                    <td>Phạm Quốc Bảo</td>
+                                    <td class="num">156</td>
+                                    <td class="num">10.480.000đ</td>
+                                    <td><StatusBadge Status="NEEDS_REVIEW" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+            else if (activeTab == "orders")
+            {
+                <section class="surface-card">
+                    <h2>Tra cứu đơn hàng toàn chuỗi — Chỉ đọc (Node 165:28020)</h2>
+                    <p class="text-secondary mb-3">Chủ sở hữu xem lịch sử và snapshot đơn hàng của mọi chi nhánh, không thực hiện tạo đơn hoặc sửa đơn.</p>
+                    <div class="table-scroll">
+                        <table class="atelier-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Chi nhánh</th>
+                                    <th>Nhân viên tạo</th>
+                                    <th>Thời gian (Giờ VN)</th>
+                                    <th class="num">Số ly</th>
+                                    <th class="num">Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Q1-20261104-0042</strong></td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td>employee01</td>
+                                    <td>04/11/2026 10:15</td>
+                                    <td class="num">2</td>
+                                    <td class="num">98.000đ</td>
+                                    <td><StatusBadge Status="COMPLETED" /></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Q3-20261104-0019</strong></td>
+                                    <td>Q3 · Quận 3</td>
+                                    <td>employee04</td>
+                                    <td>04/11/2026 09:50</td>
+                                    <td class="num">3</td>
+                                    <td class="num">132.000đ</td>
+                                    <td><StatusBadge Status="COMPLETED" /></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>TD-20261104-0008</strong></td>
+                                    <td>TD · Thảo Điền</td>
+                                    <td>employee09</td>
+                                    <td>04/11/2026 09:12</td>
+                                    <td class="num">1</td>
+                                    <td class="num">52.000đ</td>
+                                    <td><StatusBadge Status="NEEDS_REVIEW" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+            else if (activeTab == "employees")
+            {
+                <section class="surface-card">
+                    <h2>Danh sách nhân sự &amp; phân công chi nhánh (Node 165:28472)</h2>
+                    <div class="table-scroll">
+                        <table class="atelier-table">
+                            <thead>
+                                <tr>
+                                    <th>Tài khoản</th>
+                                    <th>Họ và tên</th>
+                                    <th>Vai trò</th>
+                                    <th>Chi nhánh hiệu lực</th>
+                                    <th>Hiệu lực từ (UTC)</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>branchadmin_q1</strong></td>
+                                    <td>Trần Minh Quân</td>
+                                    <td>BRANCH_ADMIN</td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td>01/10/2026</td>
+                                    <td><span class="status-badge completed">✓ Đang hoạt động</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>employee01</strong></td>
+                                    <td>Nguyễn Công Thành</td>
+                                    <td>EMPLOYEE</td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td>01/10/2026</td>
+                                    <td><span class="status-badge completed">✓ Đang hoạt động</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>employee04</strong></td>
+                                    <td>Võ Hoàng Yến</td>
+                                    <td>EMPLOYEE</td>
+                                    <td>Q3 · Quận 3</td>
+                                    <td>15/10/2026</td>
+                                    <td><span class="status-badge completed">✓ Đang hoạt động</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+            else if (activeTab == "inventory")
+            {
+                <section class="surface-card">
+                    <h2>Tồn kho nguyên liệu toàn chuỗi (Node 165:28935)</h2>
+                    <div class="table-scroll">
+                        <table class="atelier-table">
+                            <thead>
+                                <tr>
+                                    <th>Nguyên liệu</th>
+                                    <th>Chi nhánh</th>
+                                    <th>Đơn vị</th>
+                                    <th class="num">Tồn hiện tại</th>
+                                    <th class="num">Định mức tối thiểu</th>
+                                    <th>Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Trà đen nguyên lá</strong></td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td>Kg</td>
+                                    <td class="num">18,5</td>
+                                    <td class="num">5,0</td>
+                                    <td><span class="status-badge completed">✓ Đủ dùng</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bột Matcha Uji</strong></td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td>Kg</td>
+                                    <td class="num">1,8</td>
+                                    <td class="num">2,0</td>
+                                    <td><span class="status-badge needs-review">! Cần nhập thêm</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trân châu đen</strong></td>
+                                    <td>Q3 · Quận 3</td>
+                                    <td>Kg</td>
+                                    <td class="num">3,2</td>
+                                    <td class="num">4,0</td>
+                                    <td><span class="status-badge needs-review">! Cần nhập thêm</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+            else if (activeTab == "payroll")
+            {
+                <section class="surface-card">
+                    <h2>Tổng hợp bảng lương tháng 11/2026 — Chỉ đọc (Node 165:29462)</h2>
+                    <div class="table-scroll">
+                        <table class="atelier-table">
+                            <thead>
+                                <tr>
+                                    <th>Nhân viên</th>
+                                    <th>Chi nhánh</th>
+                                    <th class="num">Số giờ công</th>
+                                    <th class="num">Lương cơ bản</th>
+                                    <th class="num">Phụ cấp ca</th>
+                                    <th class="num">Tổng tạm tính</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Nguyễn Công Thành</strong></td>
+                                    <td>Q1 · Quận 1</td>
+                                    <td class="num">168h</td>
+                                    <td class="num">6.720.000đ</td>
+                                    <td class="num">650.000đ</td>
+                                    <td class="num">7.370.000đ</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Võ Hoàng Yến</strong></td>
+                                    <td>Q3 · Quận 3</td>
+                                    <td class="num">160h</td>
+                                    <td class="num">6.400.000đ</td>
+                                    <td class="num">500.000đ</td>
+                                    <td class="num">6.900.000đ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+            else if (activeTab == "analytics")
+            {
+                <section class="surface-card">
+                    <h2>Phân tích hoạt động &amp; cơ cấu nhóm món (Node 165:29941)</h2>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">NHÓM BÁN CHẠY NHẤT</div>
+                            <div class="kpi-value">Trà trái cây (44%)</div>
+                            <div class="kpi-note">Trà đào cam sả và Trà vải dẫn đầu số ly</div>
+                        </div>
+                        <div class="kpi-card kpi-gold">
+                            <div class="kpi-label">TỶ LỆ CHỌN TOPPING</div>
+                            <div class="kpi-value">68% đơn hàng</div>
+                            <div class="kpi-note">Trung bình 1,8 phần topping / ly</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">KHUNG GIỜ CAO ĐIỂM</div>
+                            <div class="kpi-value">11:30 – 13:30</div>
+                            <div class="kpi-note">Chiếm 39% sản lượng đơn trong ngày</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">TỶ LỆ ĐƠN HOÀN TẤT</div>
+                            <div class="kpi-value">98,4%</div>
+                            <div class="kpi-note">Tất cả giao dịch đồng bộ snapshot máy chủ</div>
+                        </div>
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="page-content"><h1>Không tìm thấy trang</h1></div>
+}
+
+@code {
+    private string activeTab = "overview";
+    private IJSObjectReference? module;
+
+    private sealed record TabItem(string Key, string Label, string NodeId, string Title);
+
+    private static readonly IReadOnlyList<TabItem> tabs =
+    [
+        new("overview", "01 · Tổng quan", "165:27101", "Tổng quan doanh nghiệp"),
+        new("orders", "02 · Đơn hàng", "165:28020", "Đơn hàng toàn chuỗi"),
+        new("employees", "03 · Nhân viên", "165:28472", "Đội ngũ nhân sự"),
+        new("inventory", "04 · Kho nguyên liệu", "165:28935", "Kho nguyên liệu"),
+        new("payroll", "05 · Bảng lương", "165:29462", "Bảng lương tổng hợp"),
+        new("analytics", "06 · Phân tích", "165:29941", "Phân tích hoạt động")
+    ];
+
+    private string ActiveNodeId => tabs.First(t => t.Key == activeTab).NodeId;
+    private string ActiveTitle => tabs.First(t => t.Key == activeTab).Title;
+    private string ActiveSceneClass => activeTab switch
+    {
+        "inventory" => "context-scene-snow-storehouse",
+        "payroll" => "context-scene-quiet-window",
+        _ => "context-scene-village-overview"
+    };
+
+    private async Task OnTabKeyDownAsync(KeyboardEventArgs e, int currentIndex)
+    {
+        var nextIndex = e.Key switch
+        {
+            "ArrowRight" or "ArrowDown" => (currentIndex + 1) % tabs.Count,
+            "ArrowLeft" or "ArrowUp" => (currentIndex - 1 + tabs.Count) % tabs.Count,
+            "Home" => 0,
+            "End" => tabs.Count - 1,
+            _ => -1
+        };
+        if (nextIndex < 0) return;
+        activeTab = tabs[nextIndex].Key;
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-ui.js");
+        await module.InvokeVoidAsync("focusTab", "owner-tablist", nextIndex);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null) try { await module.DisposeAsync(); } catch (JSDisconnectedException) { }
+    }
+}

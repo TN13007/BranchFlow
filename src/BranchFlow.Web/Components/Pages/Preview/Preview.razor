@@ -1,0 +1,23 @@
+@page "/preview/orders"
+@layout EmployeeLayout
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Xem thử menu | BranchFlow</PageTitle>
+@if (Environment.IsDevelopment())
+{
+    <div class="preview-banner" role="status">
+        <span><strong>DỮ LIỆU MẪU (DEVELOPMENT)</strong> · Chỉ xem thử menu/giỏ hàng tĩnh. Không đăng nhập, không ghi đơn vào hệ thống.</span>
+        <PreviewRoleSwitcher CurrentRole="employee" />
+    </div>
+    <OrderWorkspace Menu="menu" Cart="cart" Preview="true" />
+}
+else
+{
+    <div class="page-content"><h1>Không tìm thấy trang</h1></div>
+}
+
+@code {
+    private readonly OrderMenu menu = PreviewMenu.Create();
+    private readonly CartState cart = new();
+    protected override void OnInitialized() => cart.SetBranch(menu.Branch.Id);
+}
