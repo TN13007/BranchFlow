@@ -9,8 +9,8 @@ public interface IDemoSeedRepository
     Task<AppUser?> GetUserByUsernameAsync(string username, CancellationToken cancellationToken = default);
     Task<List<AppUser>> GetUsersByUsernamesAsync(IReadOnlyCollection<string> usernames, CancellationToken cancellationToken = default);
     Task<EmployeeProfile?> GetEmployeeProfileByUserIdAsync(int userId, CancellationToken cancellationToken = default);
-    Task<AdminBranchAssignment?> GetOpenAdminBranchAssignmentByBranchIdAsync(int branchId, CancellationToken cancellationToken = default);
-    Task<EmployeeBranchAssignment?> GetOpenEmployeeBranchAssignmentByProfileIdAsync(int profileId, CancellationToken cancellationToken = default);
+    Task<AdminBranchAssignment?> GetAssignmentOverlappingFromUtcByBranchIdAsync(int branchId, DateTime effectiveFromUtc, CancellationToken cancellationToken = default);
+    Task<EmployeeBranchAssignment?> GetAssignmentOverlappingFromUtcByProfileIdAsync(int profileId, DateTime effectiveFromUtc, CancellationToken cancellationToken = default);
 
     void AddBranch(Branch branch);
     void AddUser(AppUser user);
