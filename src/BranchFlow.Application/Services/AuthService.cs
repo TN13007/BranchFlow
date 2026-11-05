@@ -9,6 +9,7 @@ using BranchFlow.Infrastructure.Repositories;
 using BranchFlow.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 
 namespace BranchFlow.Application.Services;
 
