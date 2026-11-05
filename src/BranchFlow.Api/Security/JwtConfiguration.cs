@@ -35,13 +35,30 @@ public static class JwtConfiguration
             {
                 OnTokenValidated = async context =>
                 {
-                    var user = context.Principal;
-                    if (!int.TryParse(user?.FindFirst("sub")?.Value, out var userId) || userId <= 0 ||
-                        !Guid.TryParse(user?.FindFirst("sid")?.Value, out var sid) ||
-                        user?.FindFirst("role")?.Value is not { } role ||
-                        !await context.HttpContext.RequestServices.GetRequiredService<IMenuAccessRepository>()
-                            .IsActiveSessionAsync(userId, sid, role, context.HttpContext.RequestAborted))
+                    System.Security.Claims.ClaimsPrincipal? user = context.Principal;
+                    string? role = user?.FindFirst("role")?.Value;
+
+                    if (!int.TryParse(user?.FindFirst("sub")?.Value, out int userId) ||
+                        userId <= 0 ||
+                        !Guid.TryParse(user?.FindFirst("sid")?.Value, out Guid sessionId) ||
+                        !IsSupportedRole(role))
+                    {
+                        context.Fail("Token không hợp lệ.");
+                        return;
+                    }
+
+                    bool activeSession = await context.HttpContext.RequestServices
+                        .GetRequiredService<IMenuAccessRepository>()
+                        .IsActiveSessionAsync(
+                            userId,
+                            sessionId,
+                            role!,
+                            context.HttpContext.RequestAborted);
+
+                    if (!activeSession)
+                    {
                         context.Fail("Phiên không hợp lệ.");
+                    }
                 },
                 OnChallenge = async context =>
                 {
@@ -56,5 +73,10 @@ public static class JwtConfiguration
                     { ["traceId"] = context.HttpContext.TraceIdentifier }).ExecuteAsync(context.HttpContext)
             };
         });
+    }
+
+    private static bool IsSupportedRole(string? role)
+    {
+        return role is "OWNER" or "SYSTEM_ADMIN" or "BRANCH_ADMIN" or "EMPLOYEE";
     }
 }

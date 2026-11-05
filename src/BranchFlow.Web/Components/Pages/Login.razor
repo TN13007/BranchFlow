@@ -30,7 +30,6 @@
         <EditForm Model="form" OnValidSubmit="HandleValidSubmitAsync" OnInvalidSubmit="HandleInvalidSubmit"
                   id="branchflow-login" action="/auth/login" method="post" data-enhance="false"
                   FormName="login" aria-describedby="login-description" novalidate>
-            <AntiforgeryToken />
             <DataAnnotationsValidator />
 
             <div class="mb-4">
