@@ -17,6 +17,32 @@ public sealed class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    {
+        if (!int.TryParse(User.FindFirst("sub")?.Value, out int userId) || userId <= 0)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Chưa xác thực",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        BranchFlow.Application.DTOs.Sprint4.CurrentUser? currentUser =
+            await _authService.GetCurrentUserAsync(userId, cancellationToken);
+
+        if (currentUser is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Chưa xác thực",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        return Ok(currentUser);
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting("auth-login")]
