@@ -75,6 +75,43 @@ public sealed class AuthService : IAuthService
         return new CurrentUser(user.Id, user.Username, user.RoleCode);
     }
 
+    public async Task<bool> LogoutAsync(
+        int userId,
+        Guid sessionId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0 || sessionId == Guid.Empty)
+        {
+            return false;
+        }
+
+        DateTime revokedAtUtc = _clock.GetUtcNow().UtcDateTime;
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            bool revoked = await _repository.RevokeCurrentSessionAsync(
+                sessionId,
+                userId,
+                revokedAtUtc,
+                cancellationToken);
+
+            if (!revoked)
+            {
+                await RollbackSafelyAsync();
+                return false;
+            }
+
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+            return true;
+        }
+        catch
+        {
+            await RollbackSafelyAsync();
+            throw;
+        }
+    }
+
     // Kiểm tra thông tin đăng nhập trước, sau đó tạo session và refresh token trong một transaction.
     public async Task<TokenPair?> LoginAsync(
         string username,
