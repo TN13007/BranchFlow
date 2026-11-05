@@ -8,6 +8,10 @@ public interface IAuthRepository
         string username,
         CancellationToken cancellationToken = default);
 
+    Task<AuthCurrentUserData?> GetActiveUserByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<AccessibleBranchData>> GetAccessibleBranchesAsync(
         int userId,
         CancellationToken cancellationToken = default);
