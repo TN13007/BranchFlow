@@ -38,6 +38,7 @@ Inject `IBranchAccessService` từ `BranchFlow.Application.Services` vào servic
 
 - `GetAccessibleBranchesAsync(userId, cancellationToken)`: lấy danh sách branch theo role và assignment hiện tại.
 - `CanAccessBranchAsync(userId, branchId, cancellationToken)`: kiểm tra branch có nằm trong phạm vi truy cập hiện tại hay không.
+- `HasBranchScopeAsync(userId, branchId, cancellationToken)`: kiểm tra role/phân công hiệu lực, không yêu cầu chi nhánh active. Menu dùng phép kiểm này trước, sau đó repository menu kiểm tra trạng thái chi nhánh: ngoài phạm vi trả 403; trong phạm vi nhưng inactive/deleted trả 404. Kết quả true không cho phép tạo đơn trên chi nhánh ngừng hoạt động.
 
 Quy tắc do repository dùng chung thực hiện:
 
@@ -48,7 +49,7 @@ Quy tắc do repository dùng chung thực hiện:
 | BRANCH_ADMIN | Branch có AdminBranchAssignment hiện hiệu lực |
 | EMPLOYEE | Branch có EmployeeBranchAssignment hiện hiệu lực và EmployeeProfile chưa deleted |
 
-Assignment tuân theo khoảng UTC nửa mở `[EffectiveFrom, EffectiveTo)`: bắt đầu có hiệu lực khi `EffectiveFrom <= now`; kết thúc hiệu lực khi `EffectiveTo <= now`. Branch phải `IsActive = 1` và `Deleted = 0`. Mọi truy vấn lấy phạm vi dựa trên userId đã xác thực ở server, không tin userId/role do client gửi.
+Assignment tuân theo khoảng UTC nửa mở `[EffectiveFrom, EffectiveTo)`: bắt đầu có hiệu lực khi `EffectiveFrom <= now`; kết thúc hiệu lực khi `EffectiveTo <= now`. Danh sách accessible và `CanAccessBranchAsync` chỉ nhận branch `IsActive = 1`, `Deleted = 0`; `HasBranchScopeAsync` giữ phân công độc lập với trạng thái branch. Mọi truy vấn lấy phạm vi dựa trên userId đã xác thực ở server, không tin userId/role do client gửi.
 
 Ví dụ kiểm tra trước khi tạo nghiệp vụ theo chi nhánh:
 

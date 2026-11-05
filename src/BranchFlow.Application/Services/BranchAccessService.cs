@@ -57,4 +57,18 @@ public sealed class BranchAccessService : IBranchAccessService
 
         return false;
     }
+
+    // Giữ quyền phân công độc lập với trạng thái chi nhánh để menu trả đúng 403/404.
+    public Task<bool> HasBranchScopeAsync(
+        int userId,
+        int branchId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0 || branchId <= 0)
+        {
+            return Task.FromResult(false);
+        }
+
+        return _authRepository.HasBranchScopeAsync(userId, branchId, cancellationToken);
+    }
 }

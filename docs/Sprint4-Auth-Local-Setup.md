@@ -1,6 +1,6 @@
 # Sprint 4 – Handoff Backend 1: Auth và quyền chi nhánh
 
-Tài liệu này mô tả cách cấu hình và chạy phần auth/branch API trong nhánh `feat/scrum-73-auth-logout`. Đây là hướng dẫn local/dev, không phải cấu hình production.
+Tài liệu này mô tả cách cấu hình và chạy auth/branch API đã tích hợp sau các PR #19–24. Đây là hướng dẫn local/dev, không phải cấu hình production. Kết quả hiện hành nằm trong [TestSummary](../tests/sprint4/TestSummary.md); các số liệu feature branch ở dưới được giữ để truy vết lịch sử.
 
 ## 1. Điều kiện trước
 
@@ -81,6 +81,7 @@ GET không cần query/body để nhận user identity, nhưng vẫn cần Beare
 - Refresh token: ngẫu nhiên; DB chỉ lưu SHA-256 hash; rotation không kéo dài mốc hết hạn tuyệt đối của session.
 - JWT middleware xác minh chữ ký HS256, issuer, audience, lifetime với `ClockSkew = 0`, claims `sub`, `sid`, `role`, rồi kiểm tra session/user/role trong DB ở mỗi request được bảo vệ.
 - Refresh token reuse làm thu hồi session chứa token đó.
+- Refresh lấy thời gian sau khi đọc trạng thái token; request thua cuộc lấy lại thời gian sau khi đọc token đã dùng trước khi revoke. Điều này tránh RevokedAt sớm hơn CreatedAt của token kế tiếp khi hai request chạy đồng thời. RowVersion và điều kiện UsedAt vẫn bảo vệ phép cập nhật một lần.
 - Logout chỉ thu hồi session hiện tại (khớp cả userId và sessionId) và refresh tokens trong session đó. Session khác của cùng user không bị thu hồi.
 
 Đổi JWT key làm access JWT hiện có không qua signature validation. Khi cần kiểm tra revoke, dùng session mới và bảo đảm request được thực hiện trước expiry; không nhầm access-token expiry với session revoke.

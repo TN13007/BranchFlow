@@ -17,6 +17,32 @@ public sealed class AuthServiceTests
         new(2026, 11, 5, 10, 0, 0, TimeSpan.Zero);
 
     [Fact]
+    public async Task RefreshReuseUsesTimeAfterDatabaseReadInsteadOfRequestStart()
+    {
+        const string rawToken = "reused-after-another-request-committed";
+        var now = FixedNow;
+        var afterRead = FixedNow.AddSeconds(1);
+        var token = CreateRefreshToken(rawToken, FixedNow.UtcDateTime);
+        token.UsedAt = afterRead.UtcDateTime;
+        var clock = new Mock<TimeProvider>();
+        clock.Setup(c => c.GetUtcNow()).Returns(() => now);
+        var repository = new Mock<IAuthRepository>(MockBehavior.Strict);
+        repository.Setup(r => r.GetRefreshTokenByHashAsync(HashRefreshToken(rawToken), It.IsAny<CancellationToken>()))
+            .Callback(() => now = afterRead)
+            .ReturnsAsync(token);
+        repository.Setup(r => r.RevokeSessionAsync(token.SessionId, afterRead.UtcDateTime, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        var unitOfWork = CreateUnitOfWork();
+
+        var result = await CreateService(repository.Object, unitOfWork.Object,
+            new PasswordHasher<AppUser>(), clock.Object).RefreshAsync(rawToken);
+
+        Assert.Null(result);
+        repository.VerifyAll();
+        unitOfWork.Verify(u => u.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task LoginWithValidCredentialsCreatesSessionAndReturnsExpectedJwt()
     {
         const string password = "BranchFlow-Valid-Password-2026!";
@@ -518,7 +544,8 @@ public sealed class AuthServiceTests
     private static AuthService CreateService(
         IAuthRepository repository,
         IUnitOfWork unitOfWork,
-        IPasswordHasher<AppUser> passwordHasher)
+        IPasswordHasher<AppUser> passwordHasher,
+        TimeProvider? clock = null)
     {
         AuthTokenSettings tokenSettings = new(
             new string('k', 48),
@@ -530,7 +557,7 @@ public sealed class AuthServiceTests
             unitOfWork,
             passwordHasher,
             tokenSettings,
-            new FixedTimeProvider(FixedNow));
+            clock ?? new FixedTimeProvider(FixedNow));
     }
 
     private static RefreshToken CreateRefreshToken(string rawToken, DateTime nowUtc)

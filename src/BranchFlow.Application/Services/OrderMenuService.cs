@@ -27,7 +27,7 @@ public sealed class OrderMenuService : IOrderMenuService
         }
 
         // Kiểm tra phạm vi trước khi đọc menu, không tin branchId do client gửi.
-        if (!await _branchAccess.CanAccessBranchAsync(userId, branchId, cancellationToken))
+        if (!await _branchAccess.HasBranchScopeAsync(userId, branchId, cancellationToken))
             throw new UnauthorizedAccessException("Bạn không được phân công tại chi nhánh này.");
 
         var menuData = await _orderMenuRepository.GetMenuByBranchAsync(
