@@ -26,7 +26,9 @@ Production phải cấp cấu hình môi trường riêng.
 
 ## Flow và kiểm tra
 
-JWT middleware → MenuAccessRepository kiểm tra phiên/tài khoản → OrderMenuController kiểm role/query → OrderMenuService kiểm phân công qua MenuAccessRepository → OrderMenuRepository truy vấn dữ liệu → service ánh xạ DTO → controller.
+JWT middleware → MenuAccessRepository kiểm tra phiên/tài khoản → OrderMenuController kiểm role/query → OrderMenuService kiểm branch scope qua IBranchAccessService → AuthRepository truy vấn assignment/branch active → OrderMenuRepository truy vấn dữ liệu → service ánh xạ DTO → controller.
+
+IBranchAccessService là interface quyền chi nhánh dùng chung cho menu/order. GET /api/branches/accessible dùng cùng service; không tự viết lại bộ lọc assignment ở từng controller/service. Xem docs/Branch-Access-API-handoff.md để biết DTO và cách tích hợp.
 
 Lỗi 400/401/403/404/500 dùng ProblemDetails có traceId; không trả stack/SQL. Repository giữ bộ lọc active/deleted/availability và CancellationToken. Không đổi schema/model/DTO FE.
 
