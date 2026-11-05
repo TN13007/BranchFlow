@@ -76,24 +76,43 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
     // Một transaction bao gồm cấp mã, kiểm tra menu, header, các dòng và snapshot tùy chọn.
     public async Task<CreatedOrder> CreateAsync(int userId, CreateOrderRequest request, CancellationToken ct = default)
     {
-        if (request.BranchId <= 0) throw new OrderValidationException("branchId phải là số nguyên dương.");
-        if (!await access.HasBranchScopeAsync(userId, request.BranchId, ct)) throw new UnauthorizedAccessException();
+        if (request.BranchId <= 0)
+            throw new OrderValidationException("branchId phải là số nguyên dương.");
+
         await work.BeginTransactionAsync(ct);
         try
         {
             var now = clock.GetUtcNow();
             var date = DateOnly.FromDateTime(now.ToOffset(TimeSpan.FromHours(7)).DateTime);
-            var number = await orders.AllocateCodeAsync(request.BranchId, date, ct);
-            var menu = await menus.GetMenuByBranchAsync(userId, request.BranchId, ct) ?? throw new OrderBranchUnavailableException();
-            var items = PriceItems(menu, request);
-            var total = items.Aggregate(0m,(current, item) => checked(current + item.SubtotalAmount));
 
-            var order = new SalesOrder { Code = number.Code, DailySequence = number.Sequence, BranchId = request.BranchId,
-                CreatedByUserId = userId, BusinessDate = date, CreatedAt = now.UtcDateTime, Status = "COMPLETED",
-                TotalAmount = total, OrderItems = items };
+            // Kiểm tra quyền chi nhánh và lấy menu trong transaction hiện hành.
+            var menu = await menus.GetMenuByBranchAsync(userId, request.BranchId, ct)
+                ?? throw new OrderBranchUnavailableException();
+
+            // Kiểm tra dữ liệu và tính giá hoàn toàn từ menu database.
+            var items = PriceItems(menu, request);
+            var total = items.Aggregate(0m, (current, item) => checked(current + item.SubtotalAmount));
+
+            // Chỉ cấp mã sau khi quyền, menu và dữ liệu đơn đã hợp lệ.
+            var number = await orders.AllocateCodeAsync(request.BranchId, date, ct);
+
+            var order = new SalesOrder
+            {
+                Code = number.Code,
+                DailySequence = number.Sequence,
+                BranchId = request.BranchId,
+                CreatedByUserId = userId,
+                BusinessDate = date,
+                CreatedAt = now.UtcDateTime,
+                Status = "COMPLETED",
+                TotalAmount = total,
+                OrderItems = items
+            };
+
             orders.Add(order);
             await work.SaveChangesAsync(ct);
             await work.CommitTransactionAsync(ct);
+
             return new CreatedOrder(order.Id, order.Code, order.BranchId, date, order.TotalAmount, order.Status, now);
         }
         catch (SqlException ex) when (ex.Number == 51001)
@@ -107,6 +126,7 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             throw;
         }
     }
+
 
     public async Task<List<OrderSummary>> GetMineAsync(int userId, string? keyword, DateOnly? date, CancellationToken ct = default)
     {
