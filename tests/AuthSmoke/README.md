@@ -11,4 +11,4 @@ dotnet tests/AuthSmoke/bin/Release/net10.0/AuthSmoke.dll 'C:\path\to\target\Bran
 
 The target checkout must include the auth implementation. The runner refuses any connection other than `localhost` / `BranchFlow_Test`; `BRANCHFLOW_AUTH_TEST_DB` can select a local SQL Server instance while keeping that database name. It uses HTTP port 19119 and stops its API child process after every case to isolate the login rate limiter.
 
-The runner covers QA-S4-001–012 except QA-S4-013, plus QA-S4-014. It does not cover natural access/session expiry (013), create-order portions of 015–016, or browser cases 017–018. Results on an unmerged feature branch are preliminary; run again on the integrated release candidate before claiming Sprint acceptance.
+The runner covers QA-S4-001–012 and QA-S4-014. It does not cover natural access/session expiry (013), create-order portions of 015–016, or browser cases 017–018. Results on an unmerged feature branch are preliminary; run again on the integrated release candidate before claiming Sprint acceptance.
