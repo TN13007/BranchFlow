@@ -1,0 +1,218 @@
+/* Employee preview: a light birch noticeboard. Other role/order workspaces keep their own materials. */
+.employee-shell:has(.employee-birch-board) {
+    background: #EEE0C8;
+}
+.employee-birch-board {
+    --board-ink: #3D2C20;
+    --board-muted: #69503A;
+    --board-edge: #AE8757;
+    --board-green: #315740;
+    --board-wood: url('/images/christmas/employee-board/birch-sign-face-v1.jpg');
+    min-height: 100dvh;
+    flex: 1;
+    color: var(--board-ink);
+    background-color: #F4E8D3;
+    background-image: linear-gradient(#FFF9EB38, #FFF9EB38), url('/images/christmas/employee-board/birch-wall-v1.jpg');
+    background-size: 100% auto;
+    background-repeat: repeat-y;
+    box-shadow: inset 5px 0 16px #6A432215;
+}
+.employee-birch-board.employee-room-approved { background-image: none; }
+.employee-room-approved .employee-room-scene {
+    min-height: calc(100dvh - 64px);
+    padding: 90px 0 65px;
+    background-color: #E9CFA9;
+    background-image: url('/images/christmas/employee-board/birch-room-depth-v3.jpg');
+    background-size: 100% 100%;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+.employee-birch-board .preview-banner {
+    padding: 10px 28px;
+    background: #F7EEDDEB;
+    color: #5A432F;
+    border-bottom: 1px solid #C2A37C;
+    font-size: 12px;
+    font-weight: 400;
+}
+.employee-birch-board .preview-banner strong { font-size: 10px; letter-spacing: .6px; font-weight: 600; }
+.employee-birch-board .preview-banner .btn {
+    background: #FFF8EACC;
+    border-color: #AD8B61;
+    color: #513B27;
+    font-weight: 500;
+}
+.employee-birch-board .preview-banner .btn:hover { background: #EAD6B6; }
+
+.employee-birch-board .birch-heading {
+    margin: 24px 28px 0;
+    padding: 25px 30px;
+    gap: 24px;
+    border: 1px solid #B08A57;
+    border-bottom: 3px solid #9B7446;
+    border-radius: 7px;
+    background-color: #EED5AF;
+    background-image: linear-gradient(90deg, #FFF6E3C7, #FFF6E373), var(--board-wood);
+    background-size: cover;
+    box-shadow: inset 0 1px #FFFDF3, 0 6px 12px #65432119;
+}
+.employee-birch-board .birch-heading::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border: 1px solid #B28B5866;
+    border-radius: 3px;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 4px 4px, #CBAB74 0 2px, #85633E 2px 3px, transparent 3.5px),
+        radial-gradient(circle at calc(100% - 4px) 4px, #CBAB74 0 2px, #85633E 2px 3px, transparent 3.5px),
+        radial-gradient(circle at 4px calc(100% - 4px), #CBAB74 0 2px, #85633E 2px 3px, transparent 3.5px),
+        radial-gradient(circle at calc(100% - 4px) calc(100% - 4px), #CBAB74 0 2px, #85633E 2px 3px, transparent 3.5px);
+}
+.employee-birch-board .birch-heading::after { display: none; }
+.employee-birch-board .birch-heading h1 { color: var(--board-ink); font-size: clamp(23px, 2vw, 30px); font-weight: 600; }
+.employee-birch-board .birch-heading p { color: var(--board-muted); line-height: 1.65; }
+.employee-shell .employee-birch-board .eyebrow { color: #7D412E; font-size: 10px; letter-spacing: 1.4px; font-weight: 600; }
+.employee-birch-board .birch-heading .eyebrow { margin-bottom: 7px; }
+.employee-birch-board .birch-heading .btn-brand {
+    position: relative;
+    z-index: 1;
+    color: #FFF9E9;
+    background: var(--board-green);
+    border-color: #244831;
+    border-radius: 7px;
+    min-height: 46px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: inset 0 1px #FFFFFF25, 0 3px 5px #54361C22;
+}
+.employee-birch-board .birch-heading .btn-brand:hover { background: #244831 !important; }
+.employee-birch-board .birch-content { padding: 20px 24px 36px; }
+.employee-room-approved .birch-heading { width: min(70%, 1040px); margin: 0 auto; }
+.employee-room-approved .birch-content { padding: 28px 24px 0; }
+
+.board-section-heading { text-align: center; margin: 0 auto 24px; }
+.employee-room-approved .board-section-heading { width: fit-content; max-width: 100%; padding: 10px 22px; border-radius: 8px; background: #FFF4DFE8; }
+.board-section-heading .eyebrow { margin: 0 0 6px; }
+.board-section-heading h2 { font-size: 22px; color: var(--board-ink); margin: 0 0 7px; font-weight: 600; }
+.board-section-heading > p:last-child { color: var(--board-muted); font-size: 13px; margin: 0; line-height: 1.65; }
+.board-details {
+    position: relative;
+    isolation: isolate;
+    width: min(100%, 1020px);
+    margin: 0 auto;
+    padding: 118px 150px 125px;
+    scroll-margin-top: 24px;
+}
+.employee-room-approved .board-details { padding: 0 36px; }
+.board-seasonal-decor { position: absolute; inset: 0; z-index: -1; pointer-events: none; user-select: none; }
+.board-seasonal-decor img { position: absolute; object-fit: contain; filter: drop-shadow(0 4px 3px #64452220); }
+.board-decor-top { top: 0; left: 6%; width: 88%; height: 100px; }
+.board-decor-left { left: 5px; top: 165px; width: 130px; height: 440px; object-position: left top; }
+.board-decor-right { right: 5px; top: 365px; width: 130px; height: 440px; object-position: right top; }
+.board-decor-gifts { right: 70px; bottom: 8px; width: 175px; height: 120px; }
+
+/* The four main records have no connecting rope or pole. */
+.board-card-list {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    list-style: none;
+    width: min(100%, 660px);
+    margin: 0 auto;
+    padding: 0;
+}
+.board-card {
+    position: relative;
+    padding: 34px 30px 24px;
+    margin: 0;
+    border: 1px solid #BC9662;
+    border-bottom: 3px solid #9D7545;
+    border-radius: 10px 10px 5px 5px;
+    background-color: #F4DFC0;
+    background-image: linear-gradient(#FFF7E8BA, #FFF3DDA6), var(--board-wood);
+    background-position: center;
+    background-size: cover;
+    box-shadow: inset 0 1px #FFFCEE, inset 0 0 0 5px #FFF1D11F, 0 7px 12px #68462220;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.board-card::before {
+    content: '';
+    position: absolute;
+    left: calc(50% - 7px);
+    top: 10px;
+    width: 14px;
+    height: 14px;
+    border: 3px solid #B8915A;
+    border-radius: 50%;
+    background: #6D5338;
+    box-shadow: 0 1px #FFF7E5, inset 0 2px 3px #261A0E99;
+}
+.board-card:nth-child(2) { background-color: #ECD7BA; }
+.board-card:nth-child(3) { background-color: #E7CDBE; }
+.board-card:nth-child(4) { background-color: #EFE0C2; }
+.board-card-index { position: absolute; top: 16px; left: 20px; color: #7B5B38; font-size: 11px; font-variant-numeric: tabular-nums; }
+.board-card h3 { color: var(--board-ink); font-size: 18px; font-weight: 600; line-height: 1.6; margin: 2px 0 14px; }
+.board-card h3 small { font-size: 13px; font-weight: 400; }
+.board-card .kpi-label, .board-profile dt { color: var(--board-muted); font-size: 13px; font-weight: 500; line-height: 1.6; margin: 0 0 7px; letter-spacing: 0; }
+.board-card .kpi-value { color: var(--board-ink); font-size: clamp(23px, 2vw, 28px); line-height: 1.35; font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 8px; }
+.board-card .kpi-note { color: var(--board-muted); font-size: 13px; font-weight: 400; line-height: 1.65; margin-bottom: 0; }
+.board-card-pending { border-left: 4px solid #A74D38; }
+.board-note { display: inline-block; margin-top: 12px; color: #863C2C; font-size: 11px; padding: 4px 9px; border: 1px solid #C69D77; border-radius: 4px; background: #FFF0DC66; }
+.board-card-total { border-left: 4px solid var(--board-green); }
+.board-card-total .kpi-value { color: #31523B; }
+.board-facts { margin: 0; display: flex; flex-direction: column; gap: 11px; }
+.board-facts > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-top: 1px solid #B08A5738; padding-top: 11px; text-align: left; }
+.board-facts dt { font-size: 13px; color: var(--board-muted); font-weight: 400; }
+.board-facts dd { margin: 0; color: var(--board-ink); font-size: 14px; font-weight: 600; text-align: right; }
+.board-profile dd { color: var(--board-ink); font-size: 19px; line-height: 1.6; font-weight: 600; margin: 0; }
+.board-profile dd small { display: block; color: var(--board-muted); font-size: 12px; font-weight: 400; }
+.board-profile .kpi-note { margin-top: 6px; }
+.employee-birch-board .status-badge { font-size: 12px; white-space: normal; line-height: 1.5; }
+.employee-birch-board .status-badge.completed { background: #E5EAD9; border: 1px solid #9BAC87; color: #345132; }
+.employee-birch-board .status-badge.needs-review { background: #F1DFC0; border: 1px solid #BE9459; color: #70451F; }
+.employee-birch-board button:focus-visible, .employee-birch-board a:focus-visible, .board-details:focus-visible {
+    outline: 3px solid #85402E;
+    outline-offset: 5px;
+}
+@media (min-width: 1800px) {
+    .employee-birch-board .birch-heading { max-width: 1320px; margin-inline: auto; margin-top: 32px; }
+    .employee-room-approved .birch-heading { max-width: 1040px; margin-top: 0; }
+    .employee-birch-board .birch-content { padding-top: 24px; }
+}
+@media (max-width: 1199.98px) {
+    .employee-room-approved .birch-heading { width: 80%; flex-wrap: wrap; }
+    .board-details { padding-left: 95px; padding-right: 95px; }
+    .employee-room-approved .board-details { padding-left: 24px; padding-right: 24px; }
+    .board-decor-left, .board-decor-right { width: 82px; height: 340px; }
+    .board-decor-gifts { right: 20px; width: 145px; height: 100px; }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .board-details { padding-left: 52px; padding-right: 52px; }
+    .employee-room-approved .board-details { padding-left: 10px; padding-right: 10px; }
+    .board-decor-left, .board-decor-right { width: 48px; height: 250px; }
+}
+@media (max-width: 767.98px) {
+    .employee-birch-board .preview-banner { padding: 12px 16px; }
+    .employee-room-approved .employee-room-scene { padding: 76px 0 42px; background-size: cover; background-position: 8% top; }
+    .employee-birch-board .birch-heading { margin: 16px 14px 0; padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .employee-room-approved .birch-heading { width: calc(100% - 40px); margin: 0 auto; }
+    .employee-birch-board .birch-heading p { font-size: 13px; }
+    .employee-birch-board .birch-content { padding: 12px 10px 24px; }
+    .employee-room-approved .birch-content { padding: 24px 10px 0; }
+    .board-details { padding: 98px 18px 100px; }
+    .employee-room-approved .board-details { padding: 0 10px; }
+    .board-decor-top { height: 78px; left: 0; width: 100%; }
+    .board-decor-left { width: 42px; height: 220px; left: -9px; top: 150px; }
+    .board-decor-right { width: 42px; height: 220px; right: -9px; top: 420px; }
+    .board-decor-gifts { width: 125px; height: 88px; right: 8px; bottom: 4px; }
+    .board-section-heading h2 { font-size: 20px; }
+    .board-card { padding: 34px 18px 22px; }
+    .board-card-index { left: 14px; }
+    .board-facts > div { gap: 12px; }
+    .board-facts dt, .board-facts dd { flex: 1; }
+}
