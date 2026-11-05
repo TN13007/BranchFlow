@@ -28,6 +28,8 @@ builder.Services.AddScoped<ISalesDemoSeedRepository, SalesDemoSeedRepository>();
 builder.Services.AddScoped<ISalesDemoSeedService, SalesDemoSeedService>();
 builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();

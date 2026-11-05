@@ -1,3 +1,7 @@
+## Cập nhật bản demo sau PR #26/#27
+
+Kết quả hiện hành: **39/44 ca Pass; 5 Not Run**, build đạt, **65/65 unit**, auth **13/13**, menu **34/34**, order **101 checks**, seeder 9 user/menu và browser tạo đơn thật. Xem [đánh giá hiện hành](FinalDemoAssessment-2026-11-05.md) và [browser/SQL](BrowserDemoResult-2026-11-05.md). Có thể demo luồng chính; chưa hoàn thành toàn bộ catalog. Các mục dưới là lịch sử các lần review trước, không dùng số 18/26 hay nhận xét API đơn chưa có để mô tả bản hiện hành.
+
 # Sprint 4 QA Test Summary — SCRUM-92
 
 Owner: Nguyễn Đặng Hòa Thuận. Updated by Codex under Khang's authorized review/fix on 05/11/2026 (Asia/Ho_Chi_Minh). Current candidate: merged base `2128070` plus the branch-scope correction committed with this record. Historical SHAs and executions remain below; they do not describe the latest candidate. Sprint acceptance remains pending.

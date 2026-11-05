@@ -43,7 +43,7 @@
 
             <div class="mb-3">
                 <label class="form-label" for="username">Tên đăng nhập <span class="required-mark" aria-hidden="true">*</span></label>
-                <InputText id="username" name="username" class="form-control" @bind-Value="form.Username"
+                <InputText id="username" name="username" class="form-control" @bind-Value="form.Username" disabled="@(!ready)"
                            autocomplete="username" autocapitalize="none" spellcheck="false"
                            aria-required="true" aria-describedby="username-hint username-error" />
                 <small id="username-hint" class="field-hint">Nhập mã nhân viên hoặc tài khoản được phân quyền.</small>
@@ -55,7 +55,7 @@
             <div class="mb-4">
                 <label class="form-label" for="password">Mật khẩu <span class="required-mark" aria-hidden="true">*</span></label>
                 <div class="password-control">
-                    <InputText id="password" name="password" class="form-control" @bind-Value="form.Password"
+                    <InputText id="password" name="password" class="form-control" @bind-Value="form.Password" disabled="@(!ready)"
                                type="@(showPassword ? "text" : "password")" autocomplete="current-password"
                                aria-required="true" aria-describedby="password-error" />
                     <button class="password-toggle" type="button" @onclick="TogglePassword"
@@ -84,8 +84,8 @@
                 </div>
             }
 
-            <button class="btn login-submit w-100" type="submit" disabled="@isSubmitting" aria-busy="@(isSubmitting ? "true" : "false")">
-                @(isSubmitting ? "Đang đăng nhập…" : "Đăng nhập vào ca làm")
+            <button class="btn login-submit w-100" type="submit" disabled="@(isSubmitting || !ready)" aria-busy="@(isSubmitting || !ready ? "true" : "false")">
+                @(!ready ? "Đang kết nối…" : isSubmitting ? "Đang đăng nhập…" : "Đăng nhập vào ca làm")
             </button>
         </EditForm>
 
@@ -116,6 +116,7 @@
     private string? errorMessage;
     private string? noticeMessage;
     private bool isSubmitting;
+    private bool ready;
     private IJSObjectReference? module;
     [SupplyParameterFromQuery(Name = "error")] public string? Error { get; set; }
     [SupplyParameterFromQuery(Name = "notice")] public string? Notice { get; set; }
@@ -138,6 +139,12 @@
             "session" => "Vui lòng đăng nhập để tiếp tục.",
             _ => null
         };
+    }
+
+    // Chỉ nhận nhập liệu sau khi circuit tương tác sẵn sàng, tránh mất giá trị lúc hydrate.
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) { ready = true; StateHasChanged(); }
     }
 
     private void TogglePassword() => showPassword = !showPassword;

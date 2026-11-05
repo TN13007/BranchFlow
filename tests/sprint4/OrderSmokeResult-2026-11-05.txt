@@ -1,0 +1,103 @@
+PASS 1: POST /api/orders expected=401 actual=401
+PASS 2: Safe ProblemDetails + traceId
+PASS 3: POST /api/orders expected=403 actual=403
+PASS 4: Safe ProblemDetails + traceId
+PASS 5: POST /api/orders expected=403 actual=403
+PASS 6: Safe ProblemDetails + traceId
+PASS 7: POST /api/orders expected=400 actual=400
+PASS 8: Safe ProblemDetails + traceId
+PASS 9: POST /api/orders expected=400 actual=400
+PASS 10: Safe ProblemDetails + traceId
+PASS 11: POST /api/orders expected=400 actual=400
+PASS 12: Safe ProblemDetails + traceId
+PASS 13: POST /api/orders expected=400 actual=400
+PASS 14: Safe ProblemDetails + traceId
+PASS 15: POST /api/orders expected=400 actual=400
+PASS 16: Safe ProblemDetails + traceId
+PASS 17: POST /api/orders expected=400 actual=400
+PASS 18: Safe ProblemDetails + traceId
+PASS 19: POST /api/orders expected=400 actual=400
+PASS 20: Safe ProblemDetails + traceId
+PASS 21: POST /api/orders expected=400 actual=400
+PASS 22: Safe ProblemDetails + traceId
+PASS 23: POST /api/orders expected=400 actual=400
+PASS 24: Safe ProblemDetails + traceId
+PASS 25: POST /api/orders expected=400 actual=400
+PASS 26: Safe ProblemDetails + traceId
+PASS 27: POST /api/orders expected=400 actual=400
+PASS 28: Safe ProblemDetails + traceId
+PASS 29: POST /api/orders expected=400 actual=400
+PASS 30: Safe ProblemDetails + traceId
+PASS 31: POST /api/orders expected=400 actual=400
+PASS 32: Safe ProblemDetails + traceId
+PASS 33: POST /api/orders expected=400 actual=400
+PASS 34: Safe ProblemDetails + traceId
+PASS 35: POST /api/orders expected=400 actual=400
+PASS 36: Safe ProblemDetails + traceId
+PASS 37: POST /api/orders expected=400 actual=400
+PASS 38: Safe ProblemDetails + traceId
+PASS 39: POST /api/orders expected=400 actual=400
+PASS 40: Safe ProblemDetails + traceId
+PASS 41: POST /api/orders expected=400 actual=400
+PASS 42: Safe ProblemDetails + traceId
+PASS 43: POST /api/orders expected=400 actual=400
+PASS 44: Safe ProblemDetails + traceId
+PASS 45: POST /api/orders expected=400 actual=400
+PASS 46: Safe ProblemDetails + traceId
+PASS 47: POST /api/orders expected=400 actual=400
+PASS 48: Safe ProblemDetails + traceId
+PASS 49: Invalid requests leave no counter/order
+PASS 50: POST /api/orders expected=201 actual=201
+PASS 51: SQL price: (30000 + 3*5000 + 4000)*2 = 98000
+PASS 52: Header/details/topping/note persisted in SQL
+PASS 53: Vietnam business date + first daily sequence
+PASS 54: GET /api/orders/72 expected=200 actual=200
+PASS 55: GET /api/orders/72 expected=404 actual=404
+PASS 56: Safe ProblemDetails + traceId
+PASS 57: GET /api/orders/mine?keyword=OSFA6BEA0736-20261105-0001&businessDate=2026-11-05 expected=200 actual=200
+PASS 58: Own history filters match SQL order
+PASS 59: GET /api/orders/72 expected=200 actual=200
+PASS 60: Historical product snapshot unchanged
+PASS 61: POST /api/orders expected=201 actual=201
+PASS 62: New order uses changed SQL price
+PASS 63: POST /api/orders expected=400 actual=400
+PASS 64: Safe ProblemDetails + traceId
+PASS 65: Unavailable product rolls back allocated counter
+PASS 66: POST /api/orders expected=500 actual=500
+PASS 67: Safe ProblemDetails + traceId
+PASS 68: SQL detail failure rolls back header/details/counter
+PASS 69: POST /api/orders expected=201 actual=201
+PASS 70: POST /api/orders expected=201 actual=201
+PASS 71: POST /api/orders expected=201 actual=201
+PASS 72: POST /api/orders expected=201 actual=201
+PASS 73: POST /api/orders expected=201 actual=201
+PASS 74: POST /api/orders expected=201 actual=201
+PASS 75: POST /api/orders expected=201 actual=201
+PASS 76: POST /api/orders expected=201 actual=201
+PASS 77: POST /api/orders expected=201 actual=201
+PASS 78: POST /api/orders expected=201 actual=201
+PASS 79: POST /api/orders expected=201 actual=201
+PASS 80: POST /api/orders expected=201 actual=201
+PASS 81: Twelve concurrent orders have distinct codes
+PASS 82: POST /api/orders expected=201 actual=201
+PASS 83: Multiple rows total from SQL 100000 + 31000 = 131000
+PASS 84: POST /api/orders expected=201 actual=201
+PASS 85: Topping quantity price 1
+PASS 86: POST /api/orders expected=201 actual=201
+PASS 87: Topping quantity price 2
+PASS 88: POST /api/orders expected=201 actual=201
+PASS 89: Topping quantity price 3
+PASS 90: POST /api/orders expected=400 actual=400
+PASS 91: Safe ProblemDetails + traceId
+PASS 92: POST /api/orders expected=400 actual=400
+PASS 93: Safe ProblemDetails + traceId
+PASS 94: POST /api/orders expected=201 actual=201
+PASS 95: API code retains sequence 10000
+PASS 96: POST /api/orders expected=201 actual=201
+PASS 97: Current topping SQL price is applied
+PASS 98: GET /api/orders/72 expected=200 actual=200
+PASS 99: Old topping name/price snapshot preserved
+PASS 100: POST /api/orders expected=404 actual=404
+PASS 101: Safe ProblemDetails + traceId
+RESULT: 101 checks PASS. API/SQL transaction, scope, price, snapshots and concurrency verified.
+Fixture cleanup completed; no Dev/cloud changes.

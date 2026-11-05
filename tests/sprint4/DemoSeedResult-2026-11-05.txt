@@ -1,0 +1,14 @@
+PASS | demo.owner | OWNER | active | expected=[BF-DEMO-01, BF-DEMO-02, BF-DEMO-03] actual=[BF-DEMO-01, BF-DEMO-02, BF-DEMO-03]
+PASS | demo.systemadmin | SYSTEM_ADMIN | active | expected=[BF-DEMO-01, BF-DEMO-02, BF-DEMO-03] actual=[BF-DEMO-01, BF-DEMO-02, BF-DEMO-03]
+PASS | demo.branchadmin.01 | BRANCH_ADMIN | active | expected=[BF-DEMO-01] actual=[BF-DEMO-01]
+PASS | demo.branchadmin.02 | BRANCH_ADMIN | active | expected=[BF-DEMO-02] actual=[BF-DEMO-02]
+PASS | demo.branchadmin.03 | BRANCH_ADMIN | active | expected=[BF-DEMO-03] actual=[BF-DEMO-03]
+PASS | demo.employee.a | EMPLOYEE | active | expected=[BF-DEMO-01] actual=[BF-DEMO-01]
+PASS | demo.employee.b | EMPLOYEE | active | expected=[BF-DEMO-02] actual=[BF-DEMO-02]
+PASS | demo.employee.locked | EMPLOYEE | locked | expected=[] actual=[]
+PASS | demo.employee.unassigned | EMPLOYEE | active | expected=[] actual=[]
+Đã kiểm tra 9 tài khoản và phạm vi chi nhánh.
+Sales demo data đã sẵn sàng.
+
+Demo data đã sẵn sàng.
+Mật khẩu nhập ở đầu chương trình chỉ áp dụng cho tài khoản được tạo mới.

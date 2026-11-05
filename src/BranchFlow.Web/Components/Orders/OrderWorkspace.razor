@@ -9,7 +9,7 @@
         <p>Giá tạm tính từ menu hiện hành. Giá cuối cùng và mã đơn do hệ thống tính khi xác nhận.</p>
     </div>
     <button class="@(showCart ? "btn btn-brand return-to-menu" : "basket-cart-button")" type="button"
-            @onclick="() => showCart = !showCart" disabled="@Busy"
+            @onclick="() => showCart = !showCart" disabled="@(Busy || closingDialog)"
             aria-label="@(showCart ? "Tiếp tục gọi món" : $"Mở giỏ hàng, {Cart.TotalQuantity} ly, tạm tính {Money(Cart.PreviewTotal)}")"
             aria-controls="order-workspace-content" aria-expanded="@(showCart ? "true" : "false")">
         @if (showCart)
@@ -100,7 +100,7 @@
                 {
                     <div class="hanging-menu-item" @key="product.Id">
                     <span class="card-hangers" aria-hidden="true"><span></span><span></span></span>
-                    <button class="product-card" type="button" @onclick="() => Configure(product)" disabled="@(Busy || Cart.OutcomeUnknown || !CanOrder)"
+                    <button class="product-card" type="button" @onclick="() => Configure(product)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown || !CanOrder)"
                             data-product-id="@product.Id" aria-describedby="menu-hanging-hint" aria-haspopup="dialog" draggable="false">
                         <div class="product-art">
                         @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
@@ -151,10 +151,10 @@
                             {
                                 <small>@line.Description</small>
                             }
-                            <button class="text-button" type="button" @onclick="() => Edit(line)" disabled="@(Busy || Cart.OutcomeUnknown)">Chỉnh sửa tùy chọn</button>
+                            <button class="text-button" type="button" @onclick="() => Edit(line)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)">Chỉnh sửa tùy chọn</button>
                         </div>
                         <b>@Money(line.PreviewTotal)</b>
-                        <button class="icon-button" type="button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName">
+                        <button class="icon-button" type="button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName">
                             <img src="/images/icons/trash.svg" alt="" />
                         </button>
                     </article>
@@ -173,7 +173,7 @@
                     <p class="preview-note">Bản xem thử tĩnh không gửi API và không ghi đơn vào cơ sở dữ liệu.</p>
                 }
                 <button class="btn btn-brand w-100" type="button"
-                        disabled="@(Preview || Busy || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)"
+                        disabled="@(Preview || Busy || closingDialog || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)"
                         @onclick="OnConfirm" aria-busy="@(Busy ? "true" : "false")">
                     @(Busy ? "Đang gửi…" : "Xác nhận tạo đơn")
                 </button>

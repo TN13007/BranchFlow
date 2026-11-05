@@ -114,6 +114,21 @@ public sealed class SalesDemoSeedService : ISalesDemoSeedService
                 false,
                 now);
 
+            // Bổ sung ảnh cho món demo, giữ nguyên tên/giá và cách seed của thành viên.
+            foreach (Product demoProduct in productMap.Values)
+            {
+                if (string.IsNullOrWhiteSpace(demoProduct.ImageUrl))
+                {
+                    demoProduct.ImageUrl = demoProduct.Name switch
+                    {
+                        "Demo - Cà phê sữa" => "/images/menu/coffee.png",
+                        "Demo - Trà đào" => "/images/menu/tea.png",
+                        "Demo - Matcha latte" => "/images/menu/matcha.png",
+                        _ => null
+                    };
+                }
+            }
+
             _repository.AddProducts(
                 productMap.Values.Where(x => x.Id == 0));
 
