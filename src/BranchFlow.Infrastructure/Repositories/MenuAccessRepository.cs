@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BranchFlow.Infrastructure.Repositories;
 
-public sealed class MenuAccessRepository(BranchFlowDbContext context, TimeProvider clock) : IMenuAccessRepository
+public sealed class MenuAccessRepository(BranchFlowDbContext context) : IMenuAccessRepository
 {
     // Kiểm tra lại phiên, tài khoản và role trong DB ở mỗi request đã xác thực JWT.
     public Task<bool> IsActiveSessionAsync(int userId, Guid sessionId, string role, CancellationToken cancellationToken = default)
