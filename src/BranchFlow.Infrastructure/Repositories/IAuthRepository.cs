@@ -1,3 +1,5 @@
+using BranchFlow.Infrastructure.Models;
+
 namespace BranchFlow.Infrastructure.Repositories;
 
 public interface IAuthRepository
@@ -9,4 +11,22 @@ public interface IAuthRepository
     Task<IReadOnlyList<AccessibleBranchData>> GetAccessibleBranchesAsync(
         int userId,
         CancellationToken cancellationToken = default);
+
+    Task<RefreshToken?> GetRefreshTokenByHashAsync(
+        string tokenHash,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> TryMarkRefreshTokenUsedAsync(
+        Guid refreshTokenId,
+        byte[] expectedRowVersion,
+        DateTime usedAtUtc,
+        CancellationToken cancellationToken = default);
+
+    Task RevokeSessionAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default);
+
+    void AddSession(AuthSession session);
+    void AddRefreshToken(RefreshToken refreshToken);
 }
