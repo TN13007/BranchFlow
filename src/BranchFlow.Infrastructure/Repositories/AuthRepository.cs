@@ -114,6 +114,44 @@ public sealed class AuthRepository : IAuthRepository
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
                 cancellationToken);
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+    }
+
+    public async Task<bool> RevokeCurrentSessionAsync(
+        Guid sessionId,
+        int userId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        int affectedSessions = await _context.AuthSessions
+            .Where(session =>
+                session.Id == sessionId &&
+                session.UserId == userId &&
+                session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+
+        if (affectedSessions != 1)
+        {
+            return false;
+        }
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+        return true;
+    }
+
+    private async Task RevokeRefreshTokensAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken)
+    {
+        await _context.RefreshTokens
+            .Where(token => token.SessionId == sessionId && token.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(token => token.RevokedAt, revokedAtUtc),
+                cancellationToken);
     }
 
     public void AddSession(AuthSession session)
