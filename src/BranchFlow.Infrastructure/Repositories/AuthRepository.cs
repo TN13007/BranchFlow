@@ -71,6 +71,7 @@ public sealed class AuthRepository : IAuthRepository
                 refreshToken.Id == refreshTokenId &&
                 refreshToken.UsedAt == null &&
                 refreshToken.RevokedAt == null &&
+                refreshToken.ExpiresAt > usedAtUtc &&
                 refreshToken.RowVersion == expectedRowVersion)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(refreshToken => refreshToken.UsedAt, usedAtUtc),
