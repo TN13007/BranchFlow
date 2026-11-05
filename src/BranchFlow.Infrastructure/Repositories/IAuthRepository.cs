@@ -8,6 +8,10 @@ public interface IAuthRepository
         string username,
         CancellationToken cancellationToken = default);
 
+    Task<AuthCurrentUserData?> GetActiveUserByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<AccessibleBranchData>> GetAccessibleBranchesAsync(
         int userId,
         CancellationToken cancellationToken = default);
@@ -24,6 +28,12 @@ public interface IAuthRepository
 
     Task RevokeSessionAsync(
         Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> RevokeCurrentSessionAsync(
+        Guid sessionId,
+        int userId,
         DateTime revokedAtUtc,
         CancellationToken cancellationToken = default);
 

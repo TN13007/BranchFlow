@@ -17,6 +17,64 @@ public sealed class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    {
+        if (!int.TryParse(User.FindFirst("sub")?.Value, out int userId) || userId <= 0)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Chưa xác thực",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        BranchFlow.Application.DTOs.Sprint4.CurrentUser? currentUser =
+            await _authService.GetCurrentUserAsync(userId, cancellationToken);
+
+        if (currentUser is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Chưa xác thực",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        return Ok(currentUser);
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        Response.Headers.CacheControl = "no-store";
+
+        if (!int.TryParse(User.FindFirst("sub")?.Value, out int userId) ||
+            userId <= 0 ||
+            !Guid.TryParse(User.FindFirst("sid")?.Value, out Guid sessionId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Phiên không hợp lệ",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        bool revoked = await _authService.LogoutAsync(
+            userId,
+            sessionId,
+            cancellationToken);
+
+        if (!revoked)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Phiên không hợp lệ",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        return NoContent();
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting("auth-login")]

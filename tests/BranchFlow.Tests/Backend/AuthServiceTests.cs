@@ -371,6 +371,132 @@ public sealed class AuthServiceTests
         unitOfWork.Verify(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
+    [Fact]
+    public async Task GetCurrentUserReturnsActiveUserIdentityWithoutPasswordData()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(42, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthCurrentUserData(42, "demo.employee.a", "EMPLOYEE"));
+
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        CurrentUser? result = await service.GetCurrentUserAsync(42);
+
+        Assert.Equal(new CurrentUser(42, "demo.employee.a", "EMPLOYEE"), result);
+        repository.VerifyAll();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserReturnsNullForMissingOrUnsupportedUser()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(42, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AuthCurrentUserData?)null);
+        repository
+            .Setup(repo => repo.GetActiveUserByIdAsync(43, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuthCurrentUserData(43, "legacy.user", "ADMIN"));
+
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        CurrentUser? missingUser = await service.GetCurrentUserAsync(42);
+        CurrentUser? unsupportedRole = await service.GetCurrentUserAsync(43);
+
+        Assert.Null(missingUser);
+        Assert.Null(unsupportedRole);
+        repository.VerifyAll();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task LogoutRevokesOnlyTheAuthenticatedUserSessionInOneTransaction()
+    {
+        const int userId = 42;
+        Guid sessionId = Guid.NewGuid();
+
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.RevokeCurrentSessionAsync(
+                sessionId,
+                userId,
+                FixedNow.UtcDateTime,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IUnitOfWork> unitOfWork = CreateUnitOfWork();
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        bool result = await service.LogoutAsync(userId, sessionId);
+
+        Assert.True(result);
+        repository.VerifyAll();
+        unitOfWork.Verify(unit => unit.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        unitOfWork.Verify(unit => unit.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task LogoutReturnsFalseWhenSessionDoesNotBelongToUserOrIsAlreadyRevoked()
+    {
+        const int userId = 42;
+        Guid sessionId = Guid.NewGuid();
+
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(repo => repo.RevokeCurrentSessionAsync(
+                sessionId,
+                userId,
+                FixedNow.UtcDateTime,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IUnitOfWork> unitOfWork = CreateUnitOfWork();
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        bool result = await service.LogoutAsync(userId, sessionId);
+
+        Assert.False(result);
+        repository.VerifyAll();
+        unitOfWork.Verify(unit => unit.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        unitOfWork.Verify(unit => unit.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task LogoutRejectsInvalidUserIdWithoutOpeningTransaction(int userId)
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        bool result = await service.LogoutAsync(userId, Guid.NewGuid());
+
+        Assert.False(result);
+        repository.VerifyNoOtherCalls();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task LogoutRejectsEmptySessionIdWithoutOpeningTransaction()
+    {
+        Mock<IAuthRepository> repository = new(MockBehavior.Strict);
+        Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);
+        AuthService service = CreateService(repository.Object, unitOfWork.Object, new PasswordHasher<AppUser>());
+
+        bool result = await service.LogoutAsync(42, Guid.Empty);
+
+        Assert.False(result);
+        repository.VerifyNoOtherCalls();
+        unitOfWork.VerifyNoOtherCalls();
+    }
+
     private static Mock<IUnitOfWork> CreateUnitOfWork()
     {
         Mock<IUnitOfWork> unitOfWork = new(MockBehavior.Strict);

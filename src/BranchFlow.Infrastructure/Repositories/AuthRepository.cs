@@ -44,6 +44,30 @@ public sealed class AuthRepository : IAuthRepository
     }
 
 
+    // Chỉ trả về thông tin cơ bản của người dùng hiện tại; không đưa password hash vào DTO.
+    public Task<AuthCurrentUserData?> GetActiveUserByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        if (userId <= 0)
+        {
+            return Task.FromResult<AuthCurrentUserData?>(null);
+        }
+
+        return _context.AppUsers
+            .AsNoTracking()
+            .Where(user =>
+                user.Id == userId &&
+                user.IsActive &&
+                !user.Deleted &&
+                !user.Role.Deleted)
+            .Select(user => new AuthCurrentUserData(
+                user.Id,
+                user.Username,
+                user.Role.Code))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     // Read the complete refresh-token/session/user state without tracking it.
     public Task<RefreshToken?> GetRefreshTokenByHashAsync(
         string tokenHash,
@@ -89,6 +113,44 @@ public sealed class AuthRepository : IAuthRepository
             .Where(session => session.Id == sessionId && session.RevokedAt == null)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+    }
+
+    public async Task<bool> RevokeCurrentSessionAsync(
+        Guid sessionId,
+        int userId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        int affectedSessions = await _context.AuthSessions
+            .Where(session =>
+                session.Id == sessionId &&
+                session.UserId == userId &&
+                session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+
+        if (affectedSessions != 1)
+        {
+            return false;
+        }
+
+        await RevokeRefreshTokensAsync(sessionId, revokedAtUtc, cancellationToken);
+        return true;
+    }
+
+    private async Task RevokeRefreshTokensAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken)
+    {
+        await _context.RefreshTokens
+            .Where(token => token.SessionId == sessionId && token.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(token => token.RevokedAt, revokedAtUtc),
                 cancellationToken);
     }
 

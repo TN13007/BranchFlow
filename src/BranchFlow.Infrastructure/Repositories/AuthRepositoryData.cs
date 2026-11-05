@@ -11,3 +11,8 @@ public sealed record AccessibleBranchData(
     int Id,
     string Code,
     string Name);
+
+public sealed record AuthCurrentUserData(
+    int Id,
+    string Username,
+    string RoleCode);
