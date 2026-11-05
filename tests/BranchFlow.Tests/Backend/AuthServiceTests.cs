@@ -7,7 +7,6 @@ using BranchFlow.Infrastructure.Models;
 using BranchFlow.Infrastructure.Repositories;
 using BranchFlow.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace BranchFlow.Tests.Backend;
@@ -182,6 +181,9 @@ public sealed class AuthServiceTests
         const string oldRawToken = "concurrent-refresh-token";
         RefreshToken firstRead = CreateRefreshToken(oldRawToken, FixedNow.UtcDateTime);
         RefreshToken latestRead = CreateRefreshToken(oldRawToken, FixedNow.UtcDateTime);
+        latestRead.Id = firstRead.Id;
+        latestRead.SessionId = firstRead.SessionId;
+        latestRead.Session = firstRead.Session;
         latestRead.UsedAt = FixedNow.UtcDateTime;
 
         Mock<IAuthRepository> repository = new(MockBehavior.Strict);
@@ -271,16 +273,16 @@ public sealed class AuthServiceTests
         IUnitOfWork unitOfWork,
         IPasswordHasher<AppUser> passwordHasher)
     {
-        Mock<IConfiguration> configuration = new(MockBehavior.Strict);
-        configuration.SetupGet(value => value["Jwt:Key"]).Returns(new string('k', 48));
-        configuration.SetupGet(value => value["Jwt:Issuer"]).Returns("BranchFlow.Api");
-        configuration.SetupGet(value => value["Jwt:Audience"]).Returns("BranchFlow.Web");
+        AuthTokenSettings tokenSettings = new(
+            new string('k', 48),
+            "BranchFlow.Api",
+            "BranchFlow.Web");
 
         return new AuthService(
             repository,
             unitOfWork,
             passwordHasher,
-            configuration.Object,
+            tokenSettings,
             new FixedTimeProvider(FixedNow));
     }
 
