@@ -177,6 +177,8 @@ try
     var locked = User("EMPLOYEE", "locked", false);
     var branchA = Add(new Branch { Code = "AQ" + suffix, Name = "Auth QA A", Address = "Local test", IsActive = true });
     var branchB = Add(new Branch { Code = "BQ" + suffix, Name = "Auth QA B", Address = "Local test", IsActive = true });
+    var inactiveBranch = Add(new Branch { Code = "IQ" + suffix, Name = "Auth QA inactive", Address = "Local test", IsActive = false });
+    var deletedBranch = Add(new Branch { Code = "DQ" + suffix, Name = "Auth QA deleted", Address = "Local test", IsActive = true, Deleted = true });
     var profileA = Add(new EmployeeProfile { User = employeeA, EmployeeCode = "AQ" + suffix,
         HireDate = DateOnly.FromDateTime(now) });
     var profileB = Add(new EmployeeProfile { User = employeeB, EmployeeCode = "BQ" + suffix,
@@ -196,7 +198,8 @@ try
     {
         var before = await SessionCountAsync();
         var pair = await LoginAsync(employeeA);
-        Require(pair.AccessExpiry > DateTimeOffset.UtcNow && pair.RefreshExpiry > pair.AccessExpiry,
+        Require(pair.AccessExpiry > DateTimeOffset.UtcNow && pair.RefreshExpiry > pair.AccessExpiry &&
+            pair.AccessExpiry.Offset == TimeSpan.Zero && pair.RefreshExpiry.Offset == TimeSpan.Zero,
             "Expiry values invalid.");
         Require(await SessionCountAsync() == before + 1, "Login did not persist one session.");
     });
@@ -211,6 +214,8 @@ try
         ExpectProblem(wrong, 401); ExpectProblem(missing, 401);
         Require(wrong.Json!.Value.GetProperty("detail").GetString() ==
             missing.Json!.Value.GetProperty("detail").GetString(), "Auth error leaks account existence.");
+        Require(!wrong.Json.Value.TryGetProperty("accessToken", out _) &&
+            !missing.Json.Value.TryGetProperty("accessToken", out _), "Invalid login exposed token.");
         Require(wrong.NoStore && missing.NoStore && await SessionCountAsync() == before,
             "Invalid login changed sessions or cache policy.");
     });
@@ -329,6 +334,8 @@ try
 
     await RunAsync("QA-S4-014", async () =>
     {
+        var allActive = (await db.Branches.AsNoTracking().Where(b => b.IsActive && !b.Deleted)
+            .Select(b => b.Id).ToListAsync()).ToHashSet();
         foreach (var (user, role, expectedBranches) in new[]
         {
             (owner, "OWNER", new[] { branchA.Id, branchB.Id }),
@@ -347,7 +354,9 @@ try
                 "Accessible branches response invalid.");
             var ids = branches.Json!.Value.EnumerateArray().Select(b => b.GetProperty("id").GetInt32()).ToHashSet();
             Require(expectedBranches.All(ids.Contains) &&
-                (role is "EMPLOYEE" or "BRANCH_ADMIN" ? ids.Count == expectedBranches.Length : true),
+                (role is "EMPLOYEE" or "BRANCH_ADMIN" ? ids.Count == expectedBranches.Length :
+                    ids.SetEquals(allActive)) &&
+                !ids.Contains(inactiveBranch.Id) && !ids.Contains(deletedBranch.Id),
                 "Accessible branch scope incorrect.");
         }
     });
