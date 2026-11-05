@@ -73,7 +73,7 @@ public sealed class BranchAccessServiceTests
         Mock<IAuthRepository> repository = new(MockBehavior.Strict);
         repository
             .Setup(repo => repo.GetAccessibleBranchesAsync(22, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AccessibleBranchData>());
+            .ReturnsAsync(new List<AccessibleBranchData>());
 
         IBranchAccessService service = new BranchAccessService(repository.Object);
 
