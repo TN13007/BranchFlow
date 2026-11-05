@@ -1,6 +1,6 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 03/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. No Sprint 4 case is marked Pass from source inspection or from a mock test.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. No Sprint 4 case is marked Pass from source inspection or from a mock test.
 
 ## Run 2026-11-03-A: current integrated branch preflight
 
@@ -115,6 +115,12 @@ Build `BranchFlow.slnx -c Release`: 0 warnings, 0 errors. `dotnet test BranchFlo
 | QA-S4-022 | Foreign/nonexistent branch gives 403; assigned inactive branch gives 404 | Both 403 checks and assigned inactive/deleted branch 404 checks passed | Pass | [04/11 console log](MenuSmokeResult-2026-11-04.txt) |
 
 QA-S4-024's expected wording now distinguishes a UI decrement to zero (remove topping from payload) from an explicit invalid quantity-zero entry. The catalog case remains Not Run; editing expected text and passing existing unit tests does not complete its browser execution. Latest catalog totals remain 4 Pass and 40 Not Run.
+
+## Run 2026-11-05-E: main synced into Thuanaj
+
+`Thuanaj` fast-forwarded to `origin/main` at `d66121fc5c17b9b6bc909ce540ca7661ecefb4d5` and was pushed. On this integrated source, the Release solution test run passed **24/24** xUnit tests. After building the API project (0 warnings, 0 errors), the menu SQL/HTTP runner passed **34/34** checks and cleaned its fixtures. The first menu attempt stopped before HTTP checks because the API DLL was absent from this worktree; it was a build setup issue, and the runner cleaned its fixture. Commands and observed results are in [MainSyncResult-2026-11-05.txt](MainSyncResult-2026-11-05.txt).
+
+The latest menu run reconfirms QA-S4-019–022 as Pass. No additional catalog case was completed, so the latest total remains **4 Pass / 40 Not Run**. The integrated source still has no auth or create-order controller. An isolated read-only check of `origin/feat/scrum-73-auth-logout` at `6e603d9` built its API and passed 55/55 xUnit tests; that feature branch is not merged with current `main`, and no direct HTTP auth case was run or marked Pass from it.
 
 ## Next execution log template
 

@@ -1,0 +1,13 @@
+BranchFlow Sprint 4 QA integration check
+Date: 2026-11-05 Asia/Ho_Chi_Minh
+Branch: Thuanaj
+Source: origin/main d66121fc5c17b9b6bc909ce540ca7661ecefb4d5
+
+Sync: git merge --no-edit origin/main fast-forwarded Thuanaj from b5d4af2 to d66121f; push to origin/Thuanaj succeeded.
+Current branch: dotnet test BranchFlow.slnx -c Release --logger 'console;verbosity=minimal' => 24 Passed, 0 Failed, 0 Skipped.
+Current branch: dotnet build src/BranchFlow.Api/BranchFlow.Api.csproj -c Release --no-restore => 0 warnings, 0 errors.
+Current branch: first MenuSmoke attempt could not launch the API because the API DLL had not yet been built in this worktree; the runner cleaned its SQL fixtures. After building the API, dotnet run --project tests/MenuSmoke/MenuSmoke.csproj -c Release -- (Get-Location).Path => 34 HTTP checks passed; QA-S4-019 through QA-S4-022 passed; fixtures cleaned.
+Source inventory on d66121f: OrderMenuController exists; AuthController and order creation/controller are absent. No auth/order catalog case was executed on this integrated source.
+
+Preliminary feature branch check, separate from integrated candidate:
+origin/feat/scrum-73-auth-logout at 6e603d9 was inspected in detached HEAD without merging into Thuanaj. dotnet test BranchFlow.slnx -c Release => 55 Passed, 0 Failed, 0 Skipped. dotnet build src/BranchFlow.Api/BranchFlow.Api.csproj -c Release --no-restore => 0 warnings, 0 errors. This branch contains auth, branch access and demo seed source but does not contain current origin/main. No direct HTTP auth case was executed or marked Pass from this check.
