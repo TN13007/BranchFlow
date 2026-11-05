@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84" fill="none" aria-hidden="true" focusable="false">
+  <!-- Nơ vải đỏ Noel & cành thông góc ngoài bảng tổng đơn (D06) -->
+  <!-- Cành thông -->
+  <path d="M12 42 Q 36 22, 68 18" stroke="#137B4F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M22 56 Q 38 34, 54 14" stroke="#0D4A30" stroke-width="5" stroke-linecap="round"/>
+  <!-- Dải ruy-băng -->
+  <path d="M36 36 L22 66 L32 62 L38 70 L44 40" fill="#A82819"/>
+  <path d="M44 36 L62 64 L52 60 L46 68 L38 40" fill="#CF3D2D"/>
+  <!-- Cánh nơ -->
+  <path d="M40 34 C 22 18, 12 34, 28 42 C 34 44, 38 38, 40 34 Z" fill="#CF3D2D" stroke="#FFFDF7" stroke-width="1.2"/>
+  <path d="M40 34 C 58 18, 68 34, 52 42 C 46 44, 42 38, 40 34 Z" fill="#CF3D2D" stroke="#FFFDF7" stroke-width="1.2"/>
+  <!-- Tâm nơ vàng ấm -->
+  <circle cx="40" cy="35" r="6" fill="#D9A63A" stroke="#FFFDF7" stroke-width="1.5"/>
+</svg>

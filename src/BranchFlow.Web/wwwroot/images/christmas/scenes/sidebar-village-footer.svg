@@ -1,0 +1,41 @@
+<svg width="244" height="108" viewBox="0 0 244 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGlow" x1="122" y1="0" x2="122" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10422D" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0A291B" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="winWarm" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE699"/>
+      <stop offset="100%" stop-color="#D9A63A"/>
+    </radialGradient>
+  </defs>
+  <rect width="244" height="108" fill="url(#skyGlow)"/>
+  <!-- Distant soft pine silhouettes -->
+  <path d="M0 78 C30 66, 68 68, 108 75 C150 82, 195 66, 244 74 L244 108 L0 108 Z" fill="#175239"/>
+  <!-- Cute rounded layered pine tree left -->
+  <path d="M34 30 C24 44, 21 50, 29 51 C21 62, 18 69, 28 70 C20 80, 18 86, 48 86 C48 86, 46 80, 39 70 C49 69, 46 62, 38 51 C46 50, 43 44, 34 30 Z" fill="#1E6B4B" stroke="#0C2E1F" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M34 29 C28 38, 27 42, 34 42 C40 42, 39 38, 34 29 Z" fill="#F4FBF7"/>
+  <circle cx="34" cy="27" r="3.2" fill="#FFE082"/>
+  <circle cx="30" cy="57" r="2.2" fill="#CF3D2D"/>
+  <circle cx="38" cy="64" r="2.2" fill="#D9A63A"/>
+  <!-- Cute rounded wooden cottage center-right -->
+  <rect x="140" y="52" width="54" height="36" rx="5" fill="#7C4D2B" stroke="#0C2E1F" stroke-width="1.6"/>
+  <!-- Chimney -->
+  <rect x="178" y="36" width="9" height="14" rx="2" fill="#9E3B2C" stroke="#0C2E1F" stroke-width="1.4"/>
+  <rect x="176" y="34" width="13" height="5" rx="2.5" fill="#FFFDF7"/>
+  <!-- Rounded snow-covered roof -->
+  <path d="M133 55 C133 46, 150 35, 167 35 C184 35, 201 46, 201 55 C195 57, 187 54, 180 56 C172 58, 162 54, 154 56 C146 58, 138 56, 133 55 Z" fill="#FFFDF7" stroke="#BFDACE" stroke-width="1.5"/>
+  <!-- Cozy glowing windows & door -->
+  <rect x="148" y="60" width="13" height="13" rx="3" fill="url(#winWarm)" stroke="#4E2E16" stroke-width="1.4"/>
+  <path d="M154.5 60 V73 M148 66.5 H161" stroke="#7C4D2B" stroke-width="1.2"/>
+  <rect x="169" y="59" width="16" height="27" rx="4" fill="#A8382B" stroke="#4E2E16" stroke-width="1.4"/>
+  <circle cx="177" cy="67" r="3.5" fill="#1E6B4B" stroke="#D9A63A" stroke-width="1.2"/>
+  <!-- Cute pine right -->
+  <path d="M214 40 C206 52, 204 57, 210 58 C203 67, 201 73, 226 73 C226 73, 224 67, 218 58 C224 57, 222 52, 214 40 Z" fill="#195E41" stroke="#0C2E1F" stroke-width="1.4" stroke-linejoin="round"/>
+  <!-- Layered snowy foreground hills -->
+  <path d="M0 84 C44 75, 92 79, 138 86 C178 92, 212 81, 244 85 L244 108 L0 108 Z" fill="#E3F2EC"/>
+  <path d="M0 92 C58 86, 114 95, 174 89 C206 86, 228 90, 244 92 L244 108 L0 108 Z" fill="#FFFDF7"/>
+  <!-- Small candy cane accent on snowbank -->
+  <path d="M88 86 V74 C88 70, 94 70, 94 74" stroke="#FFFDF7" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M88 83 V79 M88 75 V73" stroke="#E57B92" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

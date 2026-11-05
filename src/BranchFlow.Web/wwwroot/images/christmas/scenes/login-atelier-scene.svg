@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 320" fill="none" aria-hidden="true" focusable="false">
+  <!-- Minh họa tĩnh Xưởng đồ uống BranchFlow buổi sáng mùa đông trên trang Login -->
+  <defs>
+    <linearGradient id="cardSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2F0EA"/>
+      <stop offset="100%" stop-color="#FFFDF7"/>
+    </linearGradient>
+    <radialGradient id="softLantern" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE79B" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#D9A63A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="460" height="320" rx="18" fill="url(#cardSky)" stroke="#CBE3D8" stroke-width="1.5"/>
+
+  <!-- Đồi tuyết xa -->
+  <path d="M0 218 Q 120 182, 250 206 T 460 194 L 460 320 L 0 320 Z" fill="#D5E6DF"/>
+  <!-- Đồi tuyết gần -->
+  <path d="M0 248 Q 165 224, 310 246 T 460 238 L 460 320 L 0 320 Z" fill="#FFFDF7"/>
+
+  <!-- Cây thông bên trái -->
+  <g fill="#137B4F">
+    <polygon points="68,118 32,244 104,244"/>
+    <polygon points="68,88 38,184 98,184"/>
+    <polygon points="68,64 46,134 90,134"/>
+  </g>
+  <path d="M68 64 L52 104 L84 104 Z M44 156 Q68 168 92 156" stroke="#FFFDF7" stroke-width="4" stroke-linecap="round" fill="#FFFDF7" fill-opacity="0.7"/>
+  <circle cx="68" cy="58" r="5" fill="#D9A63A"/>
+
+  <!-- Cây thông bên phải -->
+  <g fill="#0F633F">
+    <polygon points="396,132 364,246 428,246"/>
+    <polygon points="396,102 370,192 422,192"/>
+  </g>
+  <path d="M396 102 L382 138 L410 138 Z" fill="#FFFDF7" opacity="0.8"/>
+
+  <!-- Tòa nhà cửa hàng BranchFlow -->
+  <g transform="translate(118, 92)">
+    <!-- Ống khói -->
+    <rect x="164" y="8" width="20" height="34" rx="2" fill="#7C4D34"/>
+    <rect x="160" y="4" width="28" height="8" rx="4" fill="#FFFDF7"/>
+    <!-- Thân quán -->
+    <rect x="18" y="56" width="188" height="112" rx="6" fill="#FFF8E9" stroke="#C8B99E" stroke-width="2"/>
+    <!-- Mái ngói đỏ phủ tuyết -->
+    <path d="M4 62 L112 6 L220 62 Z" fill="#CF3D2D"/>
+    <path d="M8 60 Q 60 32, 112 8 Q 164 32, 216 60" stroke="#FFFDF7" stroke-width="8" stroke-linecap="round"/>
+    <!-- Dải mái hiên kẻ sọc xanh-kem -->
+    <rect x="24" y="62" width="176" height="16" rx="4" fill="#137B4F"/>
+    <path d="M44 62 V78 M68 62 V78 M92 62 V78 M116 62 V78 M140 62 V78 M164 62 V78 M188 62 V78" stroke="#FFFDF7" stroke-width="4"/>
+
+    <!-- Bảng hiệu nhỏ -->
+    <rect x="68" y="34" width="88" height="22" rx="5" fill="#0F3D29" stroke="#D9A63A" stroke-width="1.5"/>
+    <circle cx="112" cy="45" r="3" fill="#D9A63A"/>
+
+    <!-- Cửa gỗ chính -->
+    <rect x="36" y="92" width="46" height="76" rx="4" fill="#6E442D"/>
+    <rect x="43" y="100" width="32" height="30" rx="2" fill="#DCECE5"/>
+    <!-- Vòng nguyệt quế trên cửa -->
+    <circle cx="59" cy="115" r="9" stroke="#137B4F" stroke-width="4" fill="none"/>
+    <circle cx="59" cy="106" r="2.8" fill="#CF3D2D"/>
+    <circle cx="88" cy="108" r="24" fill="url(#softLantern)"/>
+
+    <!-- Cửa sổ quầy pha chế sáng dịu -->
+    <rect x="98" y="92" width="90" height="52" rx="4" fill="#F9E7BA" stroke="#7C4D34" stroke-width="2"/>
+    <line x1="143" y1="92" x2="143" y2="144" stroke="#7C4D34" stroke-width="2"/>
+    <line x1="98" y1="118" x2="188" y2="118" stroke="#7C4D34" stroke-width="2"/>
+    <!-- Bóng ly đồ uống trên bệ cửa -->
+    <rect x="112" y="124" width="10" height="14" rx="2" fill="#137B4F"/>
+    <rect x="158" y="122" width="12" height="16" rx="2" fill="#CF3D2D"/>
+    <!-- Bệ tuyết dưới cửa sổ -->
+    <rect x="94" y="142" width="98" height="7" rx="3.5" fill="#FFFDF7" stroke="#D7E2DC" stroke-width="1"/>
+  </g>
+
+  <!-- Đường lát đá dẫn ra tiền cảnh -->
+  <ellipse cx="182" cy="276" rx="18" ry="6" fill="#D5E4DC"/>
+  <ellipse cx="204" cy="292" rx="22" ry="7" fill="#D5E4DC"/>
+  <ellipse cx="176" cy="306" rx="26" ry="7" fill="#D5E4DC"/>
+</svg>
