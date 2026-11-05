@@ -71,7 +71,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "BranchFlow API",
         Version = "v1",
-        Description = "API dự án nhóm BranchFlow. Hiện mới thiết lập cấu trúc nền."
+        Description = "BranchFlow API: xác thực JWT và nghiệp vụ quản lý chuỗi cửa hàng."
     });
 
     string xmlFileName = $"{builder.Environment.ApplicationName}.xml";
@@ -85,7 +85,7 @@ app.UseExceptionHandler();
 // Không lưu cache response của login/refresh, kể cả lỗi model binding hoặc rate limit.
 app.Use(async (context, next) =>
 {
-    string? path = context.Request.Path.Value;
+    string? path = context.Request.Path.Value?.TrimEnd('/');
     if (string.Equals(path, "/api/auth/login", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(path, "/api/auth/refresh", StringComparison.OrdinalIgnoreCase))
     {
@@ -95,9 +95,9 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseRateLimiter();
-
 
 // Chỉ mở tài liệu Swagger trong môi trường phát triển.
 if (app.Environment.IsDevelopment())
@@ -108,8 +108,6 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "BranchFlow API v1");
     });
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
