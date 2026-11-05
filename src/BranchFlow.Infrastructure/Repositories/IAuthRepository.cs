@@ -31,6 +31,12 @@ public interface IAuthRepository
         DateTime revokedAtUtc,
         CancellationToken cancellationToken = default);
 
+    Task<bool> RevokeCurrentSessionAsync(
+        Guid sessionId,
+        int userId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default);
+
     void AddSession(AuthSession session);
     void AddRefreshToken(RefreshToken refreshToken);
 }
