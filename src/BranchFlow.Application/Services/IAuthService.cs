@@ -8,6 +8,11 @@ public interface IAuthService
         int userId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> LogoutAsync(
+        int userId,
+        Guid sessionId,
+        CancellationToken cancellationToken = default);
+
     Task<TokenPair?> LoginAsync(
         string username,
         string password,
