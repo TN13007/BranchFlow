@@ -29,6 +29,10 @@ builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddSingleton(new AuthTokenSettings(
+    builder.Configuration["Jwt:Key"] ?? string.Empty,
+    builder.Configuration["Jwt:Issuer"] ?? string.Empty,
+    builder.Configuration["Jwt:Audience"] ?? string.Empty));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddBranchFlowJwt(builder.Configuration);
