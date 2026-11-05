@@ -5,6 +5,8 @@ using BranchFlow.Application.Services;
 using BranchFlow.Infrastructure.Repositories;
 using BranchFlow.Infrastructure.UnitOfWork;
 using BranchFlow.Api.Security;
+using BranchFlow.Infrastructure.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,8 @@ builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddBranchFlowJwt(builder.Configuration);
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
     context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
