@@ -47,6 +47,48 @@ public sealed class CartTests
     }
 
     [Fact]
+    public void QaS4_023_PreviewEditAndRemoveAffectOnlySelectedLine()
+    {
+        var cart = Cart(); var menu = PreviewMenu.Create();
+        cart.Save(menu, Item());
+        Assert.Equal(98000, cart.PreviewTotal);
+
+        var selectedKey = cart.Lines[0].Key;
+        cart.Save(menu, new CreateOrderItem(102, 1, [], []));
+        var otherKey = cart.Lines[1].Key;
+        cart.Save(menu, Item(1), selectedKey);
+
+        Assert.Equal(49000, cart.Lines.Single(l => l.Key == selectedKey).PreviewTotal);
+        Assert.Equal(38000, cart.Lines.Single(l => l.Key == otherKey).PreviewTotal);
+        Assert.Equal(87000, cart.PreviewTotal);
+        cart.Remove(selectedKey);
+        Assert.Equal(otherKey, Assert.Single(cart.Lines).Key);
+        Assert.Equal(38000, cart.PreviewTotal);
+    }
+
+    [Fact]
+    public void QaS4_024_InvalidExplicitToppingsPreserveCartAndOneToThreeAreAccepted()
+    {
+        var cart = Cart(); var menu = PreviewMenu.Create();
+        cart.Save(menu, Item());
+        var key = Assert.Single(cart.Lines).Key;
+
+        foreach (var quantity in new[] { 0, 4 })
+            Assert.Throws<InvalidOperationException>(() => cart.Save(menu,
+                Item() with { Toppings = [new(5, quantity)] }, key));
+        Assert.Throws<InvalidOperationException>(() => cart.Save(menu,
+            Item() with { Toppings = [new(5, 1), new(5, 2)] }, key));
+        Assert.Throws<InvalidOperationException>(() => cart.Save(menu,
+            Item() with { NoteOptionIds = [7, 8] }, key));
+        Assert.Equal(98000, Assert.Single(cart.Lines).PreviewTotal);
+
+        foreach (var quantity in new[] { 1, 2, 3 })
+            cart.Save(menu, Item() with { Toppings = [new(5, quantity)] }, key);
+        Assert.Equal(45000, Assert.Single(cart.Lines).PreviewUnitPrice);
+        Assert.Equal(90000, cart.PreviewTotal);
+    }
+
+    [Fact]
     public void DisabledMenuBlocksSubmitAndRetainsOriginalCart()
     {
         var cart = Cart(); cart.Save(PreviewMenu.Create(), Item());
