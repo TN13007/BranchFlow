@@ -70,25 +70,33 @@ public sealed class DemoSeedRepository : IDemoSeedRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public Task<AdminBranchAssignment?> GetOpenAdminBranchAssignmentByBranchIdAsync(
+    // A new seed assignment has no end date, so any existing assignment ending after
+    // the proposed start time would overlap it, including assignments scheduled for the future.
+    public Task<AdminBranchAssignment?> GetAssignmentOverlappingFromUtcByBranchIdAsync(
         int branchId,
+        DateTime effectiveFromUtc,
         CancellationToken cancellationToken = default)
     {
         return _context.AdminBranchAssignments
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                assignment => assignment.BranchId == branchId && assignment.EffectiveTo == null,
+                assignment =>
+                    assignment.BranchId == branchId &&
+                    (assignment.EffectiveTo == null || assignment.EffectiveTo > effectiveFromUtc),
                 cancellationToken);
     }
 
-    public Task<EmployeeBranchAssignment?> GetOpenEmployeeBranchAssignmentByProfileIdAsync(
+    public Task<EmployeeBranchAssignment?> GetAssignmentOverlappingFromUtcByProfileIdAsync(
         int profileId,
+        DateTime effectiveFromUtc,
         CancellationToken cancellationToken = default)
     {
         return _context.EmployeeBranchAssignments
             .AsNoTracking()
             .SingleOrDefaultAsync(
-                assignment => assignment.EmployeeProfileId == profileId && assignment.EffectiveTo == null,
+                assignment =>
+                    assignment.EmployeeProfileId == profileId &&
+                    (assignment.EffectiveTo == null || assignment.EffectiveTo > effectiveFromUtc),
                 cancellationToken);
     }
 
