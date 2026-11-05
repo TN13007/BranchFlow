@@ -11,7 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text;
 
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+bool resetDemoPasswords = args.Any(
+    argument => argument.Equals("--reset-demo-passwords", StringComparison.OrdinalIgnoreCase));
+string[] hostArguments = args
+    .Where(argument => !argument.Equals("--reset-demo-passwords", StringComparison.OrdinalIgnoreCase))
+    .ToArray();
+
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(hostArguments);
 
 if (builder.Environment.EnvironmentName != "Development" &&
     builder.Environment.EnvironmentName != "Testing")
@@ -59,32 +65,75 @@ builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 using IHost host = builder.Build();
 await using AsyncServiceScope scope = host.Services.CreateAsyncScope();
 
-string? passwordFromEnvironment = Environment.GetEnvironmentVariable("BRANCHFLOW_DEMO_PASSWORD");
-string password = string.IsNullOrEmpty(passwordFromEnvironment)
-    ? ReadPassword()
-    : passwordFromEnvironment;
-
 try
 {
     IDemoSeedService seedService = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
-    IAuthRepository authRepository = scope.ServiceProvider.GetRequiredService<IAuthRepository>();
 
-    DemoSeedResult seedResult = await seedService.SeedAsync(password);
-    await VerifyQueryMatrixAsync(authRepository, seedResult);
+    if (resetDemoPasswords)
+    {
+        ConfirmDemoPasswordReset();
+    }
 
-    Console.WriteLine();
-    Console.WriteLine("Demo data đã sẵn sàng.");
-    Console.WriteLine("Mật khẩu nhập ở đầu chương trình chỉ áp dụng cho tài khoản được tạo mới.");
-    Console.WriteLine("Seeder không hiển thị hoặc ghi mật khẩu/hash ra màn hình.");
+    string password = ReadConfirmedPassword();
+
+    if (resetDemoPasswords)
+    {
+        int updatedCount = await seedService.ResetDemoPasswordsAsync(password);
+        Console.WriteLine();
+        Console.WriteLine($"Đã đặt lại mật khẩu cho {updatedCount} tài khoản demo.");
+        Console.WriteLine("Chi nhánh, hồ sơ nhân viên và phân công được giữ nguyên.");
+    }
+    else
+    {
+        IAuthRepository authRepository = scope.ServiceProvider.GetRequiredService<IAuthRepository>();
+
+        DemoSeedResult seedResult = await seedService.SeedAsync(password);
+        await VerifyQueryMatrixAsync(authRepository, seedResult);
+
+        Console.WriteLine();
+        Console.WriteLine("Demo data đã sẵn sàng.");
+        Console.WriteLine("Mật khẩu nhập ở đầu chương trình chỉ áp dụng cho tài khoản được tạo mới.");
+    }
 }
 finally
 {
     Environment.SetEnvironmentVariable("BRANCHFLOW_DEMO_PASSWORD", null);
 }
 
-static string ReadPassword()
+static string ReadConfirmedPassword()
 {
-    Console.Write("Nhập mật khẩu cho các tài khoản demo mới (ít nhất 12 ký tự): ");
+    string? passwordFromEnvironment = Environment.GetEnvironmentVariable("BRANCHFLOW_DEMO_PASSWORD");
+    if (!string.IsNullOrEmpty(passwordFromEnvironment))
+    {
+        return passwordFromEnvironment;
+    }
+
+    string password = ReadPassword("Nhập mật khẩu mới (ít nhất 12 ký tự): ");
+    string confirmation = ReadPassword("Nhập lại mật khẩu để xác nhận: ");
+
+    if (!string.Equals(password, confirmation, StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException("Hai lần nhập mật khẩu không giống nhau. Chưa có thay đổi nào được lưu.");
+    }
+
+    return password;
+}
+
+static void ConfirmDemoPasswordReset()
+{
+    Console.WriteLine("CẢNH BÁO: thao tác này sẽ đổi mật khẩu của đúng 9 tài khoản demo.");
+    Console.Write("Gõ RESET để xác nhận: ");
+
+    string? confirmation = Console.ReadLine();
+    if (!string.Equals(confirmation, "RESET", StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException("Đã hủy thao tác đặt lại mật khẩu.");
+    }
+}
+
+static string ReadPassword(string prompt)
+{
+    Console.Write(prompt);
 
     StringBuilder password = new();
     while (true)
@@ -102,6 +151,7 @@ static string ReadPassword()
             if (password.Length > 0)
             {
                 password.Length--;
+                Console.Write("\b \b");
             }
 
             continue;
@@ -110,6 +160,7 @@ static string ReadPassword()
         if (!char.IsControl(key.KeyChar))
         {
             password.Append(key.KeyChar);
+            Console.Write("*");
         }
     }
 }

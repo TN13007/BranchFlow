@@ -13,6 +13,20 @@ public sealed class DemoSeedService : IDemoSeedService
     private const string EmployeeRoleCode = "EMPLOYEE";
     private const int MinimumPasswordLength = 12;
 
+    private static readonly IReadOnlyDictionary<string, string> DemoAccountRoles =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["demo.owner"] = OwnerRoleCode,
+            ["demo.systemadmin"] = SystemAdminRoleCode,
+            ["demo.branchadmin.01"] = BranchAdminRoleCode,
+            ["demo.branchadmin.02"] = BranchAdminRoleCode,
+            ["demo.branchadmin.03"] = BranchAdminRoleCode,
+            ["demo.employee.a"] = EmployeeRoleCode,
+            ["demo.employee.b"] = EmployeeRoleCode,
+            ["demo.employee.locked"] = EmployeeRoleCode,
+            ["demo.employee.unassigned"] = EmployeeRoleCode
+        };
+
     private readonly IDemoSeedRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher<AppUser> _passwordHasher;
@@ -146,6 +160,65 @@ public sealed class DemoSeedService : IDemoSeedService
         {
             // CommitTransactionAsync tự giải phóng transaction nếu commit phát sinh lỗi.
             // Khi transaction vẫn còn, rollback sẽ đưa các thay đổi chưa commit về trạng thái ban đầu.
+            try
+            {
+                await _unitOfWork.RollbackTransactionAsync(CancellationToken.None);
+            }
+            catch
+            {
+                // Giữ nguyên exception gốc để không che mất nguyên nhân thất bại.
+            }
+
+            throw;
+        }
+    }
+
+    // Đổi mật khẩu riêng cho danh sách tài khoản demo đã được seed.
+    // Không tạo lại chi nhánh, hồ sơ nhân viên hoặc phân công.
+    public async Task<int> ResetDemoPasswordsAsync(
+        string password,
+        CancellationToken cancellationToken = default)
+    {
+        ValidatePassword(password);
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            List<AppUser> users = await _repository.GetUsersByUsernamesAsync(
+                DemoAccountRoles.Keys.ToArray(),
+                cancellationToken);
+
+            if (users.Count != DemoAccountRoles.Count)
+            {
+                throw new InvalidOperationException(
+                    "Không tìm thấy đủ 9 tài khoản demo. Hãy chạy seed trước khi đặt lại mật khẩu.");
+            }
+
+            foreach (AppUser user in users)
+            {
+                if (!DemoAccountRoles.TryGetValue(user.Username, out string? expectedRoleCode) ||
+                    user.Deleted ||
+                    user.Role.Deleted ||
+                    user.Role.Code != expectedRoleCode)
+                {
+                    throw new InvalidOperationException(
+                        $"Tài khoản '{user.Username}' không khớp danh sách demo được phép đặt lại mật khẩu.");
+                }
+            }
+
+            foreach (AppUser user in users)
+            {
+                user.PasswordHash = _passwordHasher.HashPassword(user, password);
+            }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
+            return users.Count;
+        }
+        catch
+        {
             try
             {
                 await _unitOfWork.RollbackTransactionAsync(CancellationToken.None);

@@ -5,6 +5,10 @@ public interface IDemoSeedService
     Task<DemoSeedResult> SeedAsync(
         string password,
         CancellationToken cancellationToken = default);
+
+    Task<int> ResetDemoPasswordsAsync(
+        string password,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record DemoSeedAccountResult(

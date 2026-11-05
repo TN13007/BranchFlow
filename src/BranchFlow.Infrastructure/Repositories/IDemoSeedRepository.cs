@@ -7,6 +7,7 @@ public interface IDemoSeedRepository
     Task<Role?> GetRoleByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<Branch?> GetBranchByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<AppUser?> GetUserByUsernameAsync(string username, CancellationToken cancellationToken = default);
+    Task<List<AppUser>> GetUsersByUsernamesAsync(IReadOnlyCollection<string> usernames, CancellationToken cancellationToken = default);
     Task<EmployeeProfile?> GetEmployeeProfileByUserIdAsync(int userId, CancellationToken cancellationToken = default);
     Task<AdminBranchAssignment?> GetOpenAdminBranchAssignmentByBranchIdAsync(int branchId, CancellationToken cancellationToken = default);
     Task<EmployeeBranchAssignment?> GetOpenEmployeeBranchAssignmentByProfileIdAsync(int profileId, CancellationToken cancellationToken = default);
