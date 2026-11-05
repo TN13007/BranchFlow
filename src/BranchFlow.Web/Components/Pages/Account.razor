@@ -1,15 +1,52 @@
 @page "/account"
 @attribute [Authorize]
 @layout EmployeeLayout
+@inject IWebHostEnvironment Environment
 
 <PageTitle>Tài khoản | BranchFlow</PageTitle>
-<header class="page-heading"><h1>Tài khoản</h1><p>Bạn đã đăng nhập vào BranchFlow.</p></header>
+<header class="page-heading context-scene-quiet-window">
+    <div>
+        <p class="eyebrow">GÓC NGHỈ ẤM · THÔNG TIN PHIÊN LÀM VIỆC</p>
+        <h1>Tài khoản</h1>
+        <p>Bạn đã đăng nhập vào không gian làm việc BranchFlow.</p>
+    </div>
+</header>
 <div class="page-content">
     <AuthorizeView>
         <Authorized Context="auth">
-            <p>Xin chào, <strong>@auth.User.Identity?.Name</strong>.</p>
-            @if (auth.User.IsInRole("EMPLOYEE")) { <a href="/orders/create" class="btn btn-brand">Bắt đầu gọi món</a> }
-            else { <p>Chức năng gọi món trong Sprint này chỉ dành cho nhân viên. Các màn quản trị thuộc phạm vi triển khai tiếp theo.</p> }
+            <section class="surface-card">
+                <p class="eyebrow mb-2">TÀI KHOẢN ĐANG HOẠT ĐỘNG</p>
+                <p class="fs-5 mb-2">Xin chào, <strong>@auth.User.Identity?.Name</strong>.</p>
+                @if (auth.User.IsInRole("EMPLOYEE"))
+                {
+                    <p class="text-secondary mb-3">Vai trò hiện tại: <strong>Nhân viên cửa hàng (EMPLOYEE)</strong> · Đủ quyền gọi món và tra cứu đơn cá nhân trong ca.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/orders/create" class="btn btn-brand">Bắt đầu gọi món</a>
+                        <a href="/orders/mine" class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;">Xem đơn của tôi</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="mb-0">Chức năng gọi món trong Sprint này chỉ dành cho nhân viên. Các màn quản trị thuộc phạm vi triển khai tiếp theo.</p>
+                }
+            </section>
+
+            @if (Environment.IsDevelopment())
+            {
+                <section class="surface-card" aria-labelledby="dev-preview-heading">
+                    <p class="eyebrow mb-1">DỮ LIỆU MẪU · CHẾ ĐỘ DEVELOPMENT</p>
+                    <h2 id="dev-preview-heading">Bề mặt giao diện tĩnh 3 vai trò (Xưởng quà mùa đông)</h2>
+                    <p class="text-secondary mb-3">
+                        Dùng để xem thử các màn hình tĩnh theo 3 page Figma mới mà không thay đổi quyền thật hoặc gọi API chưa triển khai.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/preview/orders" class="btn btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center;">Xem thử Quầy gọi món</a>
+                        <a href="/preview/employee" class="btn btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center;">Màn mở rộng Nhân viên</a>
+                        <a href="/preview/owner" class="btn btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center;">Vai trò Chủ sở hữu (6 màn)</a>
+                        <a href="/preview/admin" class="btn btn-outline-success" style="min-height:44px;display:inline-flex;align-items:center;">Vai trò Quản trị (Admin Tổng &amp; Chi nhánh)</a>
+                    </div>
+                </section>
+            }
         </Authorized>
     </AuthorizeView>
 </div>

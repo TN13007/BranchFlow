@@ -7,43 +7,53 @@
 
 <PageTitle>Đăng nhập | BranchFlow</PageTitle>
 
-<div class="login-container">
+<div class="login-container @(errorMessage is not null ? "is-error-state" : "")">
     <section class="login-intro" aria-labelledby="intro-title">
-        <p class="eyebrow">CÙNG NHAU VẬN HÀNH TỐT HƠN</p>
-        <h2 id="intro-title">Mỗi cửa hàng.<br />Một nhịp kết nối.</h2>
-        <p class="intro-description">Không gian làm việc chung cho đội ngũ BranchFlow. Đăng nhập để bắt đầu công việc tại cửa hàng của bạn.</p>
-        <div class="intro-note">
-            <span class="note-line" aria-hidden="true"></span>
-            <p>Tập trung vào từng đơn hàng,<br />chăm chút từng trải nghiệm.</p>
+        <span class="eyebrow">XƯỞNG QUÀ NGÔI LÀNG MÙA ĐÔNG</span>
+        <h2 id="intro-title">Mỗi cửa hàng. <br />Một nhịp kết nối ấm áp.</h2>
+        <p class="intro-description">
+            Đăng nhập trước giờ lên đèn để mở quầy pha chế, tạo đơn chuẩn giá máy chủ và đồng bộ nhịp vận hành tại chi nhánh của bạn.
+        </p>
+
+        <div class="intro-highlights" aria-hidden="true">
+            <span class="highlight-pill">✓ Quầy gọi món nhanh</span>
+            <span class="highlight-pill">✓ Snapshot đơn chính xác</span>
+            <span class="highlight-pill">✓ Phân quyền theo ca</span>
         </div>
     </section>
 
     <section class="login-card" aria-labelledby="login-title">
-        <p class="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
-        <h1 id="login-title">Đăng nhập</h1>
-        <p class="login-description" id="login-description">Sử dụng tài khoản được cấp để tiếp tục.</p>
+        <div class="login-card-header">
+            <span class="card-season-tag">CA LÀM VIỆC MÙA ĐÔNG</span>
+            <h1 id="login-title">Đăng nhập</h1>
+            <p class="login-description" id="login-description">Sử dụng tài khoản được cấp để mở không gian làm việc.</p>
+        </div>
 
         @if (noticeMessage is not null)
         {
-            <div class="alert alert-info" role="status">@noticeMessage</div>
+            <div class="alert login-notice" role="status">
+                <strong>Thông báo phiên:</strong> @noticeMessage
+            </div>
         }
+
         <EditForm Model="form" OnValidSubmit="HandleValidSubmitAsync" OnInvalidSubmit="HandleInvalidSubmit"
                   id="branchflow-login" action="/auth/login" method="post" data-enhance="false"
                   FormName="login" aria-describedby="login-description" novalidate>
             <DataAnnotationsValidator />
 
-            <div class="mb-4">
-                <label class="form-label" for="username">Tên đăng nhập</label>
+            <div class="mb-3">
+                <label class="form-label" for="username">Tên đăng nhập <span class="required-mark" aria-hidden="true">*</span></label>
                 <InputText id="username" name="username" class="form-control" @bind-Value="form.Username"
                            autocomplete="username" autocapitalize="none" spellcheck="false"
-                           aria-required="true" aria-describedby="username-error" />
+                           aria-required="true" aria-describedby="username-hint username-error" />
+                <small id="username-hint" class="field-hint">Nhập mã nhân viên hoặc tài khoản được phân quyền.</small>
                 <div id="username-error" class="field-error" aria-live="polite">
                     <ValidationMessage For="() => form.Username" />
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="form-label" for="password">Mật khẩu</label>
+                <label class="form-label" for="password">Mật khẩu <span class="required-mark" aria-hidden="true">*</span></label>
                 <div class="password-control">
                     <InputText id="password" name="password" class="form-control" @bind-Value="form.Password"
                                type="@(showPassword ? "text" : "password")" autocomplete="current-password"
@@ -52,7 +62,7 @@
                             aria-controls="password" aria-pressed="@(showPassword ? "true" : "false")"
                             aria-label="@(showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu")">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                             <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
                             <circle cx="12" cy="12" r="3" />
                             @if (showPassword)
@@ -69,19 +79,34 @@
 
             @if (errorMessage is not null)
             {
-                <div class="alert login-alert" role="alert">@errorMessage</div>
+                <div class="alert login-alert" role="alert">
+                    <strong>Chưa thể đăng nhập:</strong> @errorMessage
+                </div>
             }
 
             <button class="btn login-submit w-100" type="submit" disabled="@isSubmitting" aria-busy="@(isSubmitting ? "true" : "false")">
-                @(isSubmitting ? "Đang đăng nhập…" : "Đăng nhập")
+                @(isSubmitting ? "Đang đăng nhập…" : "Đăng nhập vào ca làm")
             </button>
         </EditForm>
 
-        <p class="support-note">Bạn cần hỗ trợ tài khoản?<br /><strong>Vui lòng liên hệ quản lý của bạn.</strong></p>
-        @if (Environment.IsDevelopment())
-        {
-            <p class="support-note"><a href="/preview/orders">Xem thử menu và giỏ hàng (dữ liệu mẫu)</a></p>
-        }
+        <div class="support-box">
+            <p class="support-note">
+                Cần hỗ trợ cấp lại mật khẩu hoặc kiểm tra phân công?
+                <strong>Vui lòng liên hệ quản lý chi nhánh hoặc quản trị viên của bạn.</strong>
+            </p>
+            @if (Environment.IsDevelopment())
+            {
+                <div class="dev-preview-links">
+                    <span class="dev-preview-title">Xem thử giao diện tĩnh (Dữ liệu mẫu):</span>
+                    <div class="dev-preview-actions">
+                        <a href="/preview/orders">Quầy gọi món</a>
+                        <a href="/preview/owner">Chủ sở hữu</a>
+                        <a href="/preview/admin">Quản trị</a>
+                        <a href="/preview/employee">Nhân viên</a>
+                    </div>
+                </div>
+            }
+        </div>
     </section>
 </div>
 
@@ -103,6 +128,7 @@
             "invalid" => "Vui lòng nhập tên đăng nhập và mật khẩu hợp lệ.",
             "rate" => "Bạn đã thử quá nhiều lần. Vui lòng chờ một phút rồi thử lại.",
             "service" => "Không kết nối được dịch vụ đăng nhập. Vui lòng thử lại sau.",
+            "unavailable" => "Dịch vụ đăng nhập tạm thời chưa sẵn sàng. Vui lòng thử lại sau; bạn không cần đổi mật khẩu.",
             _ => null
         };
         noticeMessage = Notice switch
@@ -126,7 +152,7 @@
         errorMessage = null;
         try
         {
-            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/auth-form.js");
+            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/auth-form.js");
             await module.InvokeVoidAsync("submitLogin");
         }
         catch (JSException)

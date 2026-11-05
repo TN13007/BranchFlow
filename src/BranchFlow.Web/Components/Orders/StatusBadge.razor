@@ -1,6 +1,7 @@
-<span class="status-badge @CssClass">@Label</span>
+<span class="status-badge @CssClass"><span aria-hidden="true">@Symbol</span> @Label</span>
 @code {
     [Parameter] public string Status { get; set; } = "";
     private string CssClass => Status switch { "COMPLETED" => "completed", "NEEDS_REVIEW" => "needs-review", "CANCELLED" => "cancelled", _ => "" };
+    private string Symbol => Status switch { "COMPLETED" => "✓", "NEEDS_REVIEW" => "!", "CANCELLED" => "×", _ => "•" };
     private string Label => Status switch { "COMPLETED" => "Hoàn tất", "NEEDS_REVIEW" => "Cần xem lại", "CANCELLED" => "Đã hủy", _ => "Chưa xác định" };
 }

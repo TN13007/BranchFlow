@@ -1,11 +1,21 @@
 @if (Message is not null)
 {
-    <div class="alert alert-danger" role="alert">
-        @Message
-        @if (NeedsLogin) { <a href="/login" class="alert-link ms-2" data-enhance-nav="false">Đăng nhập lại</a> }
+    <div class="alert @(Unavailable ? "alert-warning" : "alert-danger") d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+        <div><strong>@(Unavailable ? "Chưa thể kết nối" : "Không thể hoàn tất thao tác")</strong><div>@Message</div></div>
+        @if (OnRetry.HasDelegate && !NeedsLogin)
+        {
+            <button type="button" class="btn btn-outline-dark" style="min-height:44px" disabled="@Busy" @onclick="OnRetry">@(Busy ? "Đang kết nối…" : "Thử lại")</button>
+        }
+        @if (NeedsLogin)
+        {
+            <a href="/login" class="btn btn-sm btn-outline-danger fw-semibold" style="min-height:44px;padding:8px 14px;display:inline-flex;align-items:center;" data-enhance-nav="false">Đăng nhập lại</a>
+        }
     </div>
 }
 @code {
     [Parameter] public string? Message { get; set; }
     [Parameter] public bool NeedsLogin { get; set; }
+    [Parameter] public bool Unavailable { get; set; }
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback OnRetry { get; set; }
 }
