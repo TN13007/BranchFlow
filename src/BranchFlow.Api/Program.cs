@@ -34,6 +34,7 @@ builder.Services.AddSingleton(new AuthTokenSettings(
     builder.Configuration["Jwt:Issuer"] ?? string.Empty,
     builder.Configuration["Jwt:Audience"] ?? string.Empty));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBranchAccessService, BranchAccessService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddBranchFlowJwt(builder.Configuration);
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
