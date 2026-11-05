@@ -9,9 +9,10 @@ using BranchFlow.Infrastructure.Repositories;
 using BranchFlow.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Configuration;
 
 namespace BranchFlow.Application.Services;
+
+public sealed record AuthTokenSettings(string Key, string Issuer, string Audience);
 
 public sealed class AuthService : IAuthService
 {
@@ -31,20 +32,18 @@ public sealed class AuthService : IAuthService
         IAuthRepository repository,
         IUnitOfWork unitOfWork,
         IPasswordHasher<AppUser> passwordHasher,
-        IConfiguration configuration,
+        AuthTokenSettings tokenSettings,
         TimeProvider clock)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _clock = clock;
+        _issuer = tokenSettings.Issuer;
+        _audience = tokenSettings.Audience;
 
-        string? key = configuration["Jwt:Key"];
-        _issuer = configuration["Jwt:Issuer"] ?? string.Empty;
-        _audience = configuration["Jwt:Audience"] ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(key) ||
-            Encoding.UTF8.GetByteCount(key) < 32 ||
+        if (string.IsNullOrWhiteSpace(tokenSettings.Key) ||
+            Encoding.UTF8.GetByteCount(tokenSettings.Key) < 32 ||
             string.IsNullOrWhiteSpace(_issuer) ||
             string.IsNullOrWhiteSpace(_audience))
         {
@@ -52,7 +51,7 @@ public sealed class AuthService : IAuthService
                 "Cấu hình Jwt:Key (ít nhất 32 byte), Jwt:Issuer và Jwt:Audience trước khi phát hành token.");
         }
 
-        _signingKey = Encoding.UTF8.GetBytes(key);
+        _signingKey = Encoding.UTF8.GetBytes(tokenSettings.Key);
     }
 
     // Kiểm tra thông tin đăng nhập trước, sau đó tạo session và refresh token trong một transaction.
