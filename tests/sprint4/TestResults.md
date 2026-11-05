@@ -144,6 +144,17 @@ The committed [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` launched A
 
 This run is **preliminary** because the auth feature source is not merged with current `main`/`Thuanaj`. It does not change the integrated candidate's 4 Pass / 40 Not Run count. QA-S4-013 still needs a short-lived TTL fixture and observed natural expiry; QA-S4-015/016 also require create-order actions; QA-S4-017/018 require browser integration. Rerun these 13 cases on the release candidate before recording integrated Pass.
 
+## Run 2026-11-05-G: integrated cart unit acceptance
+
+On `Thuanaj` source `b59a1df`, the full Release xUnit suite passed **26/26**. The filtered [named test output](CartUnitResult-2026-11-05.txt) passed both new cart tests with the `PreviewMenu.Create()` fixture; no SQL or live API was involved.
+
+| Case ID | Expected | Observed actual | Integrated status | Source | Evidence |
+|---|---|---|---|---|---|
+| QA-S4-023 | Two cups with T1×3 and T2×1 per cup preview 98,000; edit selected line to one cup previews 49,000; other line unchanged; remove selected line | xUnit passed: first line 98,000, selected line 49,000 after edit, second line 38,000 unchanged, cart 87,000, then only second line remained at 38,000 | Pass | `b59a1df` | [Cart unit output](CartUnitResult-2026-11-05.txt) |
+| QA-S4-024 | Reject invalid explicit topping/note states and preserve cart; accept topping quantities 1–3; UI decrement 1→0 removes topping from payload | xUnit passed invalid 0/4/duplicate/same-group checks, preserved 98,000 cart, and accepted quantities 1–3. UI decrement behavior was not run | Not Run (unit portion passed) | `b59a1df` | [Cart unit output](CartUnitResult-2026-11-05.txt) |
+
+The latest integrated total is **5 Pass / 39 Not Run**. The preliminary auth feature results in run F remain outside this count.
+
 ## Next execution log template
 
 Append one row for each attempted case. Preserve earlier runs when retesting. The `Actual` field must quote an observed status/body or SQL/UI fact, never copy the expected text.

@@ -1,16 +1,16 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Original candidate source: `ca9b56e593278595bcf1de250e222c6f39056439`. Review rerun source: [4b0484d](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Current integrated source: `d66121fc5c17b9b6bc909ce540ca7661ecefb4d5` on `Thuanaj`. Khang delegated review/corrections to Codex; documentation review is complete, runtime Sprint acceptance remains pending.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Original candidate source: `ca9b56e593278595bcf1de250e222c6f39056439`. Review rerun source: [4b0484d](https://github.com/TN13007/BranchFlow/commit/4b0484d2a40ee5d5588fbd172980535248e2c6ab). Current integrated API source: `d66121fc5c17b9b6bc909ce540ca7661ecefb4d5`; current cart QA test source: `b59a1df` on `Thuanaj`. Khang delegated review/corrections to Codex; documentation review is complete, runtime Sprint acceptance remains pending.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
-| 44 | 4 | 0 | 0 | 40 | 0 |
+| 44 | 5 | 0 | 0 | 39 | 0 |
 
-Counts use the initial 44-row catalog and the latest observed runs in [TestResults.md](TestResults.md): QA-S4-019–022 passed with a real local SQL/HTTP fixture; 40 cases have not run. The menu runner reported 34 passing HTTP checks, which map to those four catalog cases plus partial auth evidence. On the current integrated source, the repository xUnit suite ran **24/24 Pass** and the menu runner again passed **34/34** HTTP checks. These checks are separate baseline observations and are not added to the 44 Sprint QA case count.
+Counts use the 44-row catalog and the latest observed runs in [TestResults.md](TestResults.md): QA-S4-019–022 passed with a real local SQL/HTTP fixture, and QA-S4-023 passed with the integrated Web cart unit fixture. The menu runner's 34 HTTP checks map to four catalog cases; the current full xUnit suite passed **26/26**, including the named QA-S4-023 unit test. QA-S4-024's unit portion passed but its UI step has not run, so it remains Not Run. The 13 auth passes on an unmerged feature branch are recorded separately and excluded from these integrated counts.
 
 ## Current assessment
 
-**Not ready for Sprint 4 demo acceptance on the inspected commit.** The local Dev/Test SQL databases have a verified baseline and reference seed, and the menu API has four passing catalog cases on a temporary SQL fixture. Auth and order API and a repeatable demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. No runtime defect is confirmed, and no bug has been closed or retested.
+**Not ready for Sprint 4 demo acceptance on the integrated candidate.** The local Dev/Test SQL databases have a verified baseline and reference seed, the menu API has four passing catalog cases on a temporary SQL fixture, and the Web cart has one passing unit case. Auth and order API and a repeatable demo seed are missing from this candidate; browser E2E and order-service transaction proof cannot yet be run. No runtime defect is confirmed, and no bug has been closed or retested.
 
 | Workstream | Evidence available | Remaining gate |
 |---|---|---|
@@ -47,4 +47,8 @@ Build Release: 0 warnings, 0 errors; 23 xUnit tests passed; [34 SQL/HTTP checks 
 
 ## Preliminary auth execution 05/11/2026
 
-The [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` exercised the API at feature SHA `6e603d9` with live local SQL/HTTP, then cleaned all fixture users and branches. [Run evidence](AuthSmokeResult-2026-11-05.txt) records **13/13 Pass, 0 Fail** for QA-S4-001–012 except 013, plus 014. This is useful evidence for BE1 review but is excluded from the integrated 4/44 Pass count. QA-S4-013 still needs natural TTL expiry; 015–016 need create-order actions; 017–018 need browser integration. Rerun the 13 cases on the combined release candidate before changing their integrated statuses.
+The [AuthSmoke runner](../AuthSmoke/README.md) at `dd0708d` exercised the API at feature SHA `6e603d9` with live local SQL/HTTP, then cleaned all fixture users and branches. [Run evidence](AuthSmokeResult-2026-11-05.txt) records **13/13 Pass, 0 Fail** for QA-S4-001–012 except 013, plus 014. This is useful evidence for BE1 review but is excluded from the integrated Pass count. QA-S4-013 still needs natural TTL expiry; 015–016 need create-order actions; 017–018 need browser integration. Rerun the 13 cases on the combined release candidate before changing their integrated statuses.
+
+## Cart unit execution 05/11/2026
+
+On integrated `Thuanaj` test source `b59a1df`, the [named cart tests](CartUnitResult-2026-11-05.txt) and full 26/26 xUnit suite passed. QA-S4-023 is now Pass: 98,000 for two cups, 49,000 after editing the selected line to one cup, with the other line unchanged and removal isolated. QA-S4-024's invalid explicit topping/note and accepted quantities 1–3 passed at unit level, but the UI decrement-to-zero step remains unrun; the case remains Not Run. Current integrated totals are **5 Pass / 39 Not Run**.
