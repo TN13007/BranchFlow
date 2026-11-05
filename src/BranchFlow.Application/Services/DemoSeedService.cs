@@ -373,8 +373,9 @@ public sealed class DemoSeedService : IDemoSeedService
         DateTime now,
         CancellationToken cancellationToken)
     {
-        AdminBranchAssignment? existing = await _repository.GetOpenAdminBranchAssignmentByBranchIdAsync(
+        AdminBranchAssignment? existing = await _repository.GetAssignmentOverlappingFromUtcByBranchIdAsync(
             branch.Id,
+            now,
             cancellationToken);
 
         if (existing is not null)
@@ -407,8 +408,9 @@ public sealed class DemoSeedService : IDemoSeedService
         DateTime now,
         CancellationToken cancellationToken)
     {
-        EmployeeBranchAssignment? existing = await _repository.GetOpenEmployeeBranchAssignmentByProfileIdAsync(
+        EmployeeBranchAssignment? existing = await _repository.GetAssignmentOverlappingFromUtcByProfileIdAsync(
             profile.Id,
+            now,
             cancellationToken);
 
         if (existing is not null)
