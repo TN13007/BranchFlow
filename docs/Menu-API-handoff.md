@@ -17,6 +17,8 @@ dotnet user-secrets set 'Jwt:Audience' 'BranchFlow.Web' --project src/BranchFlow
 Chỉ tạo key khi máy chưa có cấu hình; thay key làm token hiện có mất hiệu lực. Mỗi máy local có thể dùng key riêng. Thuần dùng cùng ba cấu hình này và các claim trên khi hoàn thiện login/refresh/logout; không thêm một bộ JWT middleware thứ hai. API login/refresh được triển khai theo contract Sprint 4:
 - POST `/api/auth/login`, body `{ "username": "...", "password": "..." }`; username được trim, password giữ nguyên. Thiếu trường bắt buộc trả 400; thông tin sai hoặc tài khoản khóa/xóa trả cùng lỗi 401.
 - POST `/api/auth/refresh`, body `{ "refreshToken": "..." }`; endpoint không yêu cầu access JWT. Token sai, hết hạn, bị thu hồi hoặc session không còn hiệu lực trả lỗi 401 chung.
+- POST `/api/auth/logout`, yêu cầu Bearer access JWT còn hiệu lực, không nhận body. API lấy `sub` và `sid` từ JWT, chỉ thu hồi session thuộc user hiện tại và tất cả refresh token của session đó trong cùng transaction; trả 204 sau commit, không logout các session khác.
+- Sau logout, access JWT còn hạn của session bị thu hồi phải trả 401 ở request được bảo vệ tiếp theo; refresh token cùng session bị từ chối. Web handler xóa cookie/store kể cả khi API không liên lạc được, nhưng hiển thị `local-logout` để không tuyên bố server đã revoke khi chưa xác minh.
 - Login giới hạn 5 lần/phút/IP; vượt giới hạn trả 429 và `Retry-After`.
 - Login và refresh trả `Cache-Control: no-store`. Không ghi access token, refresh token, token hash hoặc JWT key vào log.
 - Access JWT có thời hạn 15 phút và claim `sub`, `sid`, `role`. Refresh token được sinh ngẫu nhiên; SQL chỉ lưu SHA-256 hash (64 ký tự hex).

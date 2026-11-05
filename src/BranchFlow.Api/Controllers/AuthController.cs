@@ -43,6 +43,38 @@ public sealed class AuthController : ControllerBase
         return Ok(currentUser);
     }
 
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        Response.Headers.CacheControl = "no-store";
+
+        if (!int.TryParse(User.FindFirst("sub")?.Value, out int userId) ||
+            userId <= 0 ||
+            !Guid.TryParse(User.FindFirst("sid")?.Value, out Guid sessionId))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Phiên không hợp lệ",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        bool revoked = await _authService.LogoutAsync(
+            userId,
+            sessionId,
+            cancellationToken);
+
+        if (!revoked)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Phiên không hợp lệ",
+                detail: "Vui lòng đăng nhập lại.");
+        }
+
+        return NoContent();
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting("auth-login")]
