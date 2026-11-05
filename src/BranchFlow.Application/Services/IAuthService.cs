@@ -4,6 +4,10 @@ namespace BranchFlow.Application.Services;
 
 public interface IAuthService
 {
+    Task<CurrentUser?> GetCurrentUserAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
     Task<TokenPair?> LoginAsync(
         string username,
         string password,
