@@ -21,7 +21,7 @@ public sealed class OrderMenuServiceTests
     public async Task MapsDatabasePriceAndProductSizeIdWithoutChangingContract()
     {
         var repository = new Mock<IOrderMenuRepository>();
-        var access = new Mock<IMenuAccessRepository>();
+        var access = new Mock<IBranchAccessService>();
         access.Setup(a => a.CanAccessBranchAsync(7, 2, default)).ReturnsAsync(true);
         repository.Setup(r => r.GetMenuByBranchAsync(2, default)).ReturnsAsync(new OrderMenuData(
             new(2, "Q2", "Chi nhánh 2"),
