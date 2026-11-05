@@ -16,15 +16,4 @@ public sealed class MenuAccessRepository(BranchFlowDbContext context, TimeProvid
             s.User.Role.Code == role, cancellationToken);
     }
 
-    // Phân công có hiệu lực theo khoảng UTC [EffectiveFrom, EffectiveTo).
-    public Task<bool> CanReadMenuAsync(int userId, int branchId, CancellationToken cancellationToken = default)
-    {
-        var now = clock.GetUtcNow().UtcDateTime;
-        return context.EmployeeBranchAssignments.AsNoTracking().AnyAsync(a =>
-            a.BranchId == branchId && a.EmployeeProfile.UserId == userId &&
-            !a.EmployeeProfile.Deleted && a.EmployeeProfile.User.IsActive &&
-            !a.EmployeeProfile.User.Deleted && !a.EmployeeProfile.User.Role.Deleted &&
-            a.EmployeeProfile.User.Role.Code == "EMPLOYEE" && a.EffectiveFrom <= now &&
-            (a.EffectiveTo == null || a.EffectiveTo > now), cancellationToken);
-    }
 }
