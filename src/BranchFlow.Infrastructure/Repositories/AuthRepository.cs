@@ -43,6 +43,64 @@ public sealed class AuthRepository : IAuthRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+
+    // Read the complete refresh-token/session/user state without tracking it.
+    public Task<RefreshToken?> GetRefreshTokenByHashAsync(
+        string tokenHash,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.RefreshTokens
+            .AsNoTracking()
+            .Include(refreshToken => refreshToken.Session)
+                .ThenInclude(session => session.User)
+                    .ThenInclude(user => user.Role)
+            .FirstOrDefaultAsync(
+                refreshToken => refreshToken.TokenHash == tokenHash,
+                cancellationToken);
+    }
+
+    // UsedAt and RowVersion form the atomic one-time-use guard for refresh rotation.
+    public async Task<bool> TryMarkRefreshTokenUsedAsync(
+        Guid refreshTokenId,
+        byte[] expectedRowVersion,
+        DateTime usedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        int affectedRows = await _context.RefreshTokens
+            .Where(refreshToken =>
+                refreshToken.Id == refreshTokenId &&
+                refreshToken.UsedAt == null &&
+                refreshToken.RevokedAt == null &&
+                refreshToken.RowVersion == expectedRowVersion)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(refreshToken => refreshToken.UsedAt, usedAtUtc),
+                cancellationToken);
+
+        return affectedRows == 1;
+    }
+
+    public async Task RevokeSessionAsync(
+        Guid sessionId,
+        DateTime revokedAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        await _context.AuthSessions
+            .Where(session => session.Id == sessionId && session.RevokedAt == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(session => session.RevokedAt, revokedAtUtc),
+                cancellationToken);
+    }
+
+    public void AddSession(AuthSession session)
+    {
+        _context.AuthSessions.Add(session);
+    }
+
+    public void AddRefreshToken(RefreshToken refreshToken)
+    {
+        _context.RefreshTokens.Add(refreshToken);
+    }
+
     // Trả về các chi nhánh mà tài khoản đang có quyền truy cập tại thời điểm UTC hiện tại.
     public async Task<IReadOnlyList<AccessibleBranchData>> GetAccessibleBranchesAsync(
         int userId,
