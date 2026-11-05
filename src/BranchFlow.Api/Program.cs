@@ -7,6 +7,8 @@ using BranchFlow.Infrastructure.UnitOfWork;
 using BranchFlow.Api.Security;
 using BranchFlow.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +29,34 @@ builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IMenuAccessRepository, MenuAccessRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddBranchFlowJwt(builder.Configuration);
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
     context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("auth-login", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.Headers["Retry-After"] = "60";
+        return ValueTask.CompletedTask;
+    };
+});
+
 
 // Đăng ký controller và bộ sinh tài liệu Swagger cho API.
 builder.Services.AddControllers();
@@ -51,6 +77,23 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 // Lỗi ngoài dự kiến luôn trả ProblemDetails an toàn, không trả stack/SQL cho client.
 app.UseExceptionHandler();
+
+// Không lưu cache response của login/refresh, kể cả lỗi model binding hoặc rate limit.
+app.Use(async (context, next) =>
+{
+    string? path = context.Request.Path.Value;
+    if (string.Equals(path, "/api/auth/login", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(path, "/api/auth/refresh", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Headers.CacheControl = "no-store";
+    }
+
+    await next();
+});
+
+app.UseRouting();
+app.UseRateLimiter();
+
 
 // Chỉ mở tài liệu Swagger trong môi trường phát triển.
 if (app.Environment.IsDevelopment())
