@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "source": "User-supplied videos, 2026-11-05",
+  "preparation": "Transparent VP9, no audio; pink/black backdrop removal, smoothed framing. Original footage is unchanged outside source.",
+  "clips": [
+    {
+      "from": "ginger",
+      "to": "santa",
+      "original": "humancookie/kling_20261105_VIDEO_TASK__CREA_3169_0.mp4",
+      "sha256": "80eedcd35657eceda1b8b5c906facaed668a6e89b32740101ccd6663965fb62b",
+      "asset": "ginger/transitions/to-santa.webm",
+      "duration": 8.041666666666666,
+      "width": 360,
+      "height": 480,
+      "fps": 24,
+      "bytes": 991845
+    },
+    {
+      "from": "ginger",
+      "to": "reindeer",
+      "original": "humancookie/kling_20261105_VIDEO_TASK__CREA_3236_0.mp4",
+      "sha256": "be1e58d2cfe17156ae08dbf4fa6c72c0a7e78c990f1a6e19b43f3eb74508782b",
+      "asset": "ginger/transitions/to-reindeer.webm",
+      "duration": 8.041666666666666,
+      "width": 360,
+      "height": 480,
+      "fps": 24,
+      "bytes": 1043863
+    },
+    {
+      "from": "ginger",
+      "to": "barista",
+      "original": "humancookie/kling_20261105_VIDEO_TASK__CREA_3240_0.mp4",
+      "sha256": "4dc5b8e7d792dd7fd7bae50eae04861572b1afed77d600077739fcd8256ef079",
+      "asset": "ginger/transitions/to-barista.webm",
+      "duration": 8.041666666666666,
+      "width": 360,
+      "height": 480,
+      "fps": 24,
+      "bytes": 824967
+    },
+    {
+      "from": "santa",
+      "to": "reindeer",
+      "original": "satan/gemini_generated_video_8fb1b225.mp4",
+      "sha256": "7ce7942a4206b42ca28dafde3cc903a3eb25af46fc4ee328d1c3048b4663dd61",
+      "asset": "santa/transitions/to-reindeer.webm",
+      "duration": 10,
+      "width": 360,
+      "height": 480,
+      "fps": 24,
+      "bytes": 1111325
+    }
+  ]
+}

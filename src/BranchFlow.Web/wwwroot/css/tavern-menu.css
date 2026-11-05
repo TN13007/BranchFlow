@@ -1,0 +1,362 @@
+/* Winter tavern: scoped to ordering, leaving the other role workspaces intact. */
+html:has(#product-options[open]) {
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+}
+
+.tavern-workspace {
+    min-height: 100dvh;
+    background-color: #744727;
+    background-image: linear-gradient(rgba(57, 29, 14, .18), rgba(57, 29, 14, .32)),
+        url('/images/christmas/backgrounds/winter-tavern-wall-v1.jpg');
+    background-size: cover, cover;
+    background-position: center, center top;
+    background-repeat: no-repeat;
+    padding-bottom: 24px;
+}
+
+.tavern-menu-content {
+    padding-top: 42px;
+}
+
+/* Matte charcoal sign, brass trim and readable native text above the warm wood. */
+.tavern-workspace .page-heading {
+    padding: 17px 40px 16px;
+    border-top: 1px solid #A37A44;
+    border-bottom: 2px solid #B38A50;
+    background-color: #352C27;
+    background-image: linear-gradient(90deg, rgba(38, 30, 24, .18), rgba(38, 30, 24, .05)),
+        url('/images/christmas/backgrounds/tavern-charcoal-sign-v1.jpg');
+    background-size: cover;
+    background-position: center;
+    box-shadow: inset 0 3px 8px #160E0A44, 0 4px 12px #26160D55;
+}
+
+.tavern-workspace .page-heading::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid #BA915B88;
+    border-radius: 3px;
+    background:
+        radial-gradient(circle at 6px 6px, #E1BF81 0 2px, #694924 2px 3px, transparent 4px),
+        radial-gradient(circle at calc(100% - 6px) 6px, #E1BF81 0 2px, #694924 2px 3px, transparent 4px),
+        radial-gradient(circle at 6px calc(100% - 6px), #E1BF81 0 2px, #694924 2px 3px, transparent 4px),
+        radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), #E1BF81 0 2px, #694924 2px 3px, transparent 4px);
+    pointer-events: none;
+}
+.tavern-workspace .page-heading::after { display: none; }
+.tavern-workspace .page-heading h1 { color: #FFF3DA; }
+.tavern-workspace .page-heading p { color: #E5D7C3; }
+.employee-shell .tavern-workspace .page-heading .eyebrow { color: #DEBC82; }
+
+.tavern-workspace .page-heading .btn-brand {
+    background: linear-gradient(#FFF3D8, #E9CFA1);
+    color: #3E2E20;
+    border: 1px solid #C9A36B;
+    box-shadow: inset 0 1px #FFFCED, 0 3px 8px #160E0A66;
+}
+.tavern-workspace .page-heading .btn-brand:hover,
+.tavern-workspace .page-heading .btn-brand:active {
+    background: #F5DCAA !important;
+    border-color: #E4C387 !important;
+    color: #35261A !important;
+}
+.tavern-workspace .page-heading .btn-brand:focus-visible {
+    outline: 3px solid #FFF5DD;
+    outline-offset: 4px;
+}
+
+/* The basket silhouette is the button; its paper label remains live HTML. */
+.basket-cart-button {
+    position: relative;
+    flex: 0 0 210px;
+    width: 210px;
+    height: 140px;
+    padding: 0;
+    margin: -7px 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    color: #412B19;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 4px #150C0877);
+    transform-origin: 50% 15%;
+    transition: transform 180ms ease, filter 180ms ease;
+}
+.basket-cart-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+.basket-cart-caption {
+    position: absolute;
+    top: 57%;
+    bottom: 11%;
+    left: 22%;
+    right: 22%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-family: var(--bf-font);
+    text-align: center;
+    line-height: 1.3;
+    pointer-events: none;
+}
+.basket-cart-caption strong { font-size: 15px; font-weight: 700; }
+.basket-cart-caption > span { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.basket-cart-button:hover:not(:disabled) {
+    transform: translateY(-2px) rotate(-1deg);
+    filter: drop-shadow(0 6px 5px #150C0899) brightness(1.06);
+}
+.basket-cart-button:active:not(:disabled) { transform: translateY(1px); }
+.basket-cart-button:focus-visible { outline: 3px solid #FFF2CB; outline-offset: 3px; }
+.basket-cart-button:disabled { opacity: .6; cursor: wait; }
+
+.tavern-workspace .menu-toolbar {
+    margin: 0 0 24px;
+    background-image: linear-gradient(90deg, rgba(98, 51, 21, .16), rgba(98, 51, 21, .28)),
+        url('/images/christmas/backgrounds/pine-kiosk-header-v1.jpg');
+    border: 3px solid #80502C;
+    border-top-color: #BB8C53;
+    border-bottom-color: #5C351E;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px #E8BD80, 0 8px 14px #2F160D55;
+    transform-origin: 50% -26px;
+}
+
+.tavern-workspace .menu-toolbar::after { display: none; }
+
+.toolbar-hangers {
+    position: absolute !important;
+    inset: -31px 0 auto !important;
+    height: 32px;
+    pointer-events: none;
+}
+
+.toolbar-hangers > span {
+    position: absolute;
+    left: 5%;
+    top: 0;
+    width: 8px;
+    height: 32px;
+    border: 1px solid #382719;
+    border-radius: 4px;
+    background: repeating-linear-gradient(0deg, #634424 0 4px, #D8B37A 4px 7px, #49301D 7px 9px);
+    box-shadow: 1px 2px 2px #23110977;
+}
+
+.toolbar-hangers > span:last-child { left: auto; right: 5%; }
+
+.tavern-workspace .section-heading {
+    border: 1px solid #C49762;
+    border-radius: 8px;
+    background: #41281CEB;
+    padding: 12px 16px;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.tavern-workspace .section-heading h2 {
+    color: #FFF4DC;
+    font-size: 20px;
+    text-shadow: 0 1px 3px #351909;
+}
+
+.hanging-hint {
+    margin: 5px 0 0;
+    color: #F8E5C6;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.tavern-workspace .section-heading > span {
+    color: #FFF0D2;
+    background: #41281C;
+    border-color: #C49762;
+    flex-shrink: 0;
+}
+
+.tavern-workspace .product-grid { gap: 46px 22px; align-items: start; }
+
+.hanging-menu-item {
+    position: relative;
+    min-width: 0;
+    padding-top: 38px;
+}
+
+.hanging-menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -6px;
+    right: -6px;
+    height: 10px;
+    border-radius: 4px;
+    border: 1px solid #3E2113;
+    background: linear-gradient(#AE7845, #674025 45%, #422719);
+    box-shadow: 0 3px 4px #24120A66, inset 0 1px #E2B77A66;
+}
+
+.card-hangers { position: absolute; inset: 0; pointer-events: none; }
+.card-hangers > span {
+    position: absolute;
+    top: 5px;
+    left: 23%;
+    width: 5px;
+    height: calc(37px + var(--pull-y, 0px));
+    border: 1px solid #45301B;
+    border-radius: 5px;
+    background: repeating-linear-gradient(165deg, #D1AE70 0 3px, #77532F 3px 5px);
+    box-shadow: 1px 1px 2px #27140788;
+    transition: height 400ms cubic-bezier(.22,.8,.25,1);
+}
+.card-hangers > span:last-child { left: auto; right: 23%; }
+.hanging-menu-item:has(.is-dragging) .card-hangers > span { transition: none; }
+
+.tavern-workspace .product-card {
+    width: 100%;
+    display: block;
+    border: 6px solid #825132;
+    border-top-color: #BC8B50;
+    border-bottom-color: #58321E;
+    border-radius: 9px;
+    background: #EED1A2;
+    overflow: visible;
+    box-shadow: 0 7px 14px #26120766, inset 0 0 0 1px #DFB77B;
+    transform-origin: 50% -32px;
+    touch-action: pan-y pinch-zoom;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.tavern-workspace .product-card::before {
+    inset: -3px;
+    border-radius: 5px;
+    border: 1px solid #E7BB7B88;
+}
+
+.tavern-workspace .product-card:hover {
+    border-color: #D4A563;
+    border-bottom-color: #875733;
+    box-shadow: 0 10px 20px #24100688, 0 0 0 1px #EACB95;
+}
+
+.tavern-workspace .product-card:focus-visible {
+    outline: 3px solid #FFF5D4;
+    outline-offset: 5px;
+}
+
+.tavern-workspace .product-card:disabled { cursor: not-allowed; filter: saturate(.45); }
+.tavern-workspace .product-art { overflow: hidden; border-radius: 3px 3px 0 0; }
+.tavern-workspace .product-art img { pointer-events: none; -webkit-user-drag: none; }
+.tavern-workspace .product-image { border-bottom: 2px solid #98623B; }
+
+.tavern-workspace .product-info {
+    position: relative;
+    min-height: 98px;
+    padding: 12px 13px 14px;
+    background-image: linear-gradient(#FFF2DCCC, #F1D5A9CC),
+        url('/images/christmas/backgrounds/pine-kiosk-header-v1.jpg');
+    background-size: cover;
+    border-radius: 0 0 3px 3px;
+    box-shadow: inset 0 1px #FFF8E5;
+}
+.tavern-workspace .product-info strong { color: #3A291C; font-weight: 650; }
+.tavern-workspace .product-info span { color: #63482D; }
+.tavern-workspace .product-info b { color: #245039; }
+
+.card-pull-handle {
+    position: absolute;
+    left: calc(50% - 24px);
+    bottom: -30px;
+    width: 48px;
+    height: 44px;
+    display: grid;
+    place-items: end center;
+    touch-action: none;
+    cursor: grab;
+}
+.card-pull-handle::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 15px;
+    top: 3px;
+    background: #956A36;
+    border: 1px solid #D4AF72;
+}
+.card-pull-handle > span {
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    border: 2px solid #D4AF72;
+    border-radius: 50%;
+    background: #503720;
+    box-shadow: inset 0 0 0 2px #7E5930, 0 3px 4px #23120A55;
+    color: #FFE6B8;
+    font-size: 20px;
+    line-height: 1;
+}
+.tavern-workspace .is-dragging { cursor: grabbing; z-index: 5; }
+.tavern-workspace .is-lifted { opacity: .28; }
+.tavern-workspace .tavern-flight { opacity: 1; box-shadow: 0 12px 28px #24100677; }
+.tavern-workspace .tavern-flight:disabled { filter: none; }
+.tavern-workspace .product-grid { padding-bottom: 32px; }
+
+.tavern-workspace .tavern-configurator {
+    border: 3px solid #AE804A;
+    background: #FFFAF0;
+    box-shadow: 0 24px 90px #1F100CCC, inset 0 0 0 1px #EFCE95;
+}
+.tavern-configurator::backdrop { background: #21140CB8; backdrop-filter: blur(3px); }
+.tavern-configurator .configurator-head {
+    background: linear-gradient(110deg, #F7E5C8, #FFF8EC);
+    border-bottom: 1px solid #D5B383;
+    color: #3A291C;
+}
+.tavern-configurator .configurator-head p { color: #63482D; }
+.tavern-configurator .dialog-close { background: #FFF9EF; color: #633D26; border-color: #B78B58; }
+.tavern-configurator .dialog-close:hover { background: #8B382E; color: #FFFFFF; }
+.tavern-configurator .configurator-action { background: #FBF0DC; border-color: #DEC29A; }
+.tavern-configurator .option-block { border-color: #E3D0B1; background: #FFFDF8; }
+.tavern-configurator .configurator-title .eyebrow { color: #85532E; }
+.tavern-configurator .configurator-image { border: 2px solid #B68B53; }
+
+@media (max-width: 767.98px) {
+    .tavern-workspace .page-heading { padding: 18px 20px; }
+    .tavern-workspace .page-heading:has(.basket-cart-button) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 150px;
+        column-gap: 8px;
+        row-gap: 8px;
+        align-items: center;
+    }
+    .page-heading:has(.basket-cart-button) > div { display: contents; }
+    .page-heading:has(.basket-cart-button) .eyebrow { grid-column: 1; grid-row: 1; margin: 0; font-size: 10px; }
+    .page-heading:has(.basket-cart-button) h1 { grid-column: 1; grid-row: 2; align-self: start; }
+    .page-heading:has(.basket-cart-button) p:not(.eyebrow) { grid-column: 1 / -1; grid-row: 3; }
+    .basket-cart-button { grid-column: 2; grid-row: 1 / 3; width: 150px; height: 100px; margin: -4px 0; }
+    .basket-cart-caption strong { font-size: 12px; }
+    .basket-cart-caption > span { font-size: 10.5px; }
+    .tavern-menu-content { padding-top: 38px; }
+    .tavern-workspace .product-grid { gap: 46px 14px; }
+    .tavern-workspace .product-card { border-width: 4px; }
+    .tavern-workspace .product-info { padding: 10px 8px 12px; min-height: 103px; }
+    .tavern-workspace .section-heading { flex-wrap: wrap; }
+    .tavern-workspace .section-heading h2 { font-size: 18px; }
+    .hanging-hint { font-size: 11.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card-hangers > span { transition: none; }
+    .basket-cart-button { transition: none; }
+    .basket-cart-button:hover:not(:disabled), .basket-cart-button:active:not(:disabled) { transform: none; }
+}

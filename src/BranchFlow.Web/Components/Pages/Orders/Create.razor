@@ -8,36 +8,70 @@
 <PageTitle>Gọi món | BranchFlow</PageTitle>
 @if (loading)
 {
-    <div class="page-content" role="status"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải menu cửa hàng…</div>
+    <header class="page-heading">
+        <div>
+            <p class="eyebrow">QUẦY PHA CHẾ · CA LÀM VIỆC</p>
+            <h1>Gọi món</h1>
+            <p>Đang đồng bộ danh mục đồ uống và bảng giá tại chi nhánh của bạn.</p>
+        </div>
+    </header>
+    <div class="page-content">
+        <div class="surface-card d-flex align-items-center gap-3" role="status">
+            <span class="spinner-border spinner-border-sm text-success" aria-hidden="true"></span>
+            <strong>Đang tải menu cửa hàng…</strong>
+        </div>
+    </div>
 }
 else
 {
     @if (branches.Count > 1)
     {
         <div class="branch-picker">
-            <label for="branch-picker">Chi nhánh được phép truy cập</label>
+            <label for="branch-picker" class="fw-bold">Chi nhánh được phép truy cập:</label>
             <select id="branch-picker" class="form-select" value="@branchId" @onchange="ChangeBranchAsync" disabled="@(submitting || Cart.OutcomeUnknown)">
                 <option value="0">Chọn chi nhánh</option>
-                @foreach (var b in branches) { <option value="@b.Id">@b.Name</option> }
+                @foreach (var b in branches)
+                {
+                    <option value="@b.Id">@b.Code · @b.Name</option>
+                }
             </select>
             @if (Cart.Lines.Count > 0)
             {
-                <label><input type="checkbox" @bind="allowDiscard" /> Tôi đồng ý bỏ giỏ hiện tại khi đổi chi nhánh.</label>
+                <label class="d-inline-flex align-items-center gap-2">
+                    <input type="checkbox" class="form-check-input mt-0" @bind="allowDiscard" />
+                    <span>Tôi đồng ý bỏ giỏ hiện tại khi đổi chi nhánh.</span>
+                </label>
             }
         </div>
     }
     @if (menu is not null)
     {
-        <OrderWorkspace Menu="menu" Cart="Cart" Busy="@(submitting || reloading)" CanOrder="canOrder" Error="@error" NeedsLogin="needsLogin" OnConfirm="ConfirmAsync" />
-        <div class="page-content pt-0"><button class="btn btn-outline-secondary" @onclick="ReloadMenuAsync" disabled="@submitting">Tải lại menu</button></div>
+        <OrderWorkspace Menu="menu" Cart="Cart" Busy="@(submitting || reloading)" CanOrder="canOrder" Error="@error" NeedsLogin="needsLogin" Unavailable="unavailable" OnReload="ReloadMenuAsync" OnConfirm="ConfirmAsync" />
+        <div class="page-content pt-0">
+            <button class="btn btn-outline-secondary" type="button" style="min-height:44px;" @onclick="ReloadMenuAsync" disabled="@submitting">
+                @(reloading ? "Đang tải lại menu…" : "Tải lại menu từ máy chủ")
+            </button>
+        </div>
     }
     else
     {
-        <header class="page-heading"><h1>Gọi món</h1></header>
+        <header class="page-heading">
+            <div>
+                <p class="eyebrow">QUẦY PHA CHẾ · TRẠNG THÁI TRUY CẬP</p>
+                <h1>Gọi món</h1>
+                <p>Cần phân công chi nhánh hợp lệ và kết nối dịch vụ để mở menu bán hàng.</p>
+            </div>
+        </header>
         <div class="page-content">
-            <ApiError Message="@error" NeedsLogin="needsLogin" />
-            @if (error is null && branches.Count == 0) { <p>Bạn chưa được phân công chi nhánh. Vui lòng liên hệ quản lý.</p> }
-            @if (error is not null) { <button class="btn btn-brand" @onclick="LoadAsync">Thử tải lại</button> }
+            <ApiError Message="@error" NeedsLogin="needsLogin" Unavailable="unavailable" OnRetry="LoadAsync" Busy="loading" />
+            @if (error is null && branches.Count == 0)
+            {
+                <div class="empty-state" role="status">
+                    <img class="empty-state-figure decor-non-interactive" src="/images/christmas/characters/gingerbread-cup-buddy.jpg" alt="" />
+                    <strong>Bạn chưa được phân công chi nhánh hiệu lực</strong>
+                    <p class="mb-0 mt-1">Vui lòng liên hệ quản lý chi nhánh hoặc quản trị viên để cập nhật lịch phân công.</p>
+                </div>
+            }
         </div>
     }
 }
@@ -52,6 +86,7 @@ else
     private bool canOrder = true;
     private bool allowDiscard;
     private bool needsLogin;
+    private bool unavailable;
     private string? error;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -59,7 +94,7 @@ else
     }
     private async Task LoadAsync()
     {
-        loading = true; error = null; needsLogin = false;
+        loading = true; error = null; needsLogin = false; unavailable = false;
         try
         {
             var me = await Api.MeAsync();
@@ -91,7 +126,7 @@ else
     private async Task ReloadMenuAsync()
     {
         if (reloading) return;
-        reloading = true; error = null; needsLogin = false;
+        reloading = true; error = null; needsLogin = false; unavailable = false;
         try { await LoadMenuAsync(); }
         catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or InvalidOperationException) { SetError(ex); }
         finally { reloading = false; }
@@ -99,7 +134,7 @@ else
     private async Task ConfirmAsync()
     {
         if (submitting || reloading || !canOrder || menu is null || Cart.OutcomeUnknown) return;
-        submitting = true; error = null; needsLogin = false;
+        submitting = true; error = null; needsLogin = false; unavailable = false;
         var sent = false;
         try
         {
@@ -129,6 +164,8 @@ else
     }
     private void SetError(Exception ex)
     {
+        unavailable = ex is HttpRequestException or OperationCanceledException
+            or ApiException { StatusCode: System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.BadGateway or System.Net.HttpStatusCode.GatewayTimeout };
         needsLogin = ex is ApiException { StatusCode: System.Net.HttpStatusCode.Unauthorized };
         if (ex is ApiException { StatusCode: System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden }) canOrder = false;
         error = ex is ApiException or InvalidOperationException ? ex.Message : "Không kết nối được dịch vụ. Giỏ hàng của bạn vẫn được giữ.";

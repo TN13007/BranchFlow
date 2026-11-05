@@ -1,0 +1,157 @@
+@using BranchFlow.Web.Models.Appearance
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<section class="companion-panel" aria-label="Bạn đồng hành" @ref="panel" aria-busy="@(switching ? "true" : "false")" @onkeydown="HandleKeyDownAsync">
+    <div class="companion-summary">
+    <div class="companion-display" aria-hidden="true">
+        <span class="companion-arch"></span>
+        <img class="companion-portrait" src="@selected.ImagePath" alt="" width="180" height="240" />
+        <div class="companion-handover"></div>
+        <span class="companion-counter"></span>
+    </div>
+    <div class="companion-caption" aria-live="polite" aria-atomic="true">
+        <strong>@selected.Name</strong>
+        <span>@selected.Mood</span>
+    </div>
+    </div>
+    <button class="companion-toggle" type="button" @onclick="TogglePickerAsync" disabled="@(pickerAnimating || module is null)"
+            aria-expanded="@(pickerOpen ? "true" : "false")" aria-controls="companion-picker">
+        <span>@(switching ? "Bỏ qua hoạt ảnh" : "Đổi bạn đồng hành")</span>
+        <span class="companion-chevron" aria-hidden="true">@(switching ? "›" : "⌄")</span>
+    </button>
+    <div id="companion-picker" class="companion-picker" hidden="@(!pickerOpen)">
+    <h2>Chọn bạn giữ quầy</h2>
+    <div class="companion-options" role="group" aria-label="Chọn nhân vật và phong cách thanh bên">
+        @foreach (var style in CompanionStyle.All)
+        {
+            <button type="button" class="companion-choice" data-style="@style.Key"
+                    aria-pressed="@(selected.Key == style.Key ? "true" : "false")"
+                    aria-label="Chọn @style.Name" title="@style.Name" @onclick="() => SelectAsync(style)" disabled="@switching">
+                <span class="companion-avatar"><img src="@style.ImagePath" alt="" width="40" height="40" /></span>
+                <span>@style.ShortName</span>
+                @if (selected.Key == style.Key)
+                {
+                    <span class="companion-check" aria-hidden="true">✓</span>
+                }
+            </button>
+        }
+    </div>
+    </div>
+    <span class="visually-hidden" role="status">@handoverMessage</span>
+</section>
+
+@code {
+    [Parameter] public EventCallback<string> OnStyleChanged { get; set; }
+    private CompanionStyle selected = CompanionStyle.All[0];
+    private IJSObjectReference? module;
+    private ElementReference panel;
+    private bool pickerOpen;
+    private bool pickerAnimating;
+    private bool animatePickerOpen;
+    private bool switching;
+    private bool restoreToggle;
+    private bool disposed;
+    private string? handoverMessage;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/sidebar-appearance.js");
+            var key = await module.InvokeAsync<string?>("loadStyle");
+            if (disposed) return;
+            selected = CompanionStyle.FromKey(key);
+            await module.InvokeVoidAsync("initCompanion", panel, CompanionStyle.All.Select(style => style.PullImagePath).ToArray());
+            await OnStyleChanged.InvokeAsync(selected.Key);
+            StateHasChanged();
+        }
+        if (animatePickerOpen && module is not null)
+        {
+            animatePickerOpen = false;
+            try { await module.InvokeVoidAsync("openPicker", panel); }
+            finally { pickerAnimating = false; if (!disposed) StateHasChanged(); }
+        }
+        if (restoreToggle && !switching && !pickerAnimating && module is not null && !disposed)
+        {
+            restoreToggle = false;
+            await module.InvokeVoidAsync("focusToggle", panel);
+        }
+    }
+
+    private async Task TogglePickerAsync()
+    {
+        if (module is null || pickerAnimating) return;
+        if (switching) { await SkipHandoverAsync(); return; }
+        if (pickerOpen) { await ClosePickerAsync(); return; }
+        pickerAnimating = true;
+        pickerOpen = true;
+        animatePickerOpen = true;
+    }
+
+    private async Task ClosePickerAsync()
+    {
+        if (!pickerOpen || module is null) return;
+        pickerAnimating = true;
+        try
+        {
+            await module.InvokeVoidAsync("closePicker", panel);
+            pickerOpen = false;
+            restoreToggle = true;
+        }
+        finally { pickerAnimating = false; }
+    }
+
+    private async Task HandleKeyDownAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && pickerOpen && !switching && !pickerAnimating) await ClosePickerAsync();
+    }
+
+    private async Task SelectAsync(CompanionStyle style)
+    {
+        if (switching || pickerAnimating || module is null) return;
+        if (selected.Key == style.Key) { await ClosePickerAsync(); return; }
+        switching = true;
+        handoverMessage = $"Đang mời {style.Name} vào quầy.";
+        try
+        {
+            await ClosePickerAsync();
+            if (disposed) return;
+            StateHasChanged();
+            await module.InvokeVoidAsync("beginHandover", panel, new
+            {
+                fromKey = selected.Key,
+                toKey = style.Key,
+                fromPath = selected.PullImagePath,
+                toPath = style.PullImagePath,
+                videoPath = selected.TransitionTo(style.Key)
+            });
+            if (disposed) return;
+            selected = style;
+            await OnStyleChanged.InvokeAsync(style.Key);
+            StateHasChanged();
+            await module.InvokeVoidAsync("finishHandover", panel);
+            if (disposed) return;
+            await module.InvokeVoidAsync("saveStyle", style.Key);
+            handoverMessage = $"{style.Name} đã sẵn sàng tại quầy.";
+        }
+        catch (Exception ex) when (disposed && (ex is JSDisconnectedException or OperationCanceledException)) { }
+        finally { switching = false; }
+    }
+
+    private async Task SkipHandoverAsync()
+    {
+        if (switching && module is not null) await module.InvokeVoidAsync("skipHandover", panel);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+        if (module is not null)
+            try
+            {
+                await module.InvokeVoidAsync("disposeCompanion", panel);
+                await module.DisposeAsync();
+            } catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException) { }
+    }
+}

@@ -1,0 +1,17 @@
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft layered pine sprig -->
+  <path d="M14 28 C22 16, 38 14, 54 20 C44 26, 30 28, 14 28 Z" fill="#137B4F" stroke="#0D3826" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M28 16 C40 18, 52 28, 58 44 C46 40, 36 30, 28 16 Z" fill="#1B8B5B" stroke="#0D3826" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M22 22 C30 18, 40 18, 48 22" stroke="#EDF6F2" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Red bauble -->
+  <circle cx="26" cy="40" r="9.5" fill="#CF3D2D" stroke="#7A1C12" stroke-width="1.5"/>
+  <circle cx="23" cy="37" r="2.5" fill="#FAD4CF"/>
+  <!-- Cute rounded golden bell -->
+  <path d="M44 26 C37 26, 34 33, 32 43 H56 C54 33, 51 26, 44 26 Z" fill="#F2C14E" stroke="#6E480B" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M39 31 C41 29, 44 29, 46 31" stroke="#FFF6D6" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="44" cy="45.5" r="3.5" fill="#B87D14" stroke="#6E480B" stroke-width="1.4"/>
+  <!-- Red ribbon bow on top -->
+  <path d="M36 22 C28 15, 22 20, 26 27 C30 29, 34 25, 36 22 Z" fill="#CF3D2D" stroke="#7A1C12" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M36 22 C44 15, 50 20, 46 27 C42 29, 38 25, 36 22 Z" fill="#CF3D2D" stroke="#7A1C12" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="36" cy="22.5" r="3.2" fill="#962215" stroke="#FFFDF7" stroke-width="1"/>
+</svg>

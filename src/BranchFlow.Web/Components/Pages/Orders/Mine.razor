@@ -4,23 +4,66 @@
 @inject OrderApiClient Api
 
 <PageTitle>Đơn của tôi | BranchFlow</PageTitle>
-<header class="page-heading"><div><h1>Đơn của tôi</h1><p>Chỉ hiển thị các đơn do bạn tạo.</p></div><a href="/orders/create" class="btn btn-brand">Gọi món</a></header>
+<header class="page-heading">
+    <div>
+        <p class="eyebrow">GÓC ĐÓNG GÓI · LỊCH SỬ CA LÀM</p>
+        <h1>Đơn của tôi</h1>
+        <p>Chỉ hiển thị các đơn hàng do tài khoản của bạn trực tiếp tạo.</p>
+    </div>
+    <a href="/orders/create" class="btn btn-brand">+ Gọi món mới</a>
+</header>
 <div class="page-content">
-    <form class="history-filters" @onsubmit="LoadAsync" @onsubmit:preventDefault>
-        <div><label for="keyword" class="form-label">Mã đơn</label><input id="keyword" class="form-control" placeholder="Tìm mã đơn" @bind="keyword" /></div>
-        <div><label for="business-date" class="form-label">Ngày kinh doanh</label><InputDate id="business-date" class="form-control" @bind-Value="businessDate" /></div>
+    <form class="history-filters" @onsubmit="LoadAsync" @onsubmit:preventDefault aria-label="Bộ lọc đơn hàng">
+        <div class="flex-grow-1" style="min-width: 220px;">
+            <label for="keyword" class="form-label fw-bold">Mã đơn hàng</label>
+            <input id="keyword" class="form-control" placeholder="Ví dụ: Q1-20261104-0001" @bind="keyword" />
+        </div>
+        <div style="min-width: 190px;">
+            <label for="business-date" class="form-label fw-bold">Ngày kinh doanh</label>
+            <InputDate id="business-date" class="form-control" @bind-Value="businessDate" />
+        </div>
         <button class="btn btn-brand" type="submit" disabled="@loading">Tìm đơn</button>
         <button class="btn btn-outline-secondary" type="button" @onclick="ClearAsync" disabled="@loading">Bỏ bộ lọc</button>
     </form>
-    <ApiError Message="@error" NeedsLogin="needsLogin" />
-    @if (loading) { <p role="status">Đang tải danh sách đơn…</p> }
+
+    <ApiError Message="@error" NeedsLogin="needsLogin" Unavailable="unavailable" OnRetry="LoadAsync" Busy="loading" />
+
+    @if (loading)
+    {
+        <div class="surface-card d-flex align-items-center gap-3" role="status">
+            <span class="spinner-border spinner-border-sm text-success" aria-hidden="true"></span>
+            <strong>Đang tải danh sách đơn…</strong>
+        </div>
+    }
     else if (orders is not null)
     {
-        @if (orders.Count == 0) { <p class="empty-state">Chưa có đơn phù hợp với bộ lọc.</p> }
-        @foreach (var order in orders)
+        @if (orders.Count == 0)
         {
-            <a class="order-row" href="/orders/@order.Id"><div><strong>@order.Code</strong><small>@Display.VietnamTime(order.CreatedAt) · @order.TotalQuantity ly</small></div>
-                <b>@Display.Money(order.TotalAmount)</b><StatusBadge Status="@order.Status" /><span aria-hidden="true">›</span></a>
+            <div class="empty-state" role="status">
+                <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
+                <strong>Chưa có đơn hàng phù hợp với bộ lọc</strong>
+                <p class="mb-2 mt-1">Thử xóa bộ lọc ngày/mã đơn hoặc bắt đầu tạo đơn hàng mới tại quầy pha chế.</p>
+                <a href="/orders/create" class="btn btn-brand mt-1">Chuyển tới Gọi món</a>
+            </div>
+        }
+        else
+        {
+            <div class="section-heading pt-0 border-top-0">
+                <h2>Kết quả tra cứu</h2>
+                <span>@orders.Count đơn hàng</span>
+            </div>
+            @foreach (var order in orders)
+            {
+                <a class="order-row" href="/orders/@order.Id">
+                    <div>
+                        <strong>@order.Code</strong>
+                        <small>Tạo lúc @Display.VietnamTime(order.CreatedAt) (Giờ VN) · Tổng @order.TotalQuantity ly</small>
+                    </div>
+                    <b>@Display.Money(order.TotalAmount)</b>
+                    <StatusBadge Status="@order.Status" />
+                    <span class="fw-bold" aria-hidden="true">Chi tiết ›</span>
+                </a>
+            }
         }
     }
 </div>
@@ -32,16 +75,17 @@
     private bool loading = true;
     private string? error;
     private bool needsLogin;
+    private bool unavailable;
     protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) { await LoadAsync(); StateHasChanged(); } }
     private async Task ClearAsync() { keyword = ""; businessDate = null; await LoadAsync(); }
     private async Task LoadAsync()
     {
-        loading = true; error = null; needsLogin = false;
+        loading = true; error = null; needsLogin = false; unavailable = false;
         // Không hiển thị kết quả của bộ lọc cũ nếu lần tải mới thất bại.
         orders = null;
         try { orders = await Api.MineAsync(keyword.Trim(), businessDate); }
-        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không tải được danh sách đơn. Vui lòng thử lại."; }
+        catch (ApiException ex) { unavailable = ex.StatusCode is System.Net.HttpStatusCode.ServiceUnavailable or System.Net.HttpStatusCode.BadGateway or System.Net.HttpStatusCode.GatewayTimeout; error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { unavailable = true; error = "Không tải được danh sách đơn. Vui lòng thử lại."; }
         finally { loading = false; }
     }
 }

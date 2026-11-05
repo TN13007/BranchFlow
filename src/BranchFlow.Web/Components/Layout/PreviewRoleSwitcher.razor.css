@@ -1,0 +1,13 @@
+.preview-role-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.preview-role-link[aria-current="true"],
+.preview-role-link[aria-current="true"]:hover {
+    background: #315740;
+    border-color: #244831;
+    color: #FFF8E9;
+    font-weight: 600;
+}

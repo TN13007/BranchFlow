@@ -1,0 +1,67 @@
+.employee-stock-warehouses { background: #A75E2C; }
+.employee-stock-warehouses > .employee-room-scene {
+    background: #8B4C27;
+}
+.warehouse-preview { position: relative; }
+.employee-stock-warehouses .warehouse-heading { position: absolute; top: 16px; left: 0; right: 0; z-index: 2; margin: 0 auto; }
+.employee-stock-warehouses .warehouse-help { position: absolute; top: 0; left: 0; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.employee-stock-warehouses .warehouse-help { width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto; padding: 3px 12px; border-radius: 4px; background: #432A1DE0; }
+.employee-stock-warehouses .warehouse-heading { width: calc(100% - 48px); max-width: 1320px; flex-wrap: wrap; }
+.warehouse-switcher { display: flex; align-items: center; gap: 8px; padding: 5px; background: #FFF1D8C9; border: 1px solid #AD8050; border-radius: 8px; position: relative; z-index: 1; }
+.warehouse-arrow { width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #9E7543; border-radius: 5px; background: #335941; color: #FFF7E6; font-size: 21px; cursor: pointer; }
+.warehouse-arrow:hover:not(:disabled) { background: #25452F; }
+.warehouse-arrow:disabled { background: #E1CEAF; color: #796448; cursor: default; }
+.warehouse-counter { min-width: 105px; text-align: center; color: #49321E; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.warehouse-counter small { font-size: 12px; font-weight: 400; color: #725437; }
+.warehouse-content { padding: 0; }
+.warehouse-help { text-align: center; font-size: 12px; line-height: 1.6; color: #FFF2D8; margin: 0 0 10px; }
+.warehouse-viewport { display: flex; width: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 7px; touch-action: pan-x pan-y pinch-zoom; cursor: grab; }
+.warehouse-viewport::-webkit-scrollbar { display: none; }
+.warehouse-viewport.is-dragging, .warehouse-viewport.is-animating { scroll-snap-type: none; }
+.warehouse-viewport.is-dragging { cursor: grabbing; user-select: none; }
+.warehouse-slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; display: flex; justify-content: center; align-items: flex-end; padding: var(--warehouse-scene-inset, 250px) clamp(24px, 5vw, 100px) 20px; background: #8B4C27 url('/images/christmas/stock/stockroom-surround-v1.jpg') center / 100% 100% no-repeat; }
+.warehouse-cabinet { position: relative; width: 100%; max-width: 1200px; aspect-ratio: 3 / 2; min-height: 600px; box-shadow: 0 8px 20px #32180E66; background: #8F481E url('/images/christmas/stock/shelves-front-v7.jpg') center / 100% 100% no-repeat; }
+.warehouse-room-number { position: absolute; top: 12%; right: 5%; border: 1px solid #AD8044; border-radius: 4px; padding: 5px 12px; color: #F9E3B4; background: #52341EDD; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
+.warehouse-shelf-products { position: absolute; left: 4%; right: 4%; top: 12%; height: 23%; padding: 0; margin: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 12px; }
+.warehouse-product { position: relative; min-width: 0; min-height: 0; display: flex; align-items: end; justify-content: center; }
+.warehouse-product > img { display: block; width: 80%; height: 100%; max-height: 230px; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 4px 3px #30180544); user-select: none; pointer-events: none; }
+.warehouse-product-tag { position: absolute; top: 100%; left: 2%; right: 2%; min-height: 44px; padding: 3px 8px; color: #382716; border: 1px solid #A96F36; border-radius: 3px; background: #F4D29A url('/images/christmas/employee-board/birch-sign-face-v1.jpg') center / cover; box-shadow: 0 2px 2px #3B200B44; text-align: center; }
+.warehouse-product-tag h2 { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; line-height: 19px; font-weight: 600; margin: 0; }
+.warehouse-product-tag p { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; line-height: 18px; margin: 0; }
+.warehouse-product-status { color: #315136; font-weight: 700; }
+.warehouse-product-status.needs-review { color: #81351E; }
+.warehouse-empty { position: absolute; top: 17%; left: 10%; right: 10%; width: fit-content; max-width: 80%; margin: auto; padding: 12px 20px; border: 1px solid #A2733E; border-radius: 5px; background: #F9E6C6F2; text-align: center; color: #49321F; }
+.warehouse-empty h2 { font-size: 18px; margin: 0 0 6px; font-weight: 600; }
+.warehouse-empty p { font-size: 13px; margin: 0; line-height: 1.6; }
+@media (min-width: 768px) {
+    .employee-stock-warehouses { display: flex; flex-direction: column; height: 100dvh; min-height: 640px; }
+    .employee-stock-warehouses > .preview-banner { flex-shrink: 0; }
+    .employee-stock-warehouses > .employee-room-scene { flex: 1; min-height: 0; display: flex; }
+    .warehouse-preview { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+    .employee-stock-warehouses .warehouse-heading { padding: 18px 24px; }
+    .warehouse-content { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 0; }
+    .warehouse-help { flex-shrink: 0; }
+    .warehouse-viewport { flex: 1; min-height: 0; border-radius: 0; }
+    .warehouse-slide { height: 100%; padding-bottom: calc((100dvh - 64px) * .14); }
+    .warehouse-cabinet { min-height: 0; height: 100%; aspect-ratio: auto; }
+}
+@media (max-width: 1023.98px) {
+    .warehouse-shelf-products { inset: 0 4%; height: auto; display: block; }
+    .warehouse-product { position: absolute; left: 0; right: 0; top: 14%; height: 21%; }
+    .warehouse-product:nth-child(2) { top: 42.4%; }
+    .warehouse-product:nth-child(3) { top: 71.7%; }
+    .warehouse-product > img { width: 60%; max-height: 145px; }
+    .warehouse-product-tag { left: 4%; right: 4%; padding: 3px 6px; }
+    .warehouse-product-tag h2 { font-size: 13px; }
+    .warehouse-product-tag p { font-size: 12px; gap: 5px; }
+}
+@media (max-width: 767.98px) {
+    .employee-stock-warehouses .warehouse-heading { width: calc(100% - 28px); margin: 0 auto; }
+    .warehouse-content { padding: 0; }
+    .warehouse-slide { padding: var(--warehouse-scene-inset, 320px) 10px 120px; }
+    .warehouse-cabinet { min-height: 620px; }
+    .warehouse-room-number { top: 11%; font-size: 10px; padding: 3px 7px; }
+    .warehouse-empty { padding: 10px 14px; }
+    .warehouse-empty h2 { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .warehouse-viewport { scroll-behavior: auto; } }
