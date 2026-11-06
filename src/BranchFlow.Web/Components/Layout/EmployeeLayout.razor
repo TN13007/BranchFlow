@@ -1,129 +1,95 @@
 @inherits LayoutComponentBase
 @using BranchFlow.Web.Models.Appearance
 @implements IDisposable
-@inject IWebHostEnvironment Environment
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider Authentication
 
-<div class="employee-shell @SceneCssClass">
-    <a class="skip-link" href="#main-content">Chuyển đến nội dung chính</a>
-
+<div class="employee-shell @(isOrdering ? "scene-drink-counter ordering-shell" : "business-shell")">
+    <a class="skip-link" href="#main-content">Đến nội dung</a>
     <aside class="employee-sidebar" data-companion="@companionKey">
-
-        <a href="/" class="employee-brand">
-            <span class="employee-mark-wrap" aria-hidden="true">
-                <span class="employee-mark">BF</span>
-                <img class="employee-hat decor-non-interactive" src="/images/christmas/decorations/bf-santa-hat.svg" alt="" />
-            </span>
-            <span>
-                <strong>BranchFlow</strong>
-                <small>Xưởng quà mùa đông</small>
-            </span>
+        <a href="@WorkspaceNavigation.Home(role)" class="employee-brand">
+            <span class="employee-mark-wrap" aria-hidden="true"><span class="employee-mark">BF</span><img class="employee-hat" src="/images/christmas/decorations/bf-santa-hat.svg" alt="" /></span>
+            <span><strong>BranchFlow</strong><small>@WorkspaceNavigation.RoleLabel(role)</small></span>
         </a>
-
-        <nav aria-label="Điều hướng nhân viên">
-            <NavLink href="@OrderUrl" Match="NavLinkMatch.Prefix">
-                <img src="/images/icons/coffee.svg" alt="" aria-hidden="true" />
-                <span>Gọi món</span>
-            </NavLink>
-            <NavLink href="/orders/mine" Match="NavLinkMatch.Prefix">
-                <img src="/images/christmas/icons/icon-orders.svg" alt="" aria-hidden="true" />
-                <span>Đơn của tôi</span>
-            </NavLink>
-            <NavLink href="/account" Match="NavLinkMatch.Prefix">
-                <img src="/images/christmas/icons/icon-user.svg" alt="" aria-hidden="true" />
-                <span>Tài khoản</span>
-            </NavLink>
-
-            @if (ShowEmployeeSections)
+        <nav aria-label="Menu @WorkspaceNavigation.RoleLabel(role)">
+            @foreach (var link in links)
             {
-                <div class="sidebar-section-label">GÓC NHÂN VIÊN · DỮ LIỆU MẪU</div>
-                @foreach (var section in EmployeeBoardSection.All)
-                {
-                    var current = IsEmployeeBoard && currentEmployeeSection.Key == section.Key;
-                    <a href="@section.Url" class="employee-section-link @(current ? "active" : "")"
-                       data-section="@section.Key" aria-current="@(current ? "page" : null)">
-                        <img src="@section.IconPath" alt="" aria-hidden="true" />
-                        <span>@section.Label</span>
-                    </a>
-                }
-            }
-
-            @if (Environment.IsDevelopment() && !IsEmployeePreview)
-            {
-                <div class="sidebar-section-label">BẢN XEM THỬ TĨNH (DEV)</div>
-                <NavLink href="/preview/orders">
-                    <img src="/images/icons/coffee.svg" alt="" aria-hidden="true" />
-                    <span>Xem thử dữ liệu mẫu</span>
-                </NavLink>
+                <a href="@link.Url" class="@(IsCurrent(link) ? "active" : "")" aria-current="@(IsCurrent(link) ? "page" : null)">
+                    <img src="@link.Icon" alt="" aria-hidden="true" /><span>@link.Label</span>
+                </a>
             }
         </nav>
-
         <SidebarCompanion OnStyleChanged="key => companionKey = key" />
-
         <div class="employee-user">
             <AuthorizeView>
                 <Authorized Context="auth">
-                    <div class="user-badge">
-                        <span class="user-status-dot" aria-hidden="true"></span>
-                        <span>@auth.User.Identity?.Name</span>
-                    </div>
-                    <form action="/auth/logout" method="post" data-enhance="false">
-                        <AntiforgeryToken /><button type="submit" class="logout-button">Đăng xuất</button>
-                    </form>
+                    <div class="user-badge"><span class="user-status-dot" aria-hidden="true"></span><span>@auth.User.Identity?.Name</span></div>
+                    <form action="/auth/logout" method="post" data-enhance="false"><AntiforgeryToken /><button type="submit" class="logout-button">Đăng xuất</button></form>
                 </Authorized>
-                <NotAuthorized>
-                    <a href="/login" class="login-sidebar-link">Đăng nhập ca làm</a>
-                </NotAuthorized>
+                <NotAuthorized><a href="/login" class="login-sidebar-link">Đăng nhập</a></NotAuthorized>
             </AuthorizeView>
         </div>
     </aside>
-
-    <main id="main-content" class="employee-main">
-        @Body
-    </main>
+    <div class="workspace-body">
+        <header class="mobile-workspace-header" @onkeydown="CloseOnEscape">
+            <a href="@WorkspaceNavigation.Home(role)" class="mobile-brand"><span>BF</span><strong>BranchFlow</strong></a>
+            <span class="mobile-role">@WorkspaceNavigation.RoleLabel(role)</span>
+            <details class="mobile-all-menu" open="@menuOpen">
+                <summary @onclick="() => menuOpen = !menuOpen" @onclick:preventDefault aria-label="Mở menu chức năng" aria-expanded="@menuOpen">Menu</summary>
+                <nav aria-label="Tất cả chức năng">
+                    @foreach (var link in links)
+                    {
+                        <a href="@link.Url" aria-current="@(IsCurrent(link) ? "page" : null)"><img src="@link.Icon" alt="" />@link.Label</a>
+                    }
+                </nav>
+            </details>
+        </header>
+        <main id="main-content" class="employee-main">@Body</main>
+    </div>
+    <nav class="mobile-bottom-nav" aria-label="Điều hướng chính">
+        @foreach (var link in links.Where(item => item.Mobile))
+        {
+            <a href="@link.Url" class="@(IsMobileCurrent(link) ? "active" : "")" aria-current="@(IsMobileCurrent(link) ? "page" : null)"><img src="@link.Icon" alt="" /><span>@link.Label</span></a>
+        }
+    </nav>
 </div>
 
 @code {
     private string companionKey = "ginger";
-    private string currentRelativePath = "";
-    private EmployeeBoardSection currentEmployeeSection = EmployeeBoardSection.All[0];
-    private bool IsEmployeeBoard => Environment.IsDevelopment() && currentRelativePath.Equals("preview/employee", StringComparison.OrdinalIgnoreCase);
-    private bool IsEmployeePreview => Environment.IsDevelopment() &&
-        (IsEmployeeBoard || currentRelativePath.Equals("preview/orders", StringComparison.OrdinalIgnoreCase));
-    private bool ShowEmployeeSections => Environment.IsDevelopment() &&
-        !currentRelativePath.StartsWith("preview/owner", StringComparison.OrdinalIgnoreCase) &&
-        !currentRelativePath.StartsWith("preview/admin", StringComparison.OrdinalIgnoreCase);
-    private string OrderUrl => IsEmployeePreview ? "/preview/orders" : "/orders/create";
-
-    private string SceneCssClass => currentRelativePath switch
+    private string role = "";
+    private string relativePath = "";
+    private string? currentTab;
+    private bool menuOpen;
+    private bool isOrdering => relativePath.Split('?')[0].Equals("orders/create", StringComparison.OrdinalIgnoreCase);
+    private IReadOnlyList<WorkspaceLink> links => WorkspaceNavigation.Links(role);
+    private bool IsCurrent(WorkspaceLink link) => WorkspaceNavigation.IsCurrent(link, relativePath, currentTab);
+    private bool IsMobileCurrent(WorkspaceLink link) => IsCurrent(link) ||
+        (role == "EMPLOYEE" && link.Key == "stock" && currentTab is "issue" or "stocktake") ||
+        (role == "SYSTEM_ADMIN" && link.Key == "inventory" && currentTab == "transfer");
+    protected override async Task OnInitializedAsync()
     {
-        var p when p.StartsWith("orders/create", StringComparison.OrdinalIgnoreCase)
-                || p.StartsWith("preview/orders", StringComparison.OrdinalIgnoreCase) => "scene-drink-counter",
-        var p when p.StartsWith("account", StringComparison.OrdinalIgnoreCase) => "scene-quiet-window",
-        _ => "scene-village-overview"
-    };
-
-    protected override void OnInitialized()
-    {
-        UpdateSceneFromUri(Navigation.Uri);
+        role = WorkspaceNavigation.Role((await Authentication.GetAuthenticationStateAsync()).User);
+        UpdateLocation();
         Navigation.LocationChanged += OnLocationChanged;
+        Authentication.AuthenticationStateChanged += OnAuthenticationChanged;
     }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private async void OnAuthenticationChanged(Task<AuthenticationState> task)
     {
-        UpdateSceneFromUri(e.Location);
-        InvokeAsync(StateHasChanged);
+        var state = await task;
+        await InvokeAsync(() => { role = WorkspaceNavigation.Role(state.User); StateHasChanged(); });
     }
-
-    private void UpdateSceneFromUri(string uri)
+    private void UpdateLocation()
     {
-        currentRelativePath = Navigation.ToBaseRelativePath(uri).Split('?', '#')[0].Trim('/');
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Navigation.ToAbsoluteUri(uri).Query);
-        currentEmployeeSection = EmployeeBoardSection.FromKey(query.TryGetValue("tab", out var tab) ? tab.ToString() : null);
+        relativePath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(Navigation.Uri).Query);
+        currentTab = query.TryGetValue("tab", out var tab) ? tab.ToString() : null;
+        menuOpen = false;
     }
-
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) { UpdateLocation(); _ = InvokeAsync(StateHasChanged); }
+    private void CloseOnEscape(KeyboardEventArgs e) { if (e.Key == "Escape") menuOpen = false; }
     public void Dispose()
     {
         Navigation.LocationChanged -= OnLocationChanged;
+        Authentication.AuthenticationStateChanged -= OnAuthenticationChanged;
     }
 }

@@ -1,0 +1,20 @@
+@page "/preview/employee"
+@page "/preview/owner"
+@page "/preview/admin"
+@page "/preview/orders"
+@attribute [Authorize]
+@layout EmployeeLayout
+@inject AuthenticationStateProvider Authentication
+@inject NavigationManager Navigation
+
+<PageTitle>BranchFlow</PageTitle>
+<div class="page-content"><p role="status">Đang chuyển đến trang làm việc…</p></div>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var user = (await Authentication.GetAuthenticationStateAsync()).User;
+        var role = BranchFlow.Web.Models.Appearance.WorkspaceNavigation.Role(user);
+        Navigation.NavigateTo(BranchFlow.Web.Models.Appearance.WorkspaceNavigation.Home(role), replace: true);
+    }
+}

@@ -1,67 +1,17 @@
 @page "/"
+@attribute [Authorize]
 @layout EmployeeLayout
-@inject IWebHostEnvironment Environment
+@inject AuthenticationStateProvider Authentication
+@inject NavigationManager Navigation
 
-<PageTitle>BranchFlow · Xưởng quà mùa đông</PageTitle>
-
-<header class="page-heading context-scene-village-overview">
-    <div>
-        <p class="eyebrow">CHÀO MỪNG ĐẾN VỚI BRANCHFLOW</p>
-        <h1>Không gian vận hành chuỗi đồ uống mùa lễ hội</h1>
-        <p>Kết nối quầy pha chế, quản trị chi nhánh và báo cáo điều hành trong cùng một ngôi làng mùa đông ấm áp.</p>
-    </div>
-    <a class="btn btn-brand" href="/login">Đăng nhập ca làm</a>
-</header>
-
-<div class="page-content">
-    <section class="welcome-vignette-banner" aria-label="Lời chào mùa lễ hội">
-        <div>
-            <p class="eyebrow mb-1">XƯỞNG QUÀ TRONG NGÔI LÀNG MÙA ĐÔNG</p>
-            <h2 class="mb-2" style="font-size:21px;font-weight:700;">Mỗi ca làm việc là một hành trình trao gửi ấm áp</h2>
-            <p class="mb-0 text-secondary">
-                Hệ thống quản lý đồng bộ từ quầy pha chế chi nhánh đến trung tâm điều hành toàn chuỗi, sẵn sàng phục vụ khách hàng trong mùa lễ hội Giáng sinh.
-            </p>
-        </div>
-        <img class="decor-non-interactive" src="/images/christmas/characters/santa-reindeer-sleigh.jpg" alt="" aria-hidden="true" />
-    </section>
-
-    <div class="kpi-grid">
-        <section class="kpi-card">
-            <div class="kpi-label">QUẦY GỌI MÓN (NHÂN VIÊN)</div>
-            <div class="kpi-value">Gọi món &amp; Giỏ</div>
-            <div class="kpi-note">Chọn size, topping tối đa 3 phần/loại, ghi chú theo nhóm và tạo đơn chuẩn contract.</div>
-        </section>
-        <section class="kpi-card kpi-gold">
-            <div class="kpi-label">GÓC ĐÓNG GÓI (ĐƠN HÀNG)</div>
-            <div class="kpi-value">Snapshot Đơn</div>
-            <div class="kpi-note">Tra cứu lịch sử đơn cá nhân, đối chiếu giá máy chủ và trạng thái đơn theo giờ Việt Nam.</div>
-        </section>
-        <section class="kpi-card">
-            <div class="kpi-label">QUẢN TRỊ HỆ THỐNG &amp; CHI NHÁNH</div>
-            <div class="kpi-value">Menu &amp; Kho</div>
-            <div class="kpi-note">Bật/tắt món theo chi nhánh, quản lý danh mục chung, duyệt kiểm kho và điều chuyển.</div>
-        </section>
-        <section class="kpi-card kpi-red">
-            <div class="kpi-label">CHỦ SỞ HỮU (OWNER)</div>
-            <div class="kpi-value">Toàn chuỗi</div>
-            <div class="kpi-note">Theo dõi tổng quan doanh thu, đơn hàng, nhân sự, tồn kho, bảng lương và phân tích.</div>
-        </section>
-    </div>
-
-    <section class="surface-card">
-        <h2>Bắt đầu làm việc</h2>
-        <p class="text-secondary mb-3">
-            Sử dụng tài khoản nhân viên để truy cập trực tiếp quầy gọi món hoặc xem trước các bề mặt giao diện tĩnh của dự án trong môi trường phát triển.
-        </p>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-brand" href="/login">Đăng nhập ngay</a>
-            @if (Environment.IsDevelopment())
-            {
-                <a class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;" href="/preview/orders">Xem thử Menu &amp; Giỏ hàng</a>
-                <a class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;" href="/preview/owner">Xem thử Chủ sở hữu</a>
-                <a class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;" href="/preview/admin">Xem thử Quản trị</a>
-                <a class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;" href="/preview/employee">Xem thử Nhân viên mở rộng</a>
-            }
-        </div>
-    </section>
-</div>
+<PageTitle>BranchFlow</PageTitle>
+<div class="page-content"><p role="status">Đang mở không gian làm việc…</p></div>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var user = (await Authentication.GetAuthenticationStateAsync()).User;
+        Navigation.NavigateTo(BranchFlow.Web.Models.Appearance.WorkspaceNavigation.Home(
+            BranchFlow.Web.Models.Appearance.WorkspaceNavigation.Role(user)), replace: true);
+    }
+}

@@ -1,0 +1,17 @@
+<section class="business-panel">
+    <div class="panel-heading"><div><p class="section-kicker">@(Counting ? "KIỂM KHO" : "XUẤT KHO")</p><h2>@(Counting ? "Phiếu kiểm kho" : "Phiếu xuất nguyên liệu")</h2></div><span class="business-status">Chờ API</span></div>
+    <div class="stock-form-meta"><label>Ngày ghi nhận<input type="date" value="@DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).ToString("yyyy-MM-dd")" disabled /></label><label>Chi nhánh<input value="Theo phân công hiện tại" disabled /></label></div>
+    @if (Counting)
+    {
+        <fieldset class="stock-count-scope"><legend>Phạm vi kiểm</legend><label><input type="radio" name="count-scope" checked="@fullCount" @onchange="() => fullCount = true" /> Toàn bộ</label><label><input type="radio" name="count-scope" checked="@(!fullCount)" @onchange="() => fullCount = false" /> Một phần</label></fieldset>
+    }
+    <div class="business-table-wrap"><table class="business-table"><thead><tr><th>Nguyên liệu</th><th>Đơn vị</th><th>@(Counting ? "Tồn hệ thống" : "Tồn hiện tại")</th><th>@(Counting ? "Thực tế" : "Số lượng xuất")</th></tr></thead><tbody><tr><td><select disabled aria-label="Nguyên liệu"><option>Chờ danh sách nguyên liệu</option></select></td><td>—</td><td>—</td><td><input type="number" disabled aria-label="Số lượng" placeholder="0" /></td></tr></tbody></table></div>
+    <div class="stock-form-note"><label for="stock-note">@(Counting ? "Ghi chú kiểm kho" : "Lý do xuất")</label><textarea id="stock-note" rows="3" maxlength="500" @bind="note" @bind:event="oninput" placeholder="Nhập ghi chú"></textarea><small>@note.Length/500</small></div>
+    <div class="stock-form-footer"><span>Chưa thể gửi phiếu khi API chưa được kết nối.</span><button type="button" class="btn btn-brand" disabled>@(Counting ? "Gửi kiểm kho" : "Xác nhận xuất")</button></div>
+</section>
+
+@code {
+    [Parameter] public bool Counting { get; set; }
+    private bool fullCount = true;
+    private string note = "";
+}

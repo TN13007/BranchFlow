@@ -19,7 +19,6 @@ builder.Services.AddScoped<AuthApiClient>();
 builder.Services.AddScoped<SessionApiTransport>();
 builder.Services.AddScoped<OrderApiClient>();
 builder.Services.AddScoped<CartState>();
-builder.Services.AddScoped<BranchFlow.Web.Services.Preview.WarehousePreviewState>();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, SessionAuthenticationStateProvider>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>

@@ -47,11 +47,6 @@ else
     @if (menu is not null)
     {
         <OrderWorkspace Menu="menu" Cart="Cart" Busy="@(submitting || reloading)" CanOrder="canOrder" Error="@error" NeedsLogin="needsLogin" Unavailable="unavailable" OnReload="ReloadMenuAsync" OnConfirm="ConfirmAsync" />
-        <div class="page-content pt-0">
-            <button class="btn btn-outline-secondary" type="button" style="min-height:44px;" @onclick="ReloadMenuAsync" disabled="@submitting">
-                @(reloading ? "Đang tải lại menu…" : "Tải lại menu từ máy chủ")
-            </button>
-        </div>
     }
     else
     {

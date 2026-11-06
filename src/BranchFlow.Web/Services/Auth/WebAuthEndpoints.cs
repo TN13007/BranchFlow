@@ -48,7 +48,7 @@ public static class WebAuthEndpoints
             await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity),
                 new AuthenticationProperties { IsPersistent = false, ExpiresUtc = session.ExpiresAt, AllowRefresh = false });
             if (oldKey is not null) store.Remove(oldKey);
-            return Results.LocalRedirect(user.Role == "EMPLOYEE" ? "/orders/create" : "/account");
+            return Results.LocalRedirect(BranchFlow.Web.Models.Appearance.WorkspaceNavigation.Home(user.Role));
         }
         catch (ApiException ex)
         {
