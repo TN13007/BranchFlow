@@ -1,5 +1,7 @@
 # Project Charter – BranchFlow (v1.0)
 
+> Bản lưu kế hoạch khởi động. Khi giao việc, phát triển hoặc nghiệm thu bản demo đến 26/11/2026, dùng [phạm vi MVP hiện hành](mvp-scope.md).
+
 **Nhóm:** 6 | **Thời gian:** 12/10/2026 – 30/11/2026 (50 ngày)  
 **Trạng thái:** Đề xuất của nhóm, **chưa được giảng viên chấp thuận chính thức**.  
 **Project Sponsor:** Chưa xác nhận. **Ngân sách tiền mặt dự kiến:** 0 VNĐ.

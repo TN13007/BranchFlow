@@ -2,6 +2,8 @@
 
 Dự án nhóm môn Quản lý dự án CNTT, xây dựng bằng .NET 10, Blazor Web App Interactive Server, EF Core Database First và SQL Server.
 
+Phạm vi bản demo, quyền của bốn vai trò và các chức năng hoãn nằm trong [Phạm vi MVP hiện hành](docs/mvp-scope.md).
+
 ## Cấu trúc
 
 ```text
@@ -45,18 +47,18 @@ Tại root repo:
 ```powershell
 dotnet restore BranchFlow.slnx
 dotnet build BranchFlow.slnx --configuration Release
-dotnet run --project src/BranchFlow.Api --launch-profile http
+dotnet run --project src/BranchFlow.Api --launch-profile https
 ```
 
 Mở terminal thứ hai để chạy Web:
 
 ```powershell
-dotnet run --project src/BranchFlow.Web --launch-profile http
+dotnet run --project src/BranchFlow.Web --launch-profile https
 ```
 
-- Swagger API: http://localhost:5107/swagger
-- Blazor Web: http://localhost:5132
-- Profile HTTPS: API https://localhost:7107, Web https://localhost:7132; cần dev certificate được máy tin cậy.
+- Swagger API: https://localhost:7107/swagger
+- Blazor Web: https://localhost:7132
+- Chạy `dotnet dev-certs https --trust` để tin cậy chứng chỉ local trước khi đăng nhập.
 
 Swagger hỗ trợ gọi các endpoint công khai như login/refresh. Các endpoint yêu cầu JWT cần gửi header `Authorization: Bearer <accessToken>`; không gửi token vào query string hoặc body. Tài liệu cấu hình Bearer trên Swagger UI có thể được bổ sung riêng; việc không có nút Authorize không có nghĩa endpoint bỏ qua xác thực.
 
@@ -71,7 +73,7 @@ Swagger hỗ trợ gọi các endpoint công khai như login/refresh. Các endpo
 | GET | `/api/branches/accessible` | Danh sách branch theo quyền hiện tại |
 | GET | `/api/order-menu?branchId=...` | Đọc menu của branch được phép, chỉ role EMPLOYEE |
 
-API order/create và browser E2E phải được đánh giá theo PR tích hợp tương ứng; không suy ra đã hoàn tất từ các endpoint auth/menu ở bảng trên.
+API Employee tạo đơn, xem lịch sử và chi tiết tại `/api/orders`. API quản trị chi nhánh, người dùng, menu, kho, đơn và doanh thu tại `/api/management`. Kiểm thử theo bản tích hợp tương ứng.
 
 ## Build và test
 

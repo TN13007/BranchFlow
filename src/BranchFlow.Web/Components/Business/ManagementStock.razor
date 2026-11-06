@@ -1,0 +1,144 @@
+@inject ManagementApiClient Api
+
+<ApiError Message="@error" NeedsLogin="@needsLogin" />
+@if (notice is not null) { <p class="alert alert-success" role="status">@notice</p> }
+<fieldset disabled="@busy">
+    @if (Role == "SYSTEM_ADMIN")
+    {
+        <h2 class="h5">Danh mục nguyên liệu</h2>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <input class="form-control w-auto" aria-label="Tên nguyên liệu" placeholder="Tên nguyên liệu" @bind="ingredient.Name" />
+            <select class="form-select w-auto" aria-label="Đơn vị" @bind="ingredient.UnitId" disabled="@(ingredient.Id != 0)"><option value="0">Đơn vị</option>@foreach (var u in units) { <option value="@u.Id">@u.Name</option> }</select>
+            <label><input type="checkbox" @bind="ingredient.IsActive" /> Hoạt động</label>
+            <button class="btn btn-brand" @onclick="SaveIngredientAsync">Lưu nguyên liệu</button>
+            <button class="btn btn-outline-secondary" @onclick="() => ingredient = new()">Tạo mới</button>
+        </div>
+        <details class="mb-3"><summary>Danh sách nguyên liệu (@ingredients.Count)</summary>
+            <ul class="list-group">
+                @foreach (var item in ingredients)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">@item.Name · @item.UnitName · @(item.IsActive ? "Hoạt động" : "Đã tắt")
+                        <button class="btn btn-outline-secondary" @onclick="() => EditIngredient(item)">Sửa</button></li>
+                }
+            </ul>
+        </details>
+    }
+    @if (BranchId == 0) { <p>Chọn chi nhánh để xem tồn kho.</p> }
+    else
+    {
+        <h2 class="h5">Tồn kho chi nhánh</h2>
+        <div class="table-responsive"><table class="table"><thead><tr><th>Nguyên liệu</th><th>Tồn</th><th>Ngưỡng cảnh báo</th>@if (IsAdmin) { <th></th> }</tr></thead><tbody>
+            @foreach (var row in balances)
+            {
+                <tr><td>@row.Name</td><td>@row.Quantity @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
+                    <td>@if (IsAdmin && row.RowVersion.Length > 0) { <input class="form-control" type="number" min="0" step=".001" aria-label="Ngưỡng @row.Name" @bind="row.WarningThreshold" /> }
+                    else { @row.WarningThreshold }</td>
+                    @if (IsAdmin) { <td>@if (row.RowVersion.Length > 0) { <button class="btn btn-outline-secondary" @onclick="() => SaveThresholdAsync(row)">Lưu ngưỡng</button> }</td> }</tr>
+            }
+        </tbody></table></div>
+        @if (Role != "OWNER")
+        {
+            <h2 class="h5">Nhập hoặc xuất kho thủ công</h2>
+            <label class="form-label">Loại giao dịch
+                <select class="form-select" @bind="type"><option value="IN">Nhập kho</option><option value="OUT">Xuất kho</option></select>
+            </label>
+            @foreach (var line in lines)
+            {
+                <div class="d-flex gap-2 flex-wrap mb-2" @key="line">
+                    <select class="form-select w-auto" aria-label="Nguyên liệu" @bind="line.IngredientId"><option value="0">Chọn nguyên liệu</option>@foreach (var row in balances) { <option value="@row.IngredientId">@row.Name (@row.Unit)</option> }</select>
+                    <input class="form-control w-auto" type="number" aria-label="Số lượng" min=".001" step=".001" @bind="line.Quantity" />
+                    <button class="btn btn-outline-secondary" @onclick="() => lines.Remove(line)">Bỏ dòng</button>
+                </div>
+            }
+            <button class="btn btn-outline-secondary mb-2" disabled="@(lines.Count >= 50)" @onclick="() => lines.Add(new())">Thêm nguyên liệu</button>
+            <div><label class="form-label">Lý do <input class="form-control" maxlength="500" @bind="reason" /></label></div>
+            <button class="btn btn-brand mb-3" @onclick="WriteAsync">Ghi giao dịch</button>
+        }
+        <h2 class="h5">Lịch sử nhập xuất</h2>
+        @if (!busy && history.Count == 0) { <p>Chưa có giao dịch kho.</p> }
+        @foreach (var h in history)
+        {
+            <details class="mb-2"><summary>#@h.Id · @h.Type · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
+                <ul>@foreach (var l in h.Lines) { <li>@l.Name · @l.Before → @l.After (@l.Change)</li> }</ul>
+            </details>
+        }
+        <button class="btn btn-outline-secondary mt-2" @onclick="() => RunAsync(LoadAsync)">Tải lại tồn kho</button>
+    }
+</fieldset>
+@if (busy) { <p role="status">Đang xử lý…</p> }
+
+@code {
+    [Parameter] public int BranchId { get; set; }
+    [Parameter, EditorRequired] public string Role { get; set; } = "";
+    [Parameter] public bool IssueFirst { get; set; }
+    private bool IsAdmin => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN";
+    private bool busy;
+    private bool needsLogin;
+    private string? error;
+    private string? notice;
+    private string type = "IN";
+    private string reason = "";
+    private List<IngredientView> ingredients = [];
+    private List<NamedOption> units = [];
+    private List<BalanceView> balances = [];
+    private List<StockHistoryView> history = [];
+    private List<StockLineRequest> lines = [new()];
+    private IngredientView ingredient = new();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            type = IssueFirst ? "OUT" : "IN";
+            await RunAsync(LoadAsync);
+            StateHasChanged();
+        }
+    }
+    private async Task LoadAsync()
+    {
+        if (Role == "SYSTEM_ADMIN")
+        {
+            units = await Api.ListAsync<NamedOption>("options/units");
+            ingredients = await Api.ListAsync<IngredientView>("ingredients");
+        }
+        if (BranchId > 0)
+        {
+            balances = await Api.ListAsync<BalanceView>($"branches/{BranchId}/stock");
+            history = await Api.ListAsync<StockHistoryView>($"branches/{BranchId}/stock/history");
+        }
+    }
+    private void EditIngredient(IngredientView item) => ingredient = new IngredientView
+        { Id = item.Id, Name = item.Name, UnitId = item.UnitId, IsActive = item.IsActive };
+    private Task SaveIngredientAsync() => RunAsync(async () =>
+    {
+        await Api.SaveAsync("ingredients", ingredient.Id, ingredient);
+        ingredient = new();
+        notice = "Đã lưu nguyên liệu.";
+        await LoadAsync();
+    });
+    private Task SaveThresholdAsync(BalanceView balance) => RunAsync(async () =>
+    {
+        await Api.PutAsync($"branches/{BranchId}/stock/{balance.IngredientId}/threshold",
+            new ThresholdRequest { WarningThreshold = balance.WarningThreshold, RowVersion = balance.RowVersion });
+        notice = "Đã lưu ngưỡng.";
+        await LoadAsync();
+    });
+    private Task WriteAsync() => RunAsync(async () =>
+    {
+        foreach (var line in lines)
+            line.RowVersion = balances.FirstOrDefault(x => x.IngredientId == line.IngredientId)?.RowVersion ?? "";
+        var id = await Api.SaveAsync("stock", 0, new StockWriteRequest { BranchId = BranchId, Type = type, Reason = reason, Lines = lines });
+        lines = [new()]; reason = "";
+        notice = $"Đã lưu giao dịch #{id}.";
+        await LoadAsync();
+    });
+    private async Task RunAsync(Func<Task> action)
+    {
+        if (busy) return;
+        busy = true; error = null; notice = null; needsLogin = false;
+        await InvokeAsync(StateHasChanged);
+        try { await action(); }
+        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Tải lại tồn và lịch sử trước khi thử lại."; }
+        finally { busy = false; }
+    }
+}

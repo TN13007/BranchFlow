@@ -21,7 +21,7 @@ public sealed class ApiException(HttpStatusCode statusCode, string message) : Ex
             HttpStatusCode.TooManyRequests => "Bạn đã thử quá nhiều lần. Vui lòng chờ một phút rồi thử lại.",
             _ => "Dịch vụ đang gặp sự cố. Vui lòng thử lại sau."
         };
-        if (response.StatusCode == HttpStatusCode.BadRequest)
+        if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.Conflict)
         {
             try
             {
@@ -33,8 +33,11 @@ public sealed class ApiException(HttpStatusCode statusCode, string message) : Ex
                         .Take(5).ToArray();
                     if (details.Length > 0) message = string.Join(" ", details)[..Math.Min(1000, string.Join(" ", details).Length)];
                 }
+                else if (json.RootElement.TryGetProperty("detail", out var detail) && detail.ValueKind == JsonValueKind.String &&
+                    detail.GetString() is { Length: > 0 and <= 1000 } description)
+                    message = description;
             }
-            catch (JsonException) { /* API không trả ProblemDetails hợp lệ: dùng thông báo an toàn. */ }
+            catch (Exception ex) when (ex is JsonException or InvalidOperationException) { /* Giữ thông báo mặc định. */ }
         }
         return new ApiException(response.StatusCode, message);
     }

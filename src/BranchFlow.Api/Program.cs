@@ -32,6 +32,8 @@ builder.Services.AddScoped<IOrderMenuRepository, OrderMenuRepository>();
 builder.Services.AddScoped<IOrderMenuService, OrderMenuService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IMvpRepository, MvpRepository>();
+builder.Services.AddScoped<MvpService>();
 // QA clock/TTL overrides are accepted only by a Testing host bound to local BranchFlow_Test.
 string? qaUtc = builder.Configuration["Qa:UtcNow"];
 int? qaAccessSeconds = builder.Configuration.GetValue<int?>("Qa:AccessTokenLifetimeSeconds");

@@ -26,34 +26,35 @@ public static class WorkspaceNavigation
             "OWNER" => [
                 new("overview", "Tổng quan", "/owner", "/images/icons/house.svg", true),
                 new("orders", "Đơn hàng", "/owner?tab=orders", icons + "icon-orders.svg", true),
-                new("employees", "Nhân viên", "/owner?tab=employees", icons + "icon-user.svg", true),
+                new("branches", "Chi nhánh", "/owner?tab=branches", icons + "icon-admin.svg", true),
                 new("inventory", "Kho", "/owner?tab=inventory", icons + "icon-box.svg", true),
-                new("payroll", "Bảng lương", "/owner?tab=payroll", icons + "icon-orders.svg"),
-                new("analytics", "Phân tích", "/owner?tab=analytics", icons + "icon-owner.svg"), account],
+
+                account],
             "SYSTEM_ADMIN" => [
                 new("overview", "Tổng quan", "/admin", "/images/icons/house.svg", true),
                 new("system-menu", "Danh mục", "/admin?tab=system-menu", "/images/icons/coffee.svg", true),
                 new("branches", "Chi nhánh", "/admin?tab=branches", icons + "icon-admin.svg", true),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
-                new("transfer", "Điều chuyển", "/admin?tab=transfer", icons + "icon-box.svg"), account],
+                new("employees", "Tài khoản nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
+                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"), account],
             "BRANCH_ADMIN" => [
                 new("overview", "Tổng quan", "/admin", "/images/icons/house.svg", true),
                 new("branch-menu", "Menu", "/admin?tab=branch-menu", "/images/icons/coffee.svg", true),
                 new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
-                new("stocktake", "Kiểm kho", "/admin?tab=stocktake", icons + "icon-stocktake.svg", true),
-                new("transfer", "Điều chuyển", "/admin?tab=transfer", icons + "icon-box.svg"),
+
+
                 new("issue", "Xuất kho", "/admin?tab=issue", icons + "icon-box.svg"),
                 new("employees", "Nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
-                new("payroll", "Bảng lương", "/admin?tab=payroll", icons + "icon-orders.svg"), account],
+                account],
             "EMPLOYEE" => [
                 new("home", "Trang chủ", "/employee", "/images/icons/house.svg", true),
                 new("create", "Gọi món", "/orders/create", "/images/icons/coffee.svg", true),
                 new("mine", "Đơn của tôi", "/orders/mine", icons + "icon-orders.svg", true),
                 new("stock", "Kho", "/employee?tab=stock", icons + "icon-box.svg", true),
                 new("issue", "Xuất kho", "/employee?tab=issue", icons + "icon-box.svg"),
-                new("stocktake", "Kiểm kho", "/employee?tab=stocktake", icons + "icon-stocktake.svg"),
-                new("payroll", "Lương", "/employee?tab=payroll", icons + "icon-orders.svg"), account],
+
+                account],
             _ => [account]
         };
     }

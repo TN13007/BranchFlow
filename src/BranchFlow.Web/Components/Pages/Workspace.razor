@@ -5,7 +5,6 @@
 @layout EmployeeLayout
 @using BranchFlow.Web.Models.Appearance
 @using BranchFlow.Web.Components.Business
-@using BranchFlow.Web.Components.Inventory
 @inject AuthenticationStateProvider Authentication
 @inject NavigationManager Navigation
 @inject OrderApiClient Api
@@ -33,10 +32,8 @@ else
         <span class="workspace-role-badge">@WorkspaceNavigation.RoleLabel(role)</span>
     </header>
     <div class="page-content business-content">
-        @if (IsOverview)
+        @if (IsOverview && role == "EMPLOYEE")
         {
-            @if (role == "EMPLOYEE")
-            {
                 <ApiError Message="@error" NeedsLogin="needsLogin" OnRetry="LoadEmployeeAsync" Busy="loading" />
                 <div class="business-filters"><div class="scope-card"><span>Chi nhánh</span><strong>@(branch is null ? "Chưa có dữ liệu" : $"{branch.Code} · {branch.Name}")</strong></div><div class="scope-card"><span>Thời gian</span><strong>Hôm nay · @Today.ToString("dd/MM")</strong></div><button class="btn btn-outline-secondary" disabled="@loading" @onclick="LoadEmployeeAsync">@(loading ? "Đang tải…" : "Tải lại")</button></div>
                 <div class="business-metrics">
@@ -45,7 +42,7 @@ else
                     <article class="metric-tile"><span class="metric-label">SỐ LY</span><strong>@(hasEmployeeData ? orders.Sum(o => (long)o.TotalQuantity).ToString() : "—")</strong><small>Trong các đơn hôm nay</small></article>
                     <article class="metric-tile"><span class="metric-label">MÓN MỞ BÁN</span><strong>@(menu is null ? "—" : menu.Categories.Sum(c => c.Products.Count).ToString())</strong><small>Menu chi nhánh</small></article>
                 </div>
-                <section class="business-panel"><div class="panel-heading"><h2>Thao tác nhanh</h2></div><div class="quick-action-grid"><a href="/orders/create"><img src="/images/icons/coffee.svg" alt="" /><strong>Gọi món</strong><span>Tạo đơn mới →</span></a><a href="/orders/mine"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><strong>Đơn của tôi</strong><span>Tra cứu đơn →</span></a><a href="/employee?tab=stock"><img src="/images/christmas/icons/icon-box.svg" alt="" /><strong>Tồn kho</strong><span>Xem nguyên liệu →</span></a><a href="/employee?tab=stocktake"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /><strong>Kiểm kho</strong><span>Phiếu cuối ca →</span></a></div></section>
+                <section class="business-panel"><div class="panel-heading"><h2>Thao tác nhanh</h2></div><div class="quick-action-grid"><a href="/orders/create"><img src="/images/icons/coffee.svg" alt="" /><strong>Gọi món</strong><span>Tạo đơn mới →</span></a><a href="/orders/mine"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><strong>Đơn của tôi</strong><span>Tra cứu đơn →</span></a><a href="/employee?tab=stock"><img src="/images/christmas/icons/icon-box.svg" alt="" /><strong>Tồn kho</strong><span>Xem nguyên liệu →</span></a><a href="/employee?tab=issue"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /><strong>Xuất kho</strong><span>Ghi giao dịch →</span></a></div></section>
                 <section class="business-panel"><div class="panel-heading"><h2>Đơn gần đây</h2><a href="/orders/mine">Xem tất cả →</a></div>
                     @if (hasEmployeeData && orders.Count > 0)
                     {
@@ -56,68 +53,10 @@ else
                         <div class="business-empty"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><h3>@(loading ? "Đang tải đơn hàng" : hasEmployeeData ? "Chưa có đơn hôm nay" : "Chưa tải được đơn hàng")</h3><p>@(hasEmployeeData ? "Đơn mới sẽ xuất hiện tại đây." : "Kiểm tra kết nối và thử tải lại.")</p></div>
                     }
                 </section>
-            }
-            else
-            {
-                <div class="business-filters"><div class="scope-card"><span>Phạm vi</span><strong>@(role == "OWNER" || role == "SYSTEM_ADMIN" ? "Toàn chuỗi" : "Chi nhánh được phân công")</strong></div><div class="scope-card"><span>Thời gian</span><strong>Hôm nay · @Today.ToString("dd/MM")</strong></div></div>
-                <div class="business-metrics">
-                    <article class="metric-tile primary"><span class="metric-label">DOANH THU HÔM NAY</span><strong>—</strong><small>Chưa có dữ liệu doanh thu</small></article>
-                    <article class="metric-tile"><span class="metric-label">ĐƠN HÀNG</span><strong>—</strong><small>Không gồm đơn hủy</small></article>
-                    <article class="metric-tile"><span class="metric-label">NHÂN VIÊN</span><strong>—</strong><small>Đang hoạt động</small></article>
-                    <article class="metric-tile"><span class="metric-label">CẢNH BÁO KHO</span><strong>—</strong><small>Nguyên liệu dưới ngưỡng</small></article>
-                </div>
-                <div class="dashboard-columns"><section class="business-panel"><div class="panel-heading"><div><p class="section-kicker">DOANH THU</p><h2>Theo giờ</h2></div><span class="muted">Hôm nay</span></div><div class="chart-no-data"><div class="chart-grid" aria-hidden="true"></div><div><strong>Chưa có dữ liệu doanh thu</strong><p>Báo cáo sẽ hiển thị khi API được kết nối.</p></div><span class="chart-axis">08h <span>14h</span> 20h</span></div></section><section class="business-panel"><div class="panel-heading"><div><p class="section-kicker">ƯU TIÊN</p><h2>Cần xử lý</h2></div></div><div class="business-empty"><img src="/images/christmas/icons/icon-alert.svg" alt="" /><h3>Chưa có dữ liệu cảnh báo</h3><p>Chờ dữ liệu đơn hàng và tồn kho.</p></div></section></div>
-                <div class="dashboard-columns"><RecordPanel Title="Sản phẩm bán chạy" Columns='@(new[] { "Sản phẩm", "Số ly", "Doanh thu" })' Description="Chờ API thống kê bán hàng." /><RecordPanel Title="Nhân sự" Columns='@(new[] { "Nhân viên", "Chi nhánh", "Trạng thái" })' Description="Chờ API nhân sự." /></div>
-            }
         }
-        else if (tab is "inventory" or "stock")
+        else
         {
-            @if (role is "EMPLOYEE" or "BRANCH_ADMIN")
-            {
-                <nav class="stock-command-row" aria-label="Thao tác kho"><a href="@(WorkspaceNavigation.Home(role) + "?tab=issue")"><span class="metric-icon"><img src="/images/christmas/icons/icon-box.svg" alt="" /></span><span><strong>Xuất kho</strong><small>Tạo phiếu nhiều nguyên liệu</small></span><b aria-hidden="true">›</b></a><a href="@(WorkspaceNavigation.Home(role) + "?tab=stocktake")"><span class="metric-icon"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /></span><span><strong>Kiểm kho</strong><small>@(role == "EMPLOYEE" ? "Toàn bộ hoặc một phần" : "Duyệt phiếu cuối ca")</small></span><b aria-hidden="true">›</b></a></nav>
-            }
-            <InventoryOverview ScopeLabel="@(role == "OWNER" || role == "SYSTEM_ADMIN" ? "Toàn chuỗi" : "Chi nhánh hiện tại")" />
-        }
-        else if (tab == "issue")
-        {
-            <StockOperation />
-        }
-        else if (tab == "stocktake")
-        {
-            <div class="workflow-banner"><span class="metric-icon"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /></span><div><strong>@(role == "EMPLOYEE" ? "Kiểm kho cuối ca" : "Duyệt kiểm kho")</strong><p>Đối chiếu số lượng thực tế với tồn hệ thống.</p></div><span class="business-status">Chờ API kiểm kho</span></div>
-            <RecordPanel Title="Phiếu kiểm kho" Columns='@(new[] { "Mã phiếu", "Chi nhánh", "Ngày kiểm", "Trạng thái" })' Description="Chưa có API phiếu kiểm kho. Chưa thể tạo hoặc duyệt phiếu." />
-            @if (role == "EMPLOYEE") { <StockOperation Counting="true" /> }
-        }
-        else if (tab is "system-menu" or "branch-menu")
-        {
-            <div class="workflow-banner"><span class="metric-icon"><img src="/images/icons/coffee.svg" alt="" /></span><div><strong>@(role == "SYSTEM_ADMIN" ? "Danh mục dùng chung" : "Menu chi nhánh")</strong><p>@(role == "SYSTEM_ADMIN" ? "Quản lý sản phẩm, size và bảng giá." : "Bật hoặc tạm ngừng bán tại chi nhánh. Giá do quản trị tổng quản lý.")</p></div></div>
-            <RecordPanel Title="Sản phẩm" Columns='@(new[] { "Tên món", "Danh mục", "Size / Giá", "Trạng thái" })' Description="Chờ API quản trị menu. Không thay đổi menu bán hàng tại màn này." />
-        }
-        else if (tab == "transfer")
-        {
-            <RecordPanel Title="Phiếu điều chuyển" Columns='@(new[] { "Mã phiếu", "Kho xuất", "Kho nhận", "Ngày tạo", "Trạng thái" })' Description="Chờ API điều chuyển nguyên liệu." />
-        }
-        else if (tab == "branches")
-        {
-            <RecordPanel Title="Chi nhánh" Columns='@(new[] { "Mã", "Tên chi nhánh", "Quản lý", "Trạng thái" })' Description="Chờ API quản lý chi nhánh." />
-        }
-        else if (tab == "employees")
-        {
-            <RecordPanel Title="Nhân viên" Columns='@(new[] { "Mã NV", "Họ và tên", "Vai trò", "Chi nhánh", "Trạng thái" })' Description="Chờ API nhân sự và phân công." />
-        }
-        else if (tab == "payroll")
-        {
-            <div class="business-metrics"><article class="metric-tile primary"><span class="metric-label">LƯƠNG TẠM TÍNH</span><strong>—</strong><small>Chưa có dữ liệu kỳ lương</small></article><article class="metric-tile"><span class="metric-label">GIỜ LÀM</span><strong>—</strong><small>Theo ca được ghi nhận</small></article><article class="metric-tile"><span class="metric-label">PHỤ CẤP</span><strong>—</strong><small>Theo kỳ lương</small></article></div>
-            <RecordPanel Title="@(role == "EMPLOYEE" ? "Lương của tôi" : "Bảng lương")" Columns='@(role == "EMPLOYEE" ? new[] { "Kỳ lương", "Giờ làm", "Phụ cấp", "Tổng tiền", "Trạng thái" } : new[] { "Nhân viên", "Chi nhánh", "Giờ làm", "Tổng tiền", "Trạng thái" })' Description="Chờ API lương. Chưa thể xác nhận số tiền." />
-        }
-        else if (tab == "orders")
-        {
-            <RecordPanel Title="Đơn hàng" Columns='@(new[] { "Mã đơn", "Chi nhánh", "Nhân viên", "Tổng tiền", "Trạng thái" })' Description="Chờ API đơn hàng theo phạm vi vai trò." />
-        }
-        else if (tab == "analytics")
-        {
-            <div class="business-metrics"><article class="metric-tile primary"><span class="metric-label">DOANH THU</span><strong>—</strong><small>Kỳ báo cáo</small></article><article class="metric-tile"><span class="metric-label">TRUNG BÌNH / ĐƠN</span><strong>—</strong><small>Theo giá chốt</small></article><article class="metric-tile"><span class="metric-label">TỶ LỆ HOÀN TẤT</span><strong>—</strong><small>Chưa có dữ liệu</small></article></div>
-            <RecordPanel Title="Hiệu suất chi nhánh" Columns='@(new[] { "Chi nhánh", "Số đơn", "Doanh thu", "Tỷ trọng" })' Description="Chờ API báo cáo và phân tích." />
+            <ManagementWorkspace @key="(role, tab)" Role="@role" Tab="@tab" />
         }
     </div>
 }

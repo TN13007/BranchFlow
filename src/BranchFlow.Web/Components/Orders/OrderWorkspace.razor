@@ -1,197 +1,153 @@
 @inject IJSRuntime JS
+@inject CartDraftStore Drafts
 @implements IAsyncDisposable
 
-<section class="tavern-workspace" @ref="workspace">
-<header class="page-heading context-scene-drink-counter">
-    <div>
-        <p class="eyebrow">@Menu.Branch.Code · @Menu.Branch.Name · QUẦY PHA CHẾ</p>
-        <h1>@(showCart ? "Giỏ hàng & Xác nhận đơn" : "Gọi món")</h1>
-        <p>Giá tạm tính từ menu hiện hành. Giá cuối cùng và mã đơn do hệ thống tính khi xác nhận.</p>
+<section class="order-menu-workspace" @ref="workspace">
+    <header class="order-menu-hero">
+        <div>
+            <h1>Gọi món cho khách</h1>
+            <p class="order-menu-branch">@Menu.Branch.Name <span>@Menu.Branch.Code</span></p>
+        </div>
+        <button class="order-menu-cart-button" type="button" @onclick="OpenCart" disabled="@(Busy || closingDialog)"
+                aria-label="Mở giỏ hàng, @Cart.TotalQuantity ly" aria-haspopup="dialog">
+            <span aria-hidden="true">🛒</span><span class="order-menu-cart-label">Giỏ hàng</span>
+            <span class="order-menu-cart-count" aria-live="polite">@Cart.TotalQuantity</span>
+        </button>
+    </header>
+
+    <div class="order-menu-messages">
+        <ApiError Message="@Error" NeedsLogin="NeedsLogin" Unavailable="Unavailable" OnRetry="OnReload" Busy="Busy" />
+        <ApiError Message="@localError" />
+        @if (Cart.OutcomeUnknown)
+        {
+            <div class="alert alert-warning" role="alert">
+                <strong>Chưa xác định kết quả tạo đơn.</strong> Giỏ hàng được giữ và không tự gửi lại để tránh trùng đơn.
+                <a href="/orders/mine" class="alert-link">Kiểm tra Đơn của tôi</a> trước khi xác nhận lại.
+                <div class="form-check mt-2"><input id="checked-orders" class="form-check-input" type="checkbox" @bind="checkedHistory" />
+                    <label for="checked-orders" class="form-check-label">Tôi đã kiểm tra và xác nhận đơn này chưa được tạo.</label></div>
+                <button class="btn btn-outline-secondary mt-2" type="button" disabled="@(!checkedHistory)" @onclick="Unlock">Cho phép xác nhận lại</button>
+                <button class="btn btn-outline-secondary mt-2" type="button" disabled="@Busy" @onclick="() => confirmDiscard = true">Bỏ giỏ sau khi đã đối chiếu</button>
+                @if (confirmDiscard)
+                {
+                    <p class="mt-2 mb-1">Đơn đã lưu vẫn xuất hiện trong Đơn của tôi. Bỏ giỏ hiện tại?</p>
+                    <button class="btn btn-outline-danger" type="button" @onclick="DiscardAsync">Xác nhận bỏ giỏ</button>
+                    <button class="btn btn-outline-secondary" type="button" @onclick="() => confirmDiscard = false">Giữ giỏ</button>
+                }
+            </div>
+        }
     </div>
-    <button class="@(showCart ? "btn btn-brand return-to-menu" : "basket-cart-button")" type="button"
-            @onclick="() => showCart = !showCart" disabled="@(Busy || closingDialog)"
-            aria-label="@(showCart ? "Tiếp tục gọi món" : $"Mở giỏ hàng, {Cart.TotalQuantity} ly, tạm tính {Money(Cart.PreviewTotal)}")"
-            aria-controls="order-workspace-content" aria-expanded="@(showCart ? "true" : "false")">
-        @if (showCart)
-        {
-            <span>← Tiếp tục gọi món</span>
-        }
-        else
-        {
-            <img class="basket-cart-image" src="/images/christmas/icons/picnic-basket-cart-v1.png" alt="" width="210" height="140" />
-            <span class="basket-cart-caption" aria-live="polite" aria-atomic="true">
-                <strong>Giỏ hàng</strong>
-                <span>@Cart.TotalQuantity ly · @Money(Cart.PreviewTotal)</span>
-            </span>
-        }
-    </button>
-</header>
 
-<div id="order-workspace-content" class="page-content tavern-menu-content">
-    <ApiError Message="@Error" NeedsLogin="NeedsLogin" Unavailable="Unavailable" OnRetry="OnReload" Busy="Busy" />
-    <ApiError Message="@localError" />
-
-    @if (Cart.OutcomeUnknown)
-    {
-        <div class="alert alert-warning" role="alert">
-            <strong>Chưa xác định kết quả tạo đơn:</strong> Hệ thống chưa nhận được phản hồi cuối cùng từ máy chủ. Giỏ hàng vẫn được giữ nguyên và <strong>không tự gửi lại</strong> để tránh trùng đơn.
-            <div class="mt-2">
-                <a href="/orders/mine" class="alert-link">Mở Đơn của tôi để kiểm tra</a> trước khi quyết định xác nhận lại.
-            </div>
-            <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" id="checked-orders" @bind="checkedHistory" />
-                <label class="form-check-label" for="checked-orders">Tôi đã kiểm tra danh sách Đơn của tôi và xác nhận đơn này chưa được tạo.</label>
-            </div>
-            <button class="btn btn-outline-dark mt-2" type="button" style="min-height:44px;" disabled="@(!checkedHistory)" @onclick="Unlock">Cho phép xác nhận lại</button>
+    <section class="order-menu-toolbar" aria-label="Tìm kiếm và lọc món">
+        <label for="menu-search-input" class="visually-hidden">Tìm món</label>
+        <div class="d-flex gap-2">
+            <input id="menu-search-input" type="search" class="form-control order-menu-search" placeholder="Tìm món theo tên"
+                   @bind="search" @bind:event="oninput" />
+            @if (!string.IsNullOrWhiteSpace(search) || categoryId != 0)
+            {
+                <button class="btn btn-outline-secondary text-nowrap" type="button" @onclick="ResetFilter">Bỏ lọc</button>
+            }
         </div>
-    }
+        <nav class="order-menu-categories" aria-label="Danh mục món">
+            <button class="order-menu-category @(categoryId == 0 ? "active" : "")" type="button"
+                    @onclick="() => categoryId = 0" aria-pressed="@(categoryId == 0)">Tất cả</button>
+            @foreach (var category in Menu.Categories)
+            {
+                <button class="order-menu-category @(categoryId == category.Id ? "active" : "")" type="button"
+                        @onclick="() => categoryId = category.Id" aria-pressed="@(categoryId == category.Id)">@category.Name</button>
+            }
+        </nav>
+    </section>
 
-    @if (!showCart)
-    {
-        <div class="menu-toolbar">
-            <span class="toolbar-hangers" aria-hidden="true"><span></span><span></span></span>
-            <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 360px;">
-                <label for="menu-search-input" class="visually-hidden">Tìm tên món</label>
-                <input id="menu-search-input" class="form-control menu-search" aria-label="Tìm tên món"
-                       placeholder="Tìm theo tên đồ uống…" @bind="search" @bind:event="oninput" />
-                @if (!string.IsNullOrWhiteSpace(search) || categoryId != 0)
-                {
-                    <button class="btn btn-outline-secondary" type="button" style="min-height:44px; white-space:nowrap;"
-                            @onclick="ResetFilter">Bỏ lọc</button>
-                }
-            </div>
-            <div class="category-tabs" role="group" aria-label="Danh mục món">
-                <button class="chip @(categoryId == 0 ? "selected" : "")" type="button"
-                        @onclick="() => categoryId = 0" aria-pressed="@(categoryId == 0 ? "true" : "false")">Tất cả</button>
-                @foreach (var category in Menu.Categories)
-                {
-                    <button class="chip @(categoryId == category.Id ? "selected" : "")" type="button"
-                            @onclick="() => categoryId = category.Id" aria-pressed="@(categoryId == category.Id ? "true" : "false")">@category.Name</button>
-                }
-            </div>
-        </div>
-
-        <div class="section-heading">
-            <div><h2>Thực đơn quán mùa đông</h2><p id="menu-hanging-hint" class="hanging-hint">Bấm thẻ để chọn món · Kéo núm tròn xuống để mở</p></div>
-            <span>@Products.Count() món khả dụng</span>
-        </div>
-
+    <section class="order-menu-products" aria-labelledby="product-list-title">
+        <div class="order-menu-section-heading"><h2 id="product-list-title">Danh sách món</h2><span>@Products.Count() món</span></div>
         @if (!AllMenuProducts.Any())
         {
-            <div class="empty-state" role="status">
-                <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
-                <strong>Menu chi nhánh hiện chưa có món mở bán</strong>
-                <p class="mb-0 mt-1">Vui lòng tải lại menu hoặc liên hệ quản lý chi nhánh để kiểm tra danh mục bán hàng.</p>
-            </div>
+            <div class="order-menu-empty" role="status"><span aria-hidden="true">☕</span><strong>Menu đang được cập nhật</strong><p>Chi nhánh hiện chưa có món đang bán.</p></div>
         }
         else if (!Products.Any())
         {
-            <div class="empty-state" role="status">
-                <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
-                <strong>Không tìm thấy món phù hợp với bộ lọc</strong>
-                <p class="mb-2 mt-1">Hãy thử từ khóa khác hoặc chuyển về danh mục Tất cả.</p>
-                <button class="btn btn-outline-secondary" type="button" style="min-height:44px;" @onclick="ResetFilter">Xem toàn bộ menu</button>
-            </div>
+            <div class="order-menu-empty" role="status"><span aria-hidden="true">⌕</span><strong>Không tìm thấy món phù hợp</strong><p>Hãy thử từ khóa hoặc danh mục khác.</p><button class="btn btn-outline-secondary" @onclick="ResetFilter">Xem toàn bộ menu</button></div>
         }
         else
         {
-            <div class="product-grid">
+            <div class="order-menu-product-grid">
                 @foreach (var product in Products)
                 {
-                    <div class="hanging-menu-item" @key="product.Id">
-                    <span class="card-hangers" aria-hidden="true"><span></span><span></span></span>
-                    <button class="product-card" type="button" @onclick="() => Configure(product)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown || !CanOrder)"
-                            data-product-id="@product.Id" aria-describedby="menu-hanging-hint" aria-haspopup="dialog" draggable="false">
-                        <div class="product-art">
-                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                        {
-                            <img class="product-image" src="@product.ImageUrl" alt="@product.Name" loading="lazy" />
-                        }
-                        else
-                        {
-                            <div class="product-image missing-image">Ảnh chưa có</div>
-                        }
-                        </div>
-                        <div class="product-info">
-                            <strong>@product.Name</strong>
-                            <span>@CategoryName(product.Id) · @product.ProductSizes.Count size</span>
-                            <b>Từ @Money(product.MinPrice)</b>
-                        </div>
-                        <span class="card-pull-handle" aria-hidden="true"><span>⌄</span></span>
-                    </button>
-                    </div>
-                }
-            </div>
-        }
-    }
-    else
-    {
-        <div class="cart-layout">
-            <div>
-                @if (Cart.Lines.Count == 0)
-                {
-                    <div class="empty-state" role="status">
-                        <img class="empty-state-figure decor-non-interactive" src="/images/christmas/scenes/empty-gingerbread-cocoa.jpg" alt="" />
-                        <strong>Giỏ hàng chưa có món</strong>
-                        <p class="mb-2 mt-1">Chọn đồ uống từ menu quầy pha chế để bắt đầu tạo đơn hàng mới.</p>
-                        <button class="btn btn-brand mt-1" type="button" @onclick="() => showCart = false">Quay lại chọn món</button>
-                    </div>
-                }
-                @foreach (var line in Cart.Lines)
-                {
-                    <article class="cart-line" @key="line.Key">
-                        @if (!string.IsNullOrWhiteSpace(line.ImageUrl))
-                        {
-                            <img class="cart-image" src="@line.ImageUrl" alt="" />
-                        }
-                        <div class="cart-description">
-                            <strong>@line.ProductName</strong>
-                            <small>Size @line.SizeName · @line.Request.Quantity ly × @Money(line.PreviewUnitPrice)</small>
-                            @if (!string.IsNullOrWhiteSpace(line.Description))
+                    <article class="order-menu-product-card" @key="product.Id">
+                        <div class="order-menu-product-image">
+                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                             {
-                                <small>@line.Description</small>
+                                <img src="@product.ImageUrl" alt="Ảnh @product.Name" loading="lazy" />
                             }
-                            <button class="text-button" type="button" @onclick="() => Edit(line)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)">Chỉnh sửa tùy chọn</button>
+                            else
+                            {
+                                <div class="order-menu-image-placeholder"><span aria-hidden="true">☕</span><small>Chưa có ảnh</small></div>
+                            }
+                            <span class="order-menu-price-badge">Từ @Money(product.MinPrice)</span>
                         </div>
-                        <b>@Money(line.PreviewTotal)</b>
-                        <button class="icon-button" type="button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName">
-                            <img src="/images/icons/trash.svg" alt="" />
-                        </button>
+                        <div class="order-menu-product-body">
+                            <div><h3>@product.Name</h3><p>@CategoryName(product.Id) · @product.ProductSizes.Count size</p></div>
+                            <button class="btn btn-brand order-menu-select-button" type="button" @onclick="() => Configure(product)"
+                                    disabled="@(Busy || closingDialog || Cart.OutcomeUnknown || !CanOrder)" aria-haspopup="dialog">
+                                <span>Chọn món</span><span aria-hidden="true">＋</span>
+                            </button>
+                        </div>
                     </article>
                 }
             </div>
-
-            <aside class="cart-summary" aria-label="Tổng đơn tạm tính">
-                <img class="cart-summary-ribbon decor-non-interactive" src="/images/christmas/decorations/bell-bauble-sprig.svg" alt="" aria-hidden="true" />
-                <p class="eyebrow">TỔNG ĐƠN TẠM TÍNH</p>
-                <div><span>Số dòng món</span><strong>@Cart.Lines.Count</strong></div>
-                <div><span>Tổng số ly</span><strong>@Cart.TotalQuantity</strong></div>
-                <div><span>Tạm tính</span><strong>@Money(Cart.PreviewTotal)</strong></div>
-                <p>Giá cuối cùng, ngày kinh doanh và mã đơn chính thức được máy chủ tính khi xác nhận.</p>
-                @if (Preview)
-                {
-                    <p class="preview-note">Bản xem thử tĩnh không gửi API và không ghi đơn vào cơ sở dữ liệu.</p>
-                }
-                <button class="btn btn-brand w-100" type="button"
-                        disabled="@(Preview || Busy || closingDialog || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)"
-                        @onclick="OnConfirm" aria-busy="@(Busy ? "true" : "false")">
-                    @(Busy ? "Đang gửi…" : "Xác nhận tạo đơn")
-                </button>
-            </aside>
-        </div>
+        }
+    </section>
+    @if (OnReload.HasDelegate)
+    {
+        <div class="order-menu-refresh"><button class="btn btn-outline-secondary" type="button" @onclick="OnReload" disabled="@Busy">@(Busy ? "Đang tải…" : "Tải lại menu")</button></div>
     }
-</div>
 
+    @if (showCart)
+    {
+        <dialog id="order-cart" class="order-dialog order-cart-dialog" aria-labelledby="cart-title">
+            <header class="configurator-head"><div><p class="eyebrow">ĐƠN ĐANG TẠO</p><h2 id="cart-title">Giỏ hàng</h2></div>
+                <button class="dialog-close" type="button" aria-label="Đóng giỏ hàng" disabled="@Busy" @onclick="CloseCart">×</button>
+            </header>
+            <div class="order-cart-body">
+                <ApiError Message="@Error" NeedsLogin="NeedsLogin" Unavailable="Unavailable" />
+                @if (Cart.OutcomeUnknown)
+                {
+                    <div class="alert alert-warning" role="alert">Chưa xác định kết quả tạo đơn. <a href="/orders/mine" class="alert-link">Kiểm tra Đơn của tôi</a> trước khi gửi lại. Đóng giỏ để xác nhận sau khi đã kiểm tra.</div>
+                }
+                @if (Cart.Lines.Count == 0)
+                {
+                    <div class="order-menu-empty" role="status"><span aria-hidden="true">🛒</span><strong>Giỏ hàng chưa có món</strong><p>Chọn một món trong menu để bắt đầu.</p></div>
+                }
+                @foreach (var line in Cart.Lines)
+                {
+                    <article class="order-cart-line" @key="line.Key">
+                        @if (!string.IsNullOrWhiteSpace(line.ImageUrl)) { <img src="@line.ImageUrl" alt="" /> }
+                        <div class="order-cart-description"><h3>@line.ProductName</h3><p>Size @line.SizeName · @line.Request.Quantity ly × @Money(line.PreviewUnitPrice)</p><p>@line.Description</p>
+                            <button class="btn btn-sm btn-outline-secondary" type="button" @onclick="() => EditFromCart(line)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)">Chỉnh sửa tùy chọn</button>
+                        </div>
+                        <div class="order-cart-line-actions"><strong>@Money(line.PreviewTotal)</strong><button class="btn btn-sm btn-outline-danger" type="button" @onclick="() => Cart.Remove(line.Key)" disabled="@(Busy || closingDialog || Cart.OutcomeUnknown)" aria-label="Xóa @line.ProductName">Xóa</button></div>
+                    </article>
+                }
+            </div>
+            <footer class="order-cart-footer">
+                <div class="order-cart-total"><div><span>Tổng cộng · @Cart.TotalQuantity ly</span><strong>@Money(Cart.PreviewTotal)</strong></div><small>Giá cuối cùng và mã đơn được máy chủ xác nhận.</small></div>
+                @if (Preview) { <p>Bản xem thử không ghi đơn vào cơ sở dữ liệu.</p> }
+                <div class="d-flex flex-wrap gap-2 justify-content-end"><button class="btn btn-outline-secondary" type="button" @onclick="CloseCart" disabled="@Busy">Tiếp tục chọn món</button>
+                    <button class="btn btn-brand" type="button" disabled="@(Preview || Busy || closingDialog || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)" @onclick="OnConfirm" aria-busy="@Busy">@(Busy ? "Đang gửi…" : "Xác nhận tạo đơn")</button>
+                </div>
+            </footer>
+        </dialog>
+    }
 @if (selectedProduct is not null)
 {
-    <dialog id="product-options" class="configurator tavern-configurator" aria-labelledby="product-options-title">
+    <dialog id="product-options" class="order-dialog configurator" aria-labelledby="product-options-title">
         <div class="configurator-head">
             @if (!string.IsNullOrWhiteSpace(selectedProduct.ImageUrl))
             {
                 <img class="configurator-image" src="@selectedProduct.ImageUrl" alt="" />
             }
             <div class="configurator-title">
-                <p class="eyebrow">QUẦY ĐỒ UỐNG · TÙY CHỌN MÓN</p>
+                <p class="eyebrow">TÙY CHỌN MÓN</p>
                 <h2 id="product-options-title">@selectedProduct.Name</h2>
                 <p>Chọn size bắt buộc, topping và ghi chú trước khi thêm món vào giỏ hàng.</p>
             </div>
@@ -279,14 +235,6 @@
         </div>
     </dialog>
 }
-@if (OnReload.HasDelegate)
-{
-    <footer class="tavern-refresh">
-        <button class="btn refresh-menu-button" type="button" @onclick="OnReload" disabled="@Busy">
-            @(Busy ? "Đang xử lý…" : "Tải lại menu từ máy chủ")
-        </button>
-    </footer>
-}
 </section>
 
 @code {
@@ -304,7 +252,9 @@
     private string search = "";
     private int categoryId;
     private bool showCart;
+    private bool openCart;
     private bool checkedHistory;
+    private bool confirmDiscard;
     private MenuProduct? selectedProduct;
     private int sizeId;
     private string quantityInput = "1";
@@ -367,7 +317,14 @@
     private async Task Save()
     {
         if (closingDialog) return;
-        try { Cart.Save(Menu, Draft(), editingKey); localError = null; await Close(); }
+        try
+        {
+            var returnToCart = editingKey.HasValue;
+            Cart.Save(Menu, Draft(), editingKey);
+            localError = null;
+            await Close();
+            if (returnToCart) OpenCart();
+        }
         catch (Exception ex) when (ex is InvalidOperationException or OverflowException) { draftError = ex is OverflowException ? "Số lượng vượt giới hạn." : ex.Message; }
     }
     private bool closingDialog;
@@ -377,31 +334,53 @@
         closingDialog = true;
         try
         {
-            if (module is not null) await module.InvokeVoidAsync("closeOptions", workspace);
+            if (module is not null) await module.InvokeVoidAsync("closeDialog", workspace, "product-options");
             selectedProduct = null;
         }
         finally { closingDialog = false; }
     }
-    private void Unlock() { Cart.AcknowledgeCheckedHistory(); checkedHistory = false; }
+    private void Unlock() { Cart.AcknowledgeCheckedHistory(); checkedHistory = false; confirmDiscard = false; }
+    private async Task DiscardAsync()
+    {
+        Cart.Clear();
+        checkedHistory = false;
+        confirmDiscard = false;
+        await Drafts.SaveAsync(Cart);
+    }
+    // Mở giỏ bằng dialog để giữ focus và giao diện menu phía sau.
+    private void OpenCart() { showCart = true; openCart = true; }
+    private async Task CloseCart()
+    {
+        if (Busy) return;
+        if (module is not null) await module.InvokeVoidAsync("closeDialog", workspace, "order-cart");
+        showCart = false;
+    }
+    // Đóng giỏ trước khi mở tùy chọn, tránh hai dialog chồng nhau.
+    private async Task EditFromCart(CartLine line)
+    {
+        await CloseCart();
+        Edit(line);
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        await Drafts.SaveAsync(Cart);
+        module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-dialogs.js");
+        if (openCart && showCart)
         {
-            module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-ui.js");
-            await module.InvokeVoidAsync("initTavern", workspace);
+            openCart = false;
+            await module.InvokeVoidAsync("openDialog", workspace, "order-cart");
         }
         if (openDialog && selectedProduct is not null)
         {
             openDialog = false;
-            module ??= await JS.InvokeAsync<IJSObjectReference>("import", "/js/order-ui.js");
-            await module.InvokeVoidAsync("openOptions", workspace);
+            await module.InvokeVoidAsync("openDialog", workspace, "product-options");
         }
     }
     public async ValueTask DisposeAsync()
     {
         if (module is not null) try
         {
-            await module.InvokeVoidAsync("disposeTavern", workspace);
+            await module.InvokeVoidAsync("disposeDialogs", workspace);
             await module.DisposeAsync();
         } catch (Exception ex) when (ex is JSDisconnectedException or OperationCanceledException) { }
     }

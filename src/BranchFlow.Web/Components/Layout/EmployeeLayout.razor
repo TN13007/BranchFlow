@@ -4,13 +4,14 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider Authentication
 
-<div class="employee-shell @(isOrdering ? "scene-drink-counter ordering-shell" : "business-shell")">
+<div class="employee-shell business-shell workspace-shell @(isOrdering ? "ordering-shell" : "")">
     <a class="skip-link" href="#main-content">Đến nội dung</a>
-    <aside class="employee-sidebar" data-companion="@companionKey">
+    <aside class="employee-sidebar">
         <a href="@WorkspaceNavigation.Home(role)" class="employee-brand">
-            <span class="employee-mark-wrap" aria-hidden="true"><span class="employee-mark">BF</span><img class="employee-hat" src="/images/christmas/decorations/bf-santa-hat.svg" alt="" /></span>
+            <span class="employee-mark" aria-hidden="true">BF</span>
             <span><strong>BranchFlow</strong><small>@WorkspaceNavigation.RoleLabel(role)</small></span>
         </a>
+        <p class="workspace-navigation-label">@(role == "EMPLOYEE" ? "Công việc" : role == "OWNER" ? "Theo dõi" : "Điều hành")</p>
         <nav aria-label="Menu @WorkspaceNavigation.RoleLabel(role)">
             @foreach (var link in links)
             {
@@ -19,7 +20,6 @@
                 </a>
             }
         </nav>
-        <SidebarCompanion OnStyleChanged="key => companionKey = key" />
         <div class="employee-user">
             <AuthorizeView>
                 <Authorized Context="auth">
@@ -41,6 +41,14 @@
                     {
                         <a href="@link.Url" aria-current="@(IsCurrent(link) ? "page" : null)"><img src="@link.Icon" alt="" />@link.Label</a>
                     }
+                    <AuthorizeView>
+                        <Authorized>
+                            <form action="/auth/logout" method="post" data-enhance="false" class="workspace-mobile-logout">
+                                <AntiforgeryToken />
+                                <button type="submit">Đăng xuất</button>
+                            </form>
+                        </Authorized>
+                    </AuthorizeView>
                 </nav>
             </details>
         </header>
@@ -55,7 +63,6 @@
 </div>
 
 @code {
-    private string companionKey = "ginger";
     private string role = "";
     private string relativePath = "";
     private string? currentTab;
@@ -64,8 +71,7 @@
     private IReadOnlyList<WorkspaceLink> links => WorkspaceNavigation.Links(role);
     private bool IsCurrent(WorkspaceLink link) => WorkspaceNavigation.IsCurrent(link, relativePath, currentTab);
     private bool IsMobileCurrent(WorkspaceLink link) => IsCurrent(link) ||
-        (role == "EMPLOYEE" && link.Key == "stock" && currentTab is "issue" or "stocktake") ||
-        (role == "SYSTEM_ADMIN" && link.Key == "inventory" && currentTab == "transfer");
+        (link.Key is "stock" or "inventory" && currentTab == "issue");
     protected override async Task OnInitializedAsync()
     {
         role = WorkspaceNavigation.Role((await Authentication.GetAuthenticationStateAsync()).User);

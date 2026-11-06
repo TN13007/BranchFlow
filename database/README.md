@@ -27,6 +27,18 @@ Nếu sqlcmd chưa có trong PATH, dùng đường dẫn cài đặt, ví dụ `
 
 Baseline tự kiểm tra tên DB và từ chối DB có bất kỳ bảng người dùng nào. Toàn bộ tạo bảng/FK/index/procedure trong transaction. Không xóa DB/bảng khi lỗi. Script 002 có thể chạy lại và chỉ thêm Role/Size/IngredientUnit chưa có; không tạo user, giá menu, tồn kho hoặc đơn hàng. Dev hiện chưa có tài khoản để đăng nhập; BE auth tạo seed demo bằng PasswordHasher trong bước sau.
 
+## Menu mẫu từ dự án cá nhân
+
+Sau khi đã tạo tài khoản và chi nhánh demo bằng `tools/BranchFlow.DemoSeed`, có thể nạp thêm menu Tuấn Kiệt:
+
+```powershell
+sqlcmd -S 'localhost\SQLEXPRESS' -E -C -b -d BranchFlow_Dev -i database/004-personal-menu-demo.sql
+```
+
+Script bổ sung 62 món, 186 mức giá cho dung tích 500ML/700ML/1000ML và 9 topping vào các chi nhánh demo đang hoạt động `BF-DEMO-01/02/03`. Không nhập UP SIZE 1300ML. Nguồn là `database/azure/002-seed-tuan-kiet-menu.sql` của dự án cá nhân; đây là bộ dữ liệu seed, không phải bản sao DB đang vận hành. Ảnh dùng URL trong dữ liệu nguồn; món chưa có ảnh hiển thị ô thay thế.
+
+Có thể chạy lại: chỉ thêm bản ghi còn thiếu, không ghi đè giá/trạng thái đã có. Khi trùng tên với món thuộc danh mục khác, món nhập có hậu tố `(Tuấn Kiệt)`; ví dụ `MATCHA LATTE (Tuấn Kiệt)` giữ riêng bộ giá với `Matcha latte` demo cũ. Menu demo cũ, tài khoản và đơn hàng được giữ lại. Script chỉ chấp nhận DB Dev/Test trên cùng máy; không dùng cho DB cloud. Để chạy thử và rollback, đổi biến `@Apply` trong bản sao script thành `0`.
+
 ## Chạy kiểm tra schema
 
 Tạo BranchFlow_Test mới bằng SSMS với cùng collation, rồi chạy 001 và 002 vào DB đó. Sau đó:

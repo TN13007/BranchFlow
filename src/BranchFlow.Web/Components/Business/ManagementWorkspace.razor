@@ -1,0 +1,273 @@
+@inject ManagementApiClient Api
+@using System.Globalization
+
+<div class="surface-card p-3 p-md-4">
+    <ApiError Message="@error" NeedsLogin="@needsLogin" />
+    @if (notice is not null) { <p class="alert alert-success" role="status">@notice</p> }
+    <fieldset disabled="@busy">
+    @if (NeedsBranch)
+    {
+        <label class="form-label">Chi nhánh
+            <select class="form-select" value="@branchId" @onchange="ChangeBranchAsync">
+                @if (CanReadAll) { <option value="0">Tất cả chi nhánh được phép</option> }
+                else { <option value="0">Chọn chi nhánh</option> }
+                @foreach (var b in branches.Where(b => b.IsActive)) { <option value="@b.Id">@b.Name</option> }
+            </select>
+        </label>
+    }
+    @if (Tab is "orders" or "analytics" || (Tab == "overview" && Role != "EMPLOYEE"))
+    {
+        <div class="d-flex flex-wrap gap-3 align-items-end mb-3">
+            <label>Từ ngày <input class="form-control" type="date" @bind="from" /></label>
+            <label>Đến ngày <input class="form-control" type="date" @bind="to" /></label>
+            <button class="btn btn-brand" @onclick="ReloadAsync">Xem kết quả</button>
+        </div>
+    }
+    @switch (Tab)
+    {
+        case "branches":
+            <h2 class="h5">Chi nhánh</h2>
+            @if (IsSystem)
+            {
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input class="form-control w-auto" aria-label="Mã chi nhánh" placeholder="Mã chi nhánh" @bind="branch.Code" disabled="@(branch.Id > 0)" />
+                    <input class="form-control w-auto" aria-label="Tên chi nhánh" placeholder="Tên chi nhánh" @bind="branch.Name" />
+                    <input class="form-control w-auto" aria-label="Địa chỉ" placeholder="Địa chỉ" @bind="branch.Address" />
+                    <label><input type="checkbox" @bind="branch.IsActive" /> Hoạt động</label>
+                    <button class="btn btn-brand" @onclick='() => SaveAsync("branches", branch.Id, branch, () => branch = new())'>Lưu chi nhánh</button>
+                    <button class="btn btn-outline-secondary" @onclick="() => branch = new()">Tạo mới</button>
+                </div>
+            }
+            <div class="table-responsive"><table class="table"><thead><tr><th>Mã</th><th>Tên</th><th>Địa chỉ</th><th>Quản lý</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var b in branches)
+            {
+                <tr><td>@b.Code</td><td>@b.Name</td><td>@b.Address</td><td>@b.AdminName</td><td>@(b.IsActive ? "Hoạt động" : "Đã tắt")</td>
+                    <td>@if (IsSystem) { <button class="btn btn-outline-secondary" @onclick="() => branch = Copy(b)">Sửa</button> }</td></tr>
+            }
+            </tbody></table></div>
+            break;
+        case "employees":
+            <h2 class="h5">Nhân viên và tài khoản</h2>
+            @if (IsSystem)
+            {
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input class="form-control w-auto" aria-label="Tên đăng nhập" placeholder="Tên đăng nhập" @bind="newUser.Username" />
+                    <input class="form-control w-auto" aria-label="Họ tên tài khoản mới" placeholder="Họ tên" @bind="newUser.FullName" />
+                    <input class="form-control w-auto" type="password" autocomplete="new-password" aria-label="Mật khẩu ban đầu" placeholder="Mật khẩu ban đầu" @bind="newUser.Password" />
+                    <select class="form-select w-auto" aria-label="Vai trò" @bind="newUser.Role"><option value="EMPLOYEE">Nhân viên</option><option value="BRANCH_ADMIN">Admin Chi nhánh</option></select>
+                    <select class="form-select w-auto" aria-label="Chi nhánh ban đầu" @bind="newUser.BranchId"><option value="">Chưa phân công</option>@foreach (var b in branches.Where(b => b.IsActive)) { <option value="@b.Id">@b.Name</option> }</select>
+                    <button class="btn btn-brand" @onclick='() => SaveAsync("users", 0, newUser, () => newUser = new())'>Tạo tài khoản</button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <select class="form-select w-auto" aria-label="Tài khoản phân công" @bind="assignment.UserId"><option value="0">Chọn tài khoản</option>@foreach (var u in users.Where(u => u.IsActive && u.Role is "EMPLOYEE" or "BRANCH_ADMIN")) { <option value="@u.Id">@u.FullName · @u.Username</option> }</select>
+                    <select class="form-select w-auto" aria-label="Chi nhánh phân công" @bind="assignment.BranchId"><option value="0">Chọn chi nhánh</option>@foreach (var b in branches.Where(b => b.IsActive)) { <option value="@b.Id">@b.Name</option> }</select>
+                    <button class="btn btn-brand" @onclick='() => SaveAsync("assignments", 0, assignment, () => assignment = new())'>Phân công</button>
+                </div>
+            }
+            @if (user is not null)
+            {
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input class="form-control w-auto" aria-label="Họ tên" @bind="user.FullName" />
+                    <input class="form-control w-auto" aria-label="Email" placeholder="Email" @bind="user.Email" />
+                    <input class="form-control w-auto" aria-label="Điện thoại" placeholder="Điện thoại" @bind="user.Phone" />
+                    @if (user.Role == "EMPLOYEE") { <input class="form-control w-auto" aria-label="Vị trí" placeholder="Vị trí" @bind="user.Position" /> }
+                    @if (IsSystem)
+                    {
+                        <label><input type="checkbox" @bind="user.IsActive" /> Hoạt động</label>
+                        @if (user.BranchId.HasValue)
+                        {
+                            <label><input type="checkbox" @bind="user.CanReceive" /> Nhập kho</label>
+                            <label><input type="checkbox" @bind="user.CanIssue" /> Xuất kho</label>
+                        }
+                    }
+                    <button class="btn btn-brand" @onclick='() => SaveAsync("users", user.Id, user, () => user = null)'>Lưu hồ sơ</button>
+                    <button class="btn btn-outline-secondary" @onclick="() => user = null">Đóng</button>
+                </div>
+            }
+            <div class="table-responsive"><table class="table"><thead><tr><th>Tài khoản</th><th>Họ tên</th><th>Vai trò</th><th>Chi nhánh nhân viên</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var u in users)
+            {
+                <tr><td>@u.Username</td><td>@u.FullName</td><td>@BranchFlow.Web.Models.Appearance.WorkspaceNavigation.RoleLabel(u.Role)</td><td>@u.BranchName</td><td>@(u.IsActive ? "Hoạt động" : "Đã khóa")</td>
+                    <td>@if (u.Role is "BRANCH_ADMIN" or "EMPLOYEE") { <button class="btn btn-outline-secondary" @onclick="() => user = Copy(u)">Sửa hồ sơ</button> }</td></tr>
+            }
+            </tbody></table></div>
+            break;
+        case "system-menu":
+        case "branch-menu":
+            <ManagementMenu @key="(Tab, branchId)" SystemMenu="@(Tab == "system-menu")" BranchId="@branchId" />
+            break;
+        case "stock":
+        case "inventory":
+        case "issue":
+            <ManagementStock @key="(Tab, branchId)" BranchId="@branchId" Role="@Role" IssueFirst="@(Tab == "issue")" />
+            break;
+        case "orders":
+            @if (order is not null)
+            {
+                <h2 class="h5">@order.Code · @order.Status</h2>
+                <div class="table-responsive"><table class="table"><thead><tr><th>Món</th><th>Size / Tùy chọn</th><th>Giá đã chốt mỗi ly</th><th>Số ly</th><th>Thành tiền đã lưu</th></tr></thead><tbody>
+                @foreach (var line in order.Items)
+                {
+                    <tr><td>@line.Name</td><td>@line.Size · @line.Options</td><td>@Money(line.UnitAmount)</td>
+                        <td>@if (CanAdjust) { <input class="form-control" type="number" min="1" max="999" aria-label="Số ly @line.Name" @bind="line.Quantity" /> } else { @line.Quantity }</td><td>@Money(line.Subtotal)</td></tr>
+                }
+                </tbody></table></div>
+                @if (CanAdjust)
+                {
+                    <p>Tổng sau khi sửa số ly <strong>@Money(order.Items.Sum(x => x.UnitAmount * x.Quantity))</strong></p>
+                    <label class="form-label">Lý do sửa hoặc hủy<input class="form-control" maxlength="500" @bind="reason" /></label>
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-brand" @onclick="() => AdjustAsync(false)">Lưu số ly</button>
+                        @if (confirmCancel)
+                        {
+                            <button class="btn btn-danger" @onclick="() => AdjustAsync(true)">Xác nhận hủy đơn @order.Code</button>
+                            <button class="btn btn-outline-secondary" @onclick="() => confirmCancel = false">Giữ đơn</button>
+                        }
+                        else { <button class="btn btn-outline-danger" @onclick="() => confirmCancel = true">Hủy đơn</button> }
+                    </div>
+                }
+                @if (order.History.Count > 0)
+                {
+                    <h3 class="h6">Lịch sử chỉnh sửa</h3>
+                    @foreach (var change in order.History)
+                    {
+                        <details><summary>@VietnamTime(change.CreatedAt) · @change.PerformedBy · @change.Reason</summary>
+                            <p>Trước: @DescribeAdjustment(change.BeforeData)</p><p>Sau: @DescribeAdjustment(change.AfterData)</p>
+                        </details>
+                    }
+                }
+                <button class="btn btn-outline-secondary my-2" @onclick="() => order = null">Đóng chi tiết</button>
+            }
+            <div class="table-responsive"><table class="table"><thead><tr><th>Mã đơn</th><th>Chi nhánh</th><th>Nhân viên</th><th>Thời gian (VN)</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var o in orders)
+            {
+                <tr><td>@o.Code</td><td>@o.BranchName</td><td>@o.EmployeeName</td><td>@VietnamTime(o.CreatedAt)</td><td>@Money(o.TotalAmount)</td><td>@o.Status</td>
+                    <td><button class="btn btn-outline-secondary" @onclick="() => OpenOrderAsync(o.Id)">Chi tiết</button></td></tr>
+            }
+            </tbody></table></div>
+            @if (!busy && orders.Count == 0) { <p>Không có đơn trong khoảng ngày đã chọn.</p> }
+            @if (orders.Count == 200) { <p>Hiển thị 200 đơn mới nhất. Thu hẹp khoảng ngày để tra cứu.</p> }
+            break;
+        case "overview":
+        case "analytics":
+            <h2 class="h5">Doanh thu theo ngày và chi nhánh</h2>
+            <p>Tổng @Money(revenue.Sum(x => x.Amount)) · @revenue.Sum(x => x.Orders) đơn hoàn thành</p>
+            <div class="table-responsive"><table class="table"><thead><tr><th>Ngày (VN)</th><th>Chi nhánh</th><th>Số đơn</th><th>Doanh thu</th></tr></thead><tbody>
+                @foreach (var r in revenue) { <tr><td>@r.Date.ToString("dd/MM/yyyy")</td><td>@r.BranchName</td><td>@r.Orders</td><td>@Money(r.Amount)</td></tr> }
+            </tbody></table></div>
+            @if (!busy && revenue.Count == 0) { <p>Không có đơn hoàn thành trong khoảng ngày đã chọn.</p> }
+            break;
+    }
+    </fieldset>
+    @if (busy) { <p role="status">Đang xử lý…</p> }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Tab { get; set; } = "";
+    [Parameter, EditorRequired] public string Role { get; set; } = "";
+    private bool IsSystem => Role == "SYSTEM_ADMIN";
+    private bool NeedsBranch => Tab is "branch-menu" or "stock" or "inventory" or "issue" or "orders" or "analytics" or "overview";
+    private bool CanReadAll => Tab is "orders" or "analytics" or "overview";
+    private bool CanAdjust => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN" && order?.Status != "CANCELLED";
+    private List<BranchView> branches = [];
+    private List<UserView> users = [];
+    private List<ManagedOrderView> orders = [];
+    private List<RevenueView> revenue = [];
+    private BranchView branch = new();
+    private CreateUserRequest newUser = new();
+    private AssignmentRequest assignment = new();
+    private UserView? user;
+    private ManagedOrderView? order;
+    private string reason = "";
+    private bool confirmCancel;
+    private int branchId;
+    private DateOnly from = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
+    private DateOnly to = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
+    private bool busy;
+    private bool needsLogin;
+    private string? error;
+    private string? notice;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) { await ReloadAsync(); StateHasChanged(); }
+    }
+    private async Task LoadAsync()
+    {
+        if (NeedsBranch || Tab is "branches" or "employees")
+        {
+            branches = await Api.ListAsync<BranchView>("branches");
+            if (!CanReadAll && !branches.Any(b => b.Id == branchId && b.IsActive))
+                branchId = branches.FirstOrDefault(b => b.IsActive)?.Id ?? 0;
+        }
+        string filter = $"?from={from:yyyy-MM-dd}&to={to:yyyy-MM-dd}" + (branchId == 0 ? "" : $"&branchId={branchId}");
+        switch (Tab)
+        {
+            case "employees": users = await Api.ListAsync<UserView>("users"); break;
+            case "orders": orders = await Api.ListAsync<ManagedOrderView>("orders" + filter); break;
+            case "analytics":
+            case "overview": revenue = await Api.ListAsync<RevenueView>("revenue" + filter); break;
+        }
+    }
+    private async Task ReloadAsync()
+    {
+        order = null;
+        orders = [];
+        revenue = [];
+        await RunAsync(LoadAsync);
+    }
+    private async Task ChangeBranchAsync(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value?.ToString(), out var id)) branchId = id;
+        if (CanReadAll) await ReloadAsync();
+    }
+    private Task SaveAsync(string path, int id, object input, Action reset) => RunAsync(async () =>
+    {
+        await Api.SaveAsync(path, id, input);
+        reset();
+        notice = "Đã lưu.";
+        await LoadAsync();
+    });
+    private Task OpenOrderAsync(int id) => RunAsync(async () =>
+    {
+        order = await Api.GetAsync<ManagedOrderView>($"orders/{id}");
+        reason = "";
+        confirmCancel = false;
+    });
+    private Task AdjustAsync(bool cancel) => RunAsync(async () =>
+    {
+        var current = order!;
+        if (cancel && !confirmCancel) return;
+        await Api.PutAsync($"orders/{current.Id}", new AdjustOrderRequest { Cancel = cancel, Reason = reason,
+            RowVersion = current.RowVersion, Items = cancel ? [] : current.Items.Select(x => new QuantityChange { ItemId = x.Id, Quantity = x.Quantity }).ToList() });
+        notice = cancel ? "Đã hủy đơn." : "Đã cập nhật số ly.";
+        confirmCancel = false;
+        reason = "";
+        order = await Api.GetAsync<ManagedOrderView>($"orders/{current.Id}");
+        await LoadAsync();
+    });
+    private async Task RunAsync(Func<Task> action)
+    {
+        if (busy) return;
+        busy = true; error = null; notice = null; needsLogin = false;
+        await InvokeAsync(StateHasChanged);
+        try { await action(); }
+        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Hãy tải lại để kiểm tra trước khi thao tác tiếp."; }
+        finally { busy = false; }
+    }
+    private static string Money(decimal value) => value.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + "đ";
+    private static string VietnamTime(DateTime utc) => utc.AddHours(7).ToString("dd/MM/yyyy HH:mm");
+    private static T Copy<T>(T value) => System.Text.Json.JsonSerializer.Deserialize<T>(System.Text.Json.JsonSerializer.Serialize(value))!;
+    private static string DescribeAdjustment(string json)
+    {
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            return $"{root.GetProperty("Status").GetString()} · {Money(root.GetProperty("TotalAmount").GetDecimal())} · " +
+                string.Join(", ", root.GetProperty("Items").EnumerateArray().Select(x => $"{x.GetProperty("ProductNameSnapshot").GetString()} × {x.GetProperty("Quantity").GetInt32()}"));
+        }
+        catch (Exception ex) when (ex is System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException or FormatException)
+        { return "Bản ghi lịch sử từ phiên bản trước."; }
+    }
+}

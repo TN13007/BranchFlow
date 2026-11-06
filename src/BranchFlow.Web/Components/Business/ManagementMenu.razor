@@ -1,0 +1,185 @@
+@inject ManagementApiClient Api
+
+<ApiError Message="@error" NeedsLogin="@needsLogin" />
+@if (notice is not null) { <p class="alert alert-success">@notice</p> }
+@if (!SystemMenu && BranchId == 0) { <p>Chọn chi nhánh để quản lý trạng thái bán.</p> }
+else
+{
+    <fieldset disabled="@busy">
+        <label class="form-label">Danh mục quản trị
+            <select class="form-select" value="@mode" @onchange="ChangeModeAsync">
+                <option value="products">Món và giá theo size</option>
+                <option value="toppings">Topping</option>
+                @if (SystemMenu)
+                {
+                    <option value="categories">Danh mục món</option>
+                    <option value="sizes">Danh mục size</option>
+                    <option value="topping-groups">Nhóm topping</option>
+                    <option value="note-groups">Nhóm ghi chú</option>
+                    <option value="notes">Lựa chọn ghi chú</option>
+                }
+            </select>
+        </label>
+        @if (mode == "products")
+        {
+            @if (SystemMenu)
+            {
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input class="form-control w-auto" aria-label="Tên món" placeholder="Tên món" @bind="product.Name" />
+                    <select class="form-select w-auto" aria-label="Danh mục món" @bind="product.CategoryId"><option value="0">Chọn danh mục</option>@foreach (var c in groups) { <option value="@c.Id">@c.Name</option> }</select>
+                    <input class="form-control w-auto" aria-label="Ảnh món" placeholder="URL ảnh" @bind="product.ImageUrl" />
+                    <label><input type="checkbox" @bind="product.IsActive" /> Hoạt động</label>
+                </div>
+                @foreach (var price in product.Prices)
+                {
+                    <div class="d-flex flex-wrap gap-2 mb-2" @key="price">
+                        <select class="form-select w-auto" aria-label="Size" @bind="price.SizeId" disabled="@(price.Id > 0)"><option value="0">Chọn size</option>@foreach (var size in sizes) { <option value="@size.Id">@size.Name</option> }</select>
+                        <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá size" @bind="price.Price" />
+                        <label><input type="checkbox" @bind="price.IsActive" /> Đang dùng</label>
+                        @if (price.Id == 0) { <button class="btn btn-outline-secondary" @onclick="() => product.Prices.Remove(price)">Bỏ dòng</button> }
+                    </div>
+                }
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-outline-secondary" @onclick="() => product.Prices.Add(new())">Thêm size</button>
+                    <button class="btn btn-brand" @onclick="() => SaveAsync(product.Id, product)">Lưu món</button>
+                    <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                </div>
+            }
+            <label class="form-label">Tìm món <input class="form-control" type="search" @bind="keyword" @bind:event="oninput" /></label>
+            <div class="table-responsive"><table class="table"><thead><tr><th>Món</th><th>Danh mục</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var p in products.Where(x => x.Name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                <tr><td>@p.Name</td><td>@p.CategoryName</td><td>@string.Join(" · ", p.Prices.Where(x => x.IsActive).Select(x => $"{x.SizeName} {x.Price:N0}đ"))</td>
+                    <td>@State(p.IsActive, p.IsAvailable)</td>
+                    <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => product = Copy(p)">Sửa</button> }
+                    else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(p.Id, !p.IsAvailable)">@(p.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
+            }
+            </tbody></table></div>
+        }
+        else if (mode == "toppings")
+        {
+            @if (SystemMenu)
+            {
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input class="form-control w-auto" aria-label="Tên topping" placeholder="Tên topping" @bind="topping.Name" />
+                    <select class="form-select w-auto" aria-label="Nhóm topping" @bind="topping.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select>
+                    <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá topping" @bind="topping.Price" />
+                    <label><input type="checkbox" @bind="topping.IsActive" /> Hoạt động</label>
+                    <button class="btn btn-brand" @onclick="() => SaveAsync(topping.Id, topping)">Lưu topping</button>
+                    <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                </div>
+            }
+            <div class="table-responsive"><table class="table"><thead><tr><th>Topping</th><th>Nhóm</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+            @foreach (var t in toppings)
+            {
+                <tr><td>@t.Name</td><td>@t.GroupName</td><td>@t.Price.ToString("N0")đ</td><td>@State(t.IsActive, t.IsAvailable)</td>
+                    <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => topping = Copy(t)">Sửa</button> }
+                    else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(t.Id, !t.IsAvailable)">@(t.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
+            }
+            </tbody></table></div>
+        }
+        else if (mode == "notes")
+        {
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <input class="form-control w-auto" aria-label="Tên ghi chú" placeholder="Tên ghi chú" @bind="note.Name" />
+                <select class="form-select w-auto" aria-label="Nhóm ghi chú" @bind="note.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select>
+                <label><input type="checkbox" @bind="note.IsActive" /> Hoạt động</label>
+                <button class="btn btn-brand" @onclick="() => SaveAsync(note.Id, note)">Lưu ghi chú</button>
+                <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+            </div>
+            <ul class="list-group">
+                @foreach (var n in notes)
+                { <li class="list-group-item d-flex justify-content-between align-items-center">@n.GroupName · @n.Name · @State(n.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => note = Copy(n)">Sửa</button></li> }
+            </ul>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <input class="form-control w-auto" aria-label="Tên" placeholder="Tên" @bind="option.Name" />
+                <label><input type="checkbox" @bind="option.IsActive" /> Hoạt động</label>
+                <button class="btn btn-brand" @onclick="() => SaveAsync(option.Id, option)">Lưu</button>
+                <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+            </div>
+            <ul class="list-group">
+                @foreach (var o in options)
+                { <li class="list-group-item d-flex justify-content-between align-items-center">@o.Name · @State(o.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => option = Copy(o)">Sửa</button></li> }
+            </ul>
+        }
+    </fieldset>
+    @if (busy) { <p role="status">Đang xử lý…</p> }
+}
+@code {
+    [Parameter] public bool SystemMenu { get; set; }
+    [Parameter] public int BranchId { get; set; }
+    private string mode = "products";
+    private string keyword = "";
+    private bool busy;
+    private bool needsLogin;
+    private string? error;
+    private string? notice;
+    private List<NamedOption> groups = [], sizes = [], options = [];
+    private List<ProductView> products = [];
+    private List<ToppingView> toppings = [];
+    private List<NoteView> notes = [];
+    private ProductView product = new();
+    private ToppingView topping = new();
+    private NoteView note = new();
+    private NamedOption option = new();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && (SystemMenu || BranchId > 0)) { await RunAsync(LoadAsync); StateHasChanged(); }
+    }
+    private string State(bool active, bool available) => !active ? "Tắt toàn hệ thống" : available ? "Đang bán" : "Ngừng bán tại đây";
+    private void Reset() { product = new(); topping = new(); note = new(); option = new(); }
+    private async Task LoadAsync()
+    {
+        var branch = SystemMenu ? "" : $"?branchId={BranchId}";
+        switch (mode)
+        {
+            case "products":
+                products = await Api.ListAsync<ProductView>("products" + branch);
+                if (SystemMenu) { groups = await Api.ListAsync<NamedOption>("options/categories"); sizes = await Api.ListAsync<NamedOption>("options/sizes"); }
+                break;
+            case "toppings":
+                toppings = await Api.ListAsync<ToppingView>("toppings" + branch);
+                if (SystemMenu) groups = await Api.ListAsync<NamedOption>("options/topping-groups");
+                break;
+            case "notes":
+                notes = await Api.ListAsync<NoteView>("notes");
+                groups = await Api.ListAsync<NamedOption>("options/note-groups");
+                break;
+            default: options = await Api.ListAsync<NamedOption>("options/" + mode); break;
+        }
+    }
+    private Task ChangeModeAsync(ChangeEventArgs args)
+    {
+        mode = args.Value?.ToString() ?? "products";
+        Reset(); groups = []; sizes = []; options = []; notes = []; products = []; toppings = [];
+        return RunAsync(LoadAsync);
+    }
+    private Task SaveAsync(int id, object input) => RunAsync(async () =>
+    {
+        var path = mode is "products" or "toppings" or "notes" ? mode : "options/" + mode;
+        await Api.SaveAsync(path, id, input);
+        Reset();
+        notice = "Đã lưu danh mục.";
+        await LoadAsync();
+    });
+    private Task ToggleAsync(int id, bool available) => RunAsync(async () =>
+    {
+        await Api.PutAsync($"branches/{BranchId}/availability/{mode}/{id}", new AvailabilityRequest { IsAvailable = available });
+        notice = available ? "Đã mở bán tại chi nhánh." : "Đã ngừng bán tại chi nhánh.";
+        await LoadAsync();
+    });
+    private async Task RunAsync(Func<Task> action)
+    {
+        if (busy) return;
+        busy = true; error = null; notice = null; needsLogin = false;
+        await InvokeAsync(StateHasChanged);
+        try { await action(); }
+        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Tải lại trước khi thao tác tiếp."; }
+        finally { busy = false; }
+    }
+    private static T Copy<T>(T value) => System.Text.Json.JsonSerializer.Deserialize<T>(System.Text.Json.JsonSerializer.Serialize(value))!;
+}

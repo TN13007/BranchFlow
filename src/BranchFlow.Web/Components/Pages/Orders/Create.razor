@@ -3,6 +3,7 @@
 @layout EmployeeLayout
 @inject OrderApiClient Api
 @inject CartState Cart
+@inject CartDraftStore Drafts
 @inject NavigationManager Navigation
 
 <PageTitle>Gọi món | BranchFlow</PageTitle>
@@ -96,7 +97,11 @@ else
             if (me.Role != "EMPLOYEE") { Navigation.NavigateTo("/account", true); return; }
             branches = await Api.BranchesAsync();
             branchId = Cart.BranchId.HasValue && branches.Any(b => b.Id == Cart.BranchId) ? Cart.BranchId.Value : branches.Count == 1 ? branches[0].Id : 0;
-            if (branchId > 0) await LoadMenuAsync();
+            if (branchId > 0)
+            {
+                await LoadMenuAsync();
+                await Drafts.RestoreAsync(me.UserId, Cart, menu!);
+            }
         }
         catch (Exception ex) when (ex is ApiException or HttpRequestException or OperationCanceledException or InvalidOperationException) { SetError(ex); }
         finally { loading = false; }
@@ -137,16 +142,26 @@ else
             await LoadMenuAsync();
             var request = Cart.ToRequest(menu);
             if (Cart.PreviewTotal != oldTotal) { error = "Giá menu vừa thay đổi. Vui lòng kiểm tra tổng tạm tính mới rồi xác nhận lại."; return; }
+            // Lưu cảnh báo trước khi gửi: mất phiên/đóng tab sau commit không cho gửi lại mù.
+            Cart.MarkUnknown();
+            if (!await Drafts.SaveAsync(Cart))
+            {
+                Cart.AcknowledgeCheckedHistory();
+                throw new InvalidOperationException("Không lưu được giỏ trong tab này. Chưa gửi đơn; kiểm tra quyền lưu trữ trình duyệt.");
+            }
             sent = true;
             var result = await Api.CreateAsync(request);
             if (result.Id <= 0 || string.IsNullOrWhiteSpace(result.Code) || result.BranchId != branchId)
                 throw new ApiException(System.Net.HttpStatusCode.BadGateway, "Phản hồi tạo đơn không hợp lệ. Hãy kiểm tra danh sách đơn.");
             Cart.Complete(result);
+            await Drafts.SaveAsync(Cart);
             Navigation.NavigateTo($"/orders/{result.Id}");
         }
         catch (ApiException ex)
         {
-            if (sent && (int)ex.StatusCode >= 500) Cart.MarkUnknown();
+            if (sent && (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized || (int)ex.StatusCode >= 500)) Cart.MarkUnknown();
+            else Cart.AcknowledgeCheckedHistory();
+            await Drafts.SaveAsync(Cart);
             SetError(ex);
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
