@@ -1,12 +1,43 @@
-# Run 2026-11-05-I: bản demo tích hợp PR 26/27
-
-Kết quả và phạm vi từng nhóm ca: [FinalDemoAssessment-2026-11-05.md](FinalDemoAssessment-2026-11-05.md). Order 101 API/SQL checks, auth 13 ca, menu 34 checks; UI tạo đơn BF-DEMO-01-20261105-0002, 98.000đ và SQL cùng mã. 39 Pass / 5 Not Run. Các lần H và trước đó dưới đây được giữ để truy vết lịch sử.
-
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 05/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). This file records only observed executions and readiness gates. Source inspection or mock tests do not establish runtime API/SQL/browser acceptance; unit-only results are explicitly labeled.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current integrated candidate: `Thuanaj` at `a04630b` plus this QA record. Latest catalog result: **43 Pass / 1 Fail**, with no Blocked, Not Run or Skipped.
 
-Current execution is run H below: merged base `2128070` plus review fixes. Older runs A–G are historical, not the present candidate. QA-S4-023 is explicitly a cart-unit result; browser-dependent cases remain Not Run.
+## Run 2026-11-06-L: independent browser and SQL closeout
+
+Windows Application Control was disabled by the machine owner. A fresh Release solution unit run passed **65/65**. The demo seeder populated the local `BranchFlow_Test` database. The API and Web were run on HTTPS localhost with the test database; Edge and Chrome were separate browser contexts. The local fault proxy [qa-fault-proxy.ps1](qa-fault-proxy.ps1) forwarded requests to the real API and altered only a successful create-order response. This run supersedes the environment block described in run K below.
+
+| Case | Actual observed | Result |
+|---|---|---|
+| QA-S4-017 | Edge employee A saw BF-DEMO-01; Chrome employee B saw BF-DEMO-02. A survived refresh and a new Edge tab. Logging out A sent both Edge tabs to login while Chrome B remained logged in and scoped to BF-DEMO-02. Cookie security flags are also checked by Web configuration. | Pass |
+| QA-S4-026 | Cart initially showed size M at 29,000đ. Changing the test DB price to 31,000đ and reloading the menu updated the preview. Disabling the product caused submit to show “Món hoặc size không còn được bán”, retained the cart and left BF-DEMO-01 order count at zero. Price and product state were restored to 29,000đ/active. | Pass |
+| QA-S4-044 | Double-click sent one create POST. The timeout proxy withheld the response after upstream 201; SQL held one 29,000đ order (`BF-DEMO-01-20261106-0001`), while Web kept the cart, showed an uncertain-outcome warning, disabled resend and linked “Đơn của tôi”; that list showed the same order. With a 401 substituted after a second upstream 201, SQL held one more order (`...-0002`) and Web kept the cart in the current view but only showed a login-expired error. It did not show the uncertain-outcome warning; relogin loses the scoped cart. | **Fail** — BF-LOCAL-003 |
+
+The two created orders remain in the local test database as evidence. The demo menu was restored. No production database was used. Case 044 needs a product fix and a complete rerun before Sprint 4 catalog acceptance.
+
+## Run 2026-11-05-K: natural TTL and Vietnam date boundary
+
+The API now accepts a short token TTL or fixed UTC clock only when the environment is `Testing` and the connection targets `localhost/BranchFlow_Test`. Normal lifetimes remain 15 minutes and 7 days. The two smoke runners launched the actual API over HTTP, asserted persisted SQL rows, and cleaned their own fixtures.
+
+| Case | Actual observed | Result | Evidence |
+|---|---|---|---|
+| QA-S4-013 | Access token naturally expired and `/me` returned 401; refresh before absolute session expiry rotated to a working access token without extending session expiry; separate fixture's `/me` and refresh returned 401 after absolute expiry | Pass | [Auth TTL run](AuthSmokeResult-2026-11-05-Ttl.txt): 14/14 catalog cases, 0 failed, fixture cleanup |
+| QA-S4-041 | Real POSTs at controlled 16:59:59Z and 17:00:00Z both returned 201; HTTP and SQL BusinessDate changed to the next Vietnam date at the second instant; SQL CreatedAt equaled the two UTC instants | Pass | [Order boundary run](OrderSmokeResult-2026-11-05-Boundary.txt): 106/106 checks, fixture cleanup |
+
+QA-S4-017, 026 and 044 still need browser execution with two isolated contexts, live menu changes, and a fault proxy after a possible POST commit. Code inspection alone is not counted as a catalog Pass.
+
+Release solution build succeeded with 0 warnings and 0 errors. A fresh 65-test unit run reported 36 Pass and 29 Fail because Windows Application Control blocked loading `BranchFlow.Web.dll` in the test process; a single failing test confirmed `FileLoadException` 0x800711C7 at assembly load. The same policy blocked launching the demo seeder, leaving `BranchFlow_Test` without browser demo accounts/menu. These are environment execution limits, not observed product assertion failures. The earlier 65/65 run on `Thuanaj` is retained as historical evidence; the latest full unit run is not marked green.
+
+## Run 2026-11-05-J: independent automated rerun on Thuanaj
+
+After fast-forwarding `origin/main` into `Thuanaj`, [the rerun record](ThuanajRerun-2026-11-05.txt) confirms Release build 0 warnings/errors, 65/65 unit tests, auth 13/13 catalog cases, menu 34/34 checks and order 101/101 checks on local `BranchFlow_Test`; each smoke runner cleaned its fixture. This independently verifies the automated parts of run I on the branch now pushed for Thuận. The browser/SQL demo evidence below was produced by Khang's agent and was not rerun here. QA-S4-013, 017, 026, 041 and 044 remain Not Run.
+
+## Run 2026-11-05-I: integrated PR 26/27 demo
+
+Case scope and outcomes: [FinalDemoAssessment-2026-11-05.md](FinalDemoAssessment-2026-11-05.md). Order 101 API/SQL checks, auth 13 catalog cases, menu 34 checks; the browser created order BF-DEMO-01-20261105-0002 for 98,000đ and SQL held the same code. 39 Pass / 5 Not Run. Run H and earlier remain below for history.
+
+## Historical integrated review at run H
+
+Run H's source was merged base `2128070` plus review fixes. Its 18 Pass / 26 Not Run count was superseded by runs I–J above. QA-S4-023 was explicitly a cart-unit result at that point.
 
 ## Run 2026-11-05-H: integrated review and menu regression retest
 

@@ -49,7 +49,7 @@ async Task StopHostAsync()
     host = null;
 }
 
-async Task StartHostAsync()
+async Task StartHostAsync(bool shortTtl = false)
 {
     await StopHostAsync();
     var start = new ProcessStartInfo("dotnet")
@@ -62,7 +62,12 @@ async Task StartHostAsync()
     };
     foreach (var arg in new[] { apiDll, "--urls", "http://localhost:19119", "--contentRoot",
         Path.Combine(apiRoot, "src/BranchFlow.Api") }) start.ArgumentList.Add(arg);
-    start.Environment["ASPNETCORE_ENVIRONMENT"] = "Production";
+    start.Environment["ASPNETCORE_ENVIRONMENT"] = shortTtl ? "Testing" : "Production";
+    if (shortTtl)
+    {
+        start.Environment["Qa__AccessTokenLifetimeSeconds"] = "5";
+        start.Environment["Qa__SessionLifetimeSeconds"] = "25";
+    }
     start.Environment["ConnectionStrings__BranchFlowDb"] = connection;
     start.Environment["Jwt__Key"] = key;
     start.Environment["Jwt__Issuer"] = "AuthSmoke";
@@ -348,6 +353,33 @@ try
                 new { refreshToken = pair.Refresh }), 401);
         }
         finally { employeeA.IsActive = true; await db.SaveChangesAsync(); }
+    });
+
+    await RunAsync("QA-S4-013", async () =>
+    {
+        await StartHostAsync(shortTtl: true);
+        var first = await LoginAsync(employeeA);
+        Require(first.AccessExpiry <= DateTimeOffset.UtcNow.AddSeconds(6) &&
+            first.RefreshExpiry <= DateTimeOffset.UtcNow.AddSeconds(26), "Short test TTL not applied.");
+        await Task.Delay(first.AccessExpiry - DateTimeOffset.UtcNow + TimeSpan.FromSeconds(1));
+        ExpectProblem(await SendAsync(HttpMethod.Get, "/api/auth/me", access: first.Access), 401);
+        Require(DateTimeOffset.UtcNow < first.RefreshExpiry - TimeSpan.FromSeconds(2),
+            "First fixture crossed absolute session expiry before refresh.");
+        var rotated = await SendAsync(HttpMethod.Post, "/api/auth/refresh",
+            new { refreshToken = first.Refresh });
+        Require(rotated.Status == 200, "Refresh before absolute session expiry failed.");
+        Require(rotated.Json!.Value.GetProperty("refreshTokenExpiresAt").GetDateTimeOffset() ==
+            first.RefreshExpiry, "Rotation extended absolute session expiry.");
+        var nextAccess = rotated.Json.Value.GetProperty("accessToken").GetString()!;
+        Require((await SendAsync(HttpMethod.Get, "/api/auth/me", access: nextAccess)).Status == 200,
+            "Rotated access token rejected before session expiry.");
+
+        var second = await LoginAsync(employeeA);
+        await Task.Delay(second.RefreshExpiry - DateTimeOffset.UtcNow + TimeSpan.FromSeconds(1));
+        ExpectProblem(await SendAsync(HttpMethod.Get, "/api/auth/me", access: second.Access), 401);
+        ExpectProblem(await SendAsync(HttpMethod.Post, "/api/auth/refresh",
+            new { refreshToken = second.Refresh }), 401);
+        Console.WriteLine("PASS natural access expiry, pre-expiry rotation, absolute session expiry");
     });
 
     await RunAsync("QA-S4-014", async () =>

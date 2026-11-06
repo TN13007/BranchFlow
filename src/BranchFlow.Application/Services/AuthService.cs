@@ -12,7 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BranchFlow.Application.Services;
 
-public sealed record AuthTokenSettings(string Key, string Issuer, string Audience);
+public sealed record AuthTokenSettings(string Key, string Issuer, string Audience,
+    TimeSpan? AccessTokenLifetime = null, TimeSpan? SessionLifetime = null);
 
 public sealed class AuthService : IAuthService
 {
@@ -27,6 +28,8 @@ public sealed class AuthService : IAuthService
     private readonly string _issuer;
     private readonly string _audience;
     private readonly byte[] _signingKey;
+    private readonly TimeSpan _accessTokenLifetime;
+    private readonly TimeSpan _sessionLifetime;
 
     public AuthService(
         IAuthRepository repository,
@@ -39,6 +42,10 @@ public sealed class AuthService : IAuthService
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _clock = clock;
+        _accessTokenLifetime = tokenSettings.AccessTokenLifetime ?? TimeSpan.FromMinutes(AccessTokenLifetimeMinutes);
+        _sessionLifetime = tokenSettings.SessionLifetime ?? TimeSpan.FromDays(SessionLifetimeDays);
+        if (_accessTokenLifetime <= TimeSpan.Zero || _sessionLifetime <= _accessTokenLifetime)
+            throw new InvalidOperationException("Token lifetimes are invalid.");
         _issuer = tokenSettings.Issuer;
         _audience = tokenSettings.Audience;
 
@@ -151,7 +158,7 @@ public sealed class AuthService : IAuthService
         DateTimeOffset now = _clock.GetUtcNow();
         DateTime nowUtc = now.UtcDateTime;
         Guid sessionId = Guid.NewGuid();
-        DateTimeOffset sessionExpiresAt = now.AddDays(SessionLifetimeDays);
+        DateTimeOffset sessionExpiresAt = now.Add(_sessionLifetime);
         string rawRefreshToken = GenerateRefreshToken();
 
         AuthSession session = new()
@@ -395,11 +402,11 @@ public sealed class AuthService : IAuthService
         return roleCode is "OWNER" or "SYSTEM_ADMIN" or "BRANCH_ADMIN" or "EMPLOYEE";
     }
 
-    private static DateTimeOffset GetAccessTokenExpiry(
+    private DateTimeOffset GetAccessTokenExpiry(
         DateTimeOffset now,
         DateTimeOffset sessionExpiresAt)
     {
-        DateTimeOffset normalExpiry = now.AddMinutes(AccessTokenLifetimeMinutes);
+        DateTimeOffset normalExpiry = now.Add(_accessTokenLifetime);
         return normalExpiry < sessionExpiresAt ? normalExpiry : sessionExpiresAt;
     }
 

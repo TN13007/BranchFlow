@@ -1,0 +1,16 @@
+BranchFlow Sprint 4 QA rerun after main sync
+Date: 2026-11-05 Asia/Ho_Chi_Minh
+Branch: Thuanaj
+Integrated source: b24905af4cef5280c13e121baa18980b285cc1a2 (origin/main at fetch)
+Runner: Codex assisting Thuan
+Database for HTTP/SQL smoke: local .\SQLEXPRESS / BranchFlow_Test
+
+Sync: git merge --ff-only origin/main advanced Thuanaj from d1d5abd to b24905a; push to origin/Thuanaj succeeded on retry after a transient remote commit_refs_rules error.
+dotnet build BranchFlow.slnx -c Release: 0 warnings, 0 errors.
+dotnet test tests/BranchFlow.Tests/BranchFlow.Tests.csproj -c Release --no-build --no-restore: 65 Passed, 0 Failed, 0 Skipped.
+AuthSmoke on this checkout: 13 catalog cases passed, 0 failed; three concurrent refresh attempts gave 200/401 with one descendant and reuse revocation; fixtures cleaned.
+MenuSmoke on this checkout: 34 HTTP/SQL checks passed, including QA-S4-019 through QA-S4-022; fixtures cleaned.
+OrderSmoke on this checkout: 101 HTTP/SQL checks passed for authorization, validation, DB prices, snapshots, rollback, concurrency and code sequence; fixtures cleaned.
+OrderSmoke first build with --no-restore stopped at NETSDK1004 because this worktree had no project.assets.json for the new project. Building with restore succeeded; the runner then passed. This was local build setup, not a product failure.
+
+The existing FinalDemoAssessment-2026-11-05.md records 39/44 catalog cases Pass and five Not Run: QA-S4-013, 017, 026, 041, 044. This rerun confirms the automated build/unit/auth/menu/order checks on Thuanaj; it does not independently rerun the browser/SQL demo from Khang's evidence.

@@ -1,10 +1,20 @@
-## Cập nhật bản demo sau PR #26/#27
-
-Kết quả hiện hành: **39/44 ca Pass; 5 Not Run**, build đạt, **65/65 unit**, auth **13/13**, menu **34/34**, order **101 checks**, seeder 9 user/menu và browser tạo đơn thật. Xem [đánh giá hiện hành](FinalDemoAssessment-2026-11-05.md) và [browser/SQL](BrowserDemoResult-2026-11-05.md). Có thể demo luồng chính; chưa hoàn thành toàn bộ catalog. Các mục dưới là lịch sử các lần review trước, không dùng số 18/26 hay nhận xét API đơn chưa có để mô tả bản hiện hành.
-
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated by Codex under Khang's authorized review/fix on 05/11/2026 (Asia/Ho_Chi_Minh). Current candidate: merged base `2128070` plus the branch-scope correction committed with this record. Historical SHAs and executions remain below; they do not describe the latest candidate. Sprint acceptance remains pending.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `Thuanaj` at `a04630b` plus this QA record. The [latest test record](TestResults.md#run-2026-11-06-l-independent-browser-and-sql-closeout) records **43/44 catalog cases Pass and 1 Fail**. Full catalog acceptance remains pending on QA-S4-044.
+
+| Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
+|---:|---:|---:|---:|---:|---:|
+| 44 | 43 | 1 | 0 | 0 | 0 |
+
+The fresh Release unit run passed **65/65** after the machine owner disabled Windows Application Control. The [Auth TTL run](AuthSmokeResult-2026-11-05-Ttl.txt) passed **14/14 catalog cases**, and the [Order boundary run](OrderSmokeResult-2026-11-05-Boundary.txt) passed **106/106 checks**. Browser/SQL execution on 06/11 passed QA-S4-017 and 026. QA-S4-044 failed its 401-after-commit branch: the Web does not warn that the create result is uncertain, and the cart is lost on relogin. See [BF-LOCAL-003](BugLog.md).
+
+The earlier Windows Application Control interruption is historical; the machine owner changed that setting and the 06/11 unit run and demo seed completed. The two fault-injection orders remain only in `BranchFlow_Test` as local evidence.
+
+## Historical review snapshot before order and browser integration
+
+The section below describes the earlier `2128070` review, when 18 cases passed. Its count and API-readiness statements are retained only as history.
+
+Owner: Nguyễn Đặng Hòa Thuận. Updated by Codex under Khang's authorized review/fix on 05/11/2026 (Asia/Ho_Chi_Minh). Candidate at this snapshot: merged base `2128070` plus the branch-scope correction. Sprint acceptance was pending.
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
@@ -12,7 +22,7 @@ Owner: Nguyễn Đặng Hòa Thuận. Updated by Codex under Khang's authorized 
 
 Counts use the 44-row catalog and run H in [TestResults.md](TestResults.md): QA-S4-001–012 and 014 passed integrated auth SQL/HTTP execution; QA-S4-019–022 passed menu SQL/HTTP retest; QA-S4-023 passed the cart unit fixture. The menu runner's 34 HTTP checks map to four catalog cases, not 34 catalog passes. The full xUnit suite passed **59/59**. QA-S4-024's unit portion passed but its UI step has not run, so it remains Not Run. These 18 passes do not establish full Sprint acceptance.
 
-## Current assessment
+## Assessment at historical snapshot
 
 **Not ready for full Sprint 4 acceptance.** Auth endpoints, shared branch scope and the account demo seeder are now merged. Menu status regression and intermittent simultaneous-refresh 500 were reproduced, corrected and successfully retested. Integrated auth SQL/HTTP passed 13 catalog cases and menu passed 34 checks. The seeder has unit coverage but was not executed as part of this review; auth/menu smoke uses isolated fixtures instead. Create-order API, priced demo-menu readiness, browser E2E and order transaction proof remain unverified or unavailable. See [BugLog.md](BugLog.md) for both defects and retests.
 
