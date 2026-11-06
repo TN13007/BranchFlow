@@ -1,0 +1,89 @@
+/* Thanh điều hướng theo style dự án cá nhân, dùng chung cho bốn vai trò. */
+.workspace-shell .employee-sidebar {
+    width: 270px;
+    padding: 0 12px 16px;
+    background: #103f3a;
+    color: #ffffffc2;
+    border: 0;
+    box-shadow: none;
+    scrollbar-width: thin;
+    scrollbar-color: #ffffff40 transparent;
+}
+.workspace-shell .employee-brand {
+    min-height: 84px;
+    padding: 16px 4px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.workspace-shell .employee-brand strong { font-size: 16px; font-weight: 700; }
+.workspace-shell .employee-brand small { margin-top: 3px; color: #ffffff9e; font-size: 11px; }
+.workspace-shell .employee-mark {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: 12px;
+    color: #103f3a;
+    background: #efb76e;
+    font-size: 12px;
+    font-weight: 800;
+    box-shadow: none;
+}
+.workspace-navigation-label {
+    margin: 16px 12px 8px;
+    color: #ffffff7a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+.workspace-shell .employee-sidebar > nav { gap: 4px; }
+.workspace-shell .employee-sidebar nav a {
+    min-height: 48px;
+    padding: 10px 12px;
+    gap: 12px;
+    color: #ffffffc2;
+    font-size: 14px;
+    font-weight: 600;
+    border: 0;
+    border-radius: 10px;
+    box-shadow: none;
+    transition: background-color .12s, color .12s;
+}
+.workspace-shell .employee-sidebar nav a:hover { color: white; background: #ffffff17; }
+.workspace-shell .employee-sidebar nav a.active { color: #103f3a; background: #e4f1ee; }
+.workspace-shell .employee-sidebar nav a:not(.active) img { filter: brightness(0) invert(1); opacity: .76; }
+.workspace-shell .employee-sidebar nav a.active img { filter: brightness(0) saturate(100%) invert(20%) sepia(23%) saturate(1121%) hue-rotate(122deg); }
+.workspace-shell .employee-user {
+    margin-top: auto;
+    padding: 18px 4px 0;
+    border-top: 1px solid #ffffff24;
+    color: #ffffffc2;
+    flex-shrink: 0;
+}
+.workspace-shell .user-badge { padding: 0 8px 14px; font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+.workspace-shell .logout-button, .workspace-shell .login-sidebar-link {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    color: #ffffffc2;
+    background: transparent;
+    border: 1px solid #ffffff40;
+    border-radius: 8px;
+    box-shadow: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+.workspace-shell .logout-button:hover, .workspace-shell .login-sidebar-link:hover { color: white; background: #ffffff17; border-color: #ffffff80; }
+.workspace-shell .employee-sidebar :is(a, button):focus-visible { outline: 3px solid #8fd4c7; outline-offset: 2px; }
+.workspace-mobile-logout { border-top: 1px solid #dfe5e2; margin: 6px 0 0; padding-top: 6px; }
+.workspace-mobile-logout > button { width: 100%; min-height: 46px; padding: 12px 14px; text-align: left; font-size: 13px; color: #a32d2d; border: 0; background: transparent; border-radius: 5px; }
+.workspace-mobile-logout > button:hover { background: #fdf0ee; }
+@media (max-width: 767.98px) {
+    .workspace-shell .mobile-workspace-header { border-color: #dfe5e2; }
+    .workspace-shell .mobile-brand > span { background: #103f3a; border-radius: 10px; }
+    .workspace-shell .mobile-bottom-nav > a.active { color: #0f766e; background: #e4f1ee; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .workspace-shell .employee-sidebar nav a { transition: none; }
+}

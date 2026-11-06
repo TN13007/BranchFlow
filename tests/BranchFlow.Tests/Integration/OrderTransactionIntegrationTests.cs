@@ -37,8 +37,6 @@ public sealed class SqlServerFactAttribute : FactAttribute
 [Collection("Order SQL integration")]
 public sealed class OrderTransactionIntegrationTests
 {
-    private const int UserId = 5;
-    private const int BranchId = 4;
     private const int InvalidProductSizeId = int.MaxValue;
     private const string ExpectedDatabase = "BranchFlow_Test";
 
@@ -88,6 +86,8 @@ public sealed class OrderTransactionIntegrationTests
             now.ToOffset(TimeSpan.FromHours(7)).DateTime);
 
         int productSizeId;
+        int userId;
+        int branchId;
 
         await using (var scope = provider.CreateAsyncScope())
         {
@@ -102,9 +102,11 @@ public sealed class OrderTransactionIntegrationTests
             var menuService = scope.ServiceProvider
                 .GetRequiredService<IOrderMenuService>();
 
+            userId = await db.AppUsers.Where(x => x.Username == "demo.employee.a" && !x.Deleted).Select(x => x.Id).SingleAsync();
+            branchId = await db.Branches.Where(x => x.Code == "BF-DEMO-01" && !x.Deleted).Select(x => x.Id).SingleAsync();
             var menu = await menuService.GetMenuByBranchAsync(
-                UserId,
-                BranchId);
+                userId,
+                branchId);
 
             Assert.NotNull(menu);
 
@@ -118,7 +120,7 @@ public sealed class OrderTransactionIntegrationTests
         }
 
         var before = await ReadSnapshotAsync(
-            provider,
+            provider, branchId,
             businessDate);
 
         await using (var scope = provider.CreateAsyncScope())
@@ -127,7 +129,7 @@ public sealed class OrderTransactionIntegrationTests
                 .GetRequiredService<IOrderService>();
 
             var request = new CreateOrderRequest(
-                BranchId,
+                branchId,
                 [
                     new CreateOrderItem(
                         productSizeId,
@@ -137,7 +139,7 @@ public sealed class OrderTransactionIntegrationTests
                 ]);
 
             var exception = await Assert.ThrowsAsync<DbUpdateException>(
-                () => service.CreateAsync(UserId, request));
+                () => service.CreateAsync(userId, request));
 
             var sqlException = exception.GetBaseException() as SqlException;
 
@@ -146,7 +148,7 @@ public sealed class OrderTransactionIntegrationTests
         }
 
         var after = await ReadSnapshotAsync(
-            provider,
+            provider, branchId,
             businessDate);
 
         Assert.Equal(before.SalesOrderCount, after.SalesOrderCount);
@@ -155,7 +157,7 @@ public sealed class OrderTransactionIntegrationTests
     }
 
     private static async Task<DatabaseSnapshot> ReadSnapshotAsync(
-        ServiceProvider provider,
+        ServiceProvider provider, int branchId,
         DateOnly businessDate)
     {
         await using var scope = provider.CreateAsyncScope();
@@ -165,17 +167,17 @@ public sealed class OrderTransactionIntegrationTests
 
         int salesOrderCount = await db.SalesOrders
             .CountAsync(order =>
-                order.BranchId == BranchId &&
+                order.BranchId == branchId &&
                 order.BusinessDate == businessDate);
 
         int orderItemCount = await db.OrderItems
             .CountAsync(item =>
-                item.SalesOrder.BranchId == BranchId &&
+                item.SalesOrder.BranchId == branchId &&
                 item.SalesOrder.BusinessDate == businessDate);
 
         int? counterLastNumber = await db.OrderDailyCounters
             .Where(counter =>
-                counter.BranchId == BranchId &&
+                counter.BranchId == branchId &&
                 counter.BusinessDate == businessDate)
             .Select(counter => (int?)counter.LastNumber)
             .SingleOrDefaultAsync();
