@@ -101,7 +101,24 @@ public sealed class RevenueServiceIntegrationTests
                 x => x.BranchId == BranchId && x.Date == OrderDate);
 
             Assert.Equal(baselineOrders + 1, ownerBranch.Orders);
-            Assert.Equal(baselineAmount + 123m, ownerBranch.Amount);
+            // Tổng doanh thu toàn hệ thống phải bằng tổng doanh thu từng chi nhánh.
+            int systemOrders = ownerResult.Sum(x => x.Orders);
+            decimal systemAmount = ownerResult.Sum(x => x.Amount);
+
+            int branchOrders = 0;
+            decimal branchAmount = 0m;
+
+            foreach (int branchId in ownerResult.Select(x => x.BranchId).Distinct())
+            {
+                var branchResult = await service.RevenueAsync(
+                    3, branchId, From, To, CancellationToken.None);
+
+                branchOrders += branchResult.Sum(x => x.Orders);
+                branchAmount += branchResult.Sum(x => x.Amount);
+            }
+
+            Assert.Equal(systemOrders, branchOrders);
+            Assert.Equal(systemAmount, branchAmount);
 
             // System Admin: phạm vi kết quả phải giống Owner.
             var systemAdminResult = await service.RevenueAsync(
