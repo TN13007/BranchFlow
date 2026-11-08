@@ -1,6 +1,10 @@
 # Sprint 4 QA Test Summary — SCRUM-92
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Current integrated source: `Thuanaj` at `a04630b` plus this QA record. The [latest test record](TestResults.md#run-2026-11-06-l-independent-browser-and-sql-closeout) records **43/44 catalog cases Pass and 1 Fail**. Full catalog acceptance remains pending on QA-S4-044.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 09/11/2026 (Asia/Ho_Chi_Minh). Current tested core: `Thuanaj` at `e83ccb8` (merged `main`). [The 09/11 retest](TestResults.md#run-2026-11-09-m-merged-core-retest) independently passed former failing QA-S4-044, including 401 and timeout after the order commit. The last **complete catalog snapshot** remains the 06/11 run below (43 Pass / 1 Fail on an older core). The other 43 cases were not all rerun on the same new SHA, so one-build 44/44 acceptance remains pending. [WBS tracker](WBS-QA-2026-11-09.md) and [local UAT record](UAT-2026-11-09.md) separate verified work from remaining scenarios and public smoke.
+
+On the current core, Release build passed with 0 warnings/errors; SQL-enabled full suite **81/81 passed**, twice. AuthSmoke passed 14/14 catalog cases; MenuSmoke 34/34 HTTP checks; OrderSmoke 106/106 checks; RevenueSmoke 11/11 checks. These checks cannot be summed as catalog cases. Local four-role UI spot checks passed for inspected screens. Public smoke and stakeholder acceptance have not run.
+
+## Historical complete-catalog snapshot — 06/11/2026
 
 | Catalog cases | Pass | Fail | Blocked | Not Run | Skipped |
 |---:|---:|---:|---:|---:|---:|
