@@ -14,8 +14,8 @@ public sealed class RevenueSqlIntegrationCollection;
 public sealed class RevenueIntegrationTests
 {
     private const string ExpectedDatabase = "BranchFlow_Test";
-    private const int BranchId = 4;
-    private const int CreatedByUserId = 8;
+    private int BranchId;
+    private int CreatedByUserId;
 
     [SqlServerFact]
     public async Task RevenueAsync_UsesVietnamDateAndCurrentCompletedStatus()
@@ -38,6 +38,8 @@ public sealed class RevenueIntegrationTests
             .Options;
 
         await using var db = new BranchFlowDbContext(options);
+        BranchId = await db.Branches.Where(x => x.Code == "BF-DEMO-01").Select(x => x.Id).SingleAsync();
+        CreatedByUserId = await db.AppUsers.Where(x => x.Username == "demo.employee.a").Select(x => x.Id).SingleAsync();
 
         await using var transaction =
             await db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
@@ -49,6 +51,12 @@ public sealed class RevenueIntegrationTests
 
             var november6 = new DateOnly(2026, 11, 6);
             var november7 = new DateOnly(2026, 11, 7);
+            var repository = new MvpRepository(db);
+            var fromUtc = new DateTime(2026, 11, 5, 17, 0, 0);
+            var toUtc = new DateTime(2026, 11, 7, 17, 0, 0);
+            var baseline = await repository.RevenueAsync([BranchId], fromUtc, toUtc, CancellationToken.None);
+            var baseline6 = baseline.SingleOrDefault(x => x.VietnamDate.Date == november6.ToDateTime(TimeOnly.MinValue));
+            var baseline7 = baseline.SingleOrDefault(x => x.VietnamDate.Date == november7.ToDateTime(TimeOnly.MinValue));
 
             var sequence6 = await db.SalesOrders
                 .Where(x => x.BranchId == BranchId && x.BusinessDate == november6)
@@ -114,27 +122,23 @@ public sealed class RevenueIntegrationTests
 
             await db.SaveChangesAsync();
 
-            var repository = new MvpRepository(db);
-
             var initialResult = await repository.RevenueAsync(
                 [BranchId],
-                new DateTime(2026, 11, 5, 17, 0, 0),
-                new DateTime(2026, 11, 7, 17, 0, 0),
+                fromUtc,
+                toUtc,
                 CancellationToken.None);
-
-            Assert.Equal(2, initialResult.Count);
 
             var resultNovember6 = Assert.Single(initialResult,
     x => x.VietnamDate.Date == november6.ToDateTime(TimeOnly.MinValue));
 
-            Assert.Equal(1, resultNovember6.Orders);
-            Assert.Equal(100m, resultNovember6.Amount);
+            Assert.Equal((baseline6?.Orders ?? 0) + 1, resultNovember6.Orders);
+            Assert.Equal((baseline6?.Amount ?? 0m) + 100m, resultNovember6.Amount);
 
             var resultNovember7 = Assert.Single(initialResult,
     x => x.VietnamDate.Date == november7.ToDateTime(TimeOnly.MinValue));
 
-            Assert.Equal(2, resultNovember7.Orders);
-            Assert.Equal(600m, resultNovember7.Amount);
+            Assert.Equal((baseline7?.Orders ?? 0) + 2, resultNovember7.Orders);
+            Assert.Equal((baseline7?.Amount ?? 0m) + 600m, resultNovember7.Amount);
 
             completedLater.Status = "CANCELLED";
             completedLater.UpdatedAt = DateTime.UtcNow;
@@ -143,23 +147,21 @@ public sealed class RevenueIntegrationTests
 
             var updatedResult = await repository.RevenueAsync(
                 [BranchId],
-                new DateTime(2026, 11, 5, 17, 0, 0),
-                new DateTime(2026, 11, 7, 17, 0, 0),
+                fromUtc,
+                toUtc,
                 CancellationToken.None);
-
-            Assert.Equal(2, updatedResult.Count);
 
             resultNovember6 = Assert.Single(updatedResult,
     x => x.VietnamDate.Date == november6.ToDateTime(TimeOnly.MinValue));
 
-            Assert.Equal(1, resultNovember6.Orders);
-            Assert.Equal(100m, resultNovember6.Amount);
+            Assert.Equal((baseline6?.Orders ?? 0) + 1, resultNovember6.Orders);
+            Assert.Equal((baseline6?.Amount ?? 0m) + 100m, resultNovember6.Amount);
 
             resultNovember7 = Assert.Single(updatedResult,
     x => x.VietnamDate.Date == november7.ToDateTime(TimeOnly.MinValue));
 
-            Assert.Equal(1, resultNovember7.Orders);
-            Assert.Equal(200m, resultNovember7.Amount);
+            Assert.Equal((baseline7?.Orders ?? 0) + 1, resultNovember7.Orders);
+            Assert.Equal((baseline7?.Amount ?? 0m) + 200m, resultNovember7.Amount);
         }
         finally
         {

@@ -14,8 +14,8 @@ namespace BranchFlow.Tests.Integration;
 public sealed class RevenueServiceIntegrationTests
 {
     private const string ExpectedDatabase = "BranchFlow_Test";
-    private const int BranchId = 4;
-    private const int CreatedByUserId = 8;
+    private int BranchId;
+    private int CreatedByUserId;
 
     private static readonly DateOnly From = new(2026, 11, 6);
     private static readonly DateOnly To = new(2026, 11, 7);
@@ -37,6 +37,12 @@ public sealed class RevenueServiceIntegrationTests
                 .Options;
 
         await using BranchFlowDbContext db = new(options);
+        BranchId = await db.Branches.Where(x => x.Code == "BF-DEMO-01").Select(x => x.Id).SingleAsync();
+        CreatedByUserId = await db.AppUsers.Where(x => x.Username == "demo.employee.a").Select(x => x.Id).SingleAsync();
+        int ownerId = await db.AppUsers.Where(x => x.Username == "demo.owner").Select(x => x.Id).SingleAsync();
+        int systemAdminId = await db.AppUsers.Where(x => x.Username == "demo.systemadmin").Select(x => x.Id).SingleAsync();
+        int branchAdminId = await db.AppUsers.Where(x => x.Username == "demo.branchadmin.01").Select(x => x.Id).SingleAsync();
+        int otherBranchId = await db.Branches.Where(x => x.Code == "BF-DEMO-02").Select(x => x.Id).SingleAsync();
 
         TimeProvider clock = new FixedTimeProvider(
             new DateTimeOffset(2026, 11, 7, 10, 0, 0, TimeSpan.Zero));
@@ -64,7 +70,7 @@ public sealed class RevenueServiceIntegrationTests
 
             // Lưu kết quả ban đầu để kiểm tra phần chênh lệch sau khi thêm đơn hàng.
             var baseline = await service.RevenueAsync(
-                3, null, From, To, CancellationToken.None);
+                ownerId, null, From, To, CancellationToken.None);
 
             var baselineBranch = baseline.SingleOrDefault(
                 x => x.BranchId == BranchId && x.Date == OrderDate);
@@ -94,7 +100,7 @@ public sealed class RevenueServiceIntegrationTests
 
             // Owner: kết quả phải bao gồm đơn hàng vừa tạo.
             var ownerResult = await service.RevenueAsync(
-                3, null, From, To, CancellationToken.None);
+                ownerId, null, From, To, CancellationToken.None);
 
             var ownerBranch = Assert.Single(
                 ownerResult,
@@ -111,7 +117,7 @@ public sealed class RevenueServiceIntegrationTests
             foreach (int branchId in ownerResult.Select(x => x.BranchId).Distinct())
             {
                 var branchResult = await service.RevenueAsync(
-                    3, branchId, From, To, CancellationToken.None);
+                    ownerId, branchId, From, To, CancellationToken.None);
 
                 branchOrders += branchResult.Sum(x => x.Orders);
                 branchAmount += branchResult.Sum(x => x.Amount);
@@ -122,7 +128,7 @@ public sealed class RevenueServiceIntegrationTests
 
             // System Admin: phạm vi kết quả phải giống Owner.
             var systemAdminResult = await service.RevenueAsync(
-                4, null, From, To, CancellationToken.None);
+                systemAdminId, null, From, To, CancellationToken.None);
 
             Assert.Equal(
                 ownerResult
@@ -136,7 +142,7 @@ public sealed class RevenueServiceIntegrationTests
 
             // Branch Admin 01: chỉ được xem Branch 4.
             var branchAdminResult = await service.RevenueAsync(
-                5, null, From, To, CancellationToken.None);
+                branchAdminId, null, From, To, CancellationToken.None);
 
             Assert.NotEmpty(branchAdminResult);
             Assert.All(branchAdminResult, x => Assert.Equal(BranchId, x.BranchId));
@@ -153,11 +159,11 @@ public sealed class RevenueServiceIntegrationTests
 
             // Branch Admin 01 không được truy vấn Branch 5.
             await Assert.ThrowsAsync<UnauthorizedAccessException>(
-                () => service.RevenueAsync(5, 5, From, To, CancellationToken.None));
+                () => service.RevenueAsync(branchAdminId, otherBranchId, From, To, CancellationToken.None));
 
             // Branch Admin 01 được chỉ định rõ Branch 4.
             var selectedBranchResult = await service.RevenueAsync(
-                5, BranchId, From, To, CancellationToken.None);
+                branchAdminId, BranchId, From, To, CancellationToken.None);
 
             Assert.Equal(
                 branchAdminResult
