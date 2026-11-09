@@ -1,6 +1,23 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 06/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current integrated candidate: `Thuanaj` at `a04630b` plus this QA record. Latest catalog result: **43 Pass / 1 Fail**, with no Blocked, Not Run or Skipped.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 09/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current tested core: `Thuanaj` at `e83ccb8` (merged `main`); QA test-fixture repair is `a293ddf`. The 06/11 catalog snapshot was 43 Pass / 1 Fail. The failed case QA-S4-044 passed an independent retest on 09/11; the other 43 catalog cases were not all rerun on this exact core, so a same-build 44/44 claim is not made.
+
+## Run 2026-11-09-M: merged core retest
+
+`origin/main` at `e83ccb8` was pulled and fast-forward merged into existing `Thuanaj` before this run. Environment: Windows, .NET 10 Release, `localhost\\SQLEXPRESS` / `BranchFlow_Test`, real API/Web over HTTPS localhost. The API, Web and local fault proxy used test-only settings. No production DB or public URL was used. SQL integration tests had skipped initially without `BRANCHFLOW_TEST_CONNECTION_STRING`; the repaired tests resolve demo rows by username/branch code instead of identity IDs. Full solution build: **0 warnings, 0 errors**. Full suite with the Test DB connection: **81 Passed / 0 Failed / 0 Skipped**, twice.
+
+| Scope | Expected | Observed actual | Result |
+|---|---|---|---|
+| Auth API/SQL | Login, refresh/reuse, expiry, invalid credentials, 401/403, branch scope | AuthSmoke **14/14 catalog cases Pass**; unique fixture cleaned | Pass |
+| Menu API/SQL | Current DB prices/states and branch scope | MenuSmoke **34/34 HTTP checks Pass**; fixture cleaned | Pass |
+| Create order API/SQL | Valid/invalid orders, scope, transaction and Vietnam business-date boundary | OrderSmoke **106/106 checks Pass**; fixture cleaned | Pass |
+| Revenue API/SQL | Owner/System Admin global, Branch Admin scoped, Employee forbidden, completed-only, cancelled excluded, Vietnam date | RevenueSmoke **11/11 HTTP checks Pass** after full solution build; fixture cleaned | Pass |
+| Password storage and auth response | Seeded passwords are hashes; login/me expose no password fields | 9/9 seeded users had Identity hash-format strings in Test DB; AuthSmoke response checks passed | Pass for local fixture |
+| QA-S4-044, 401 after upstream 201 | One create POST, cart retained across same-tab relogin, uncertain-result guidance, order visible in history | One 29,000đ order `BF-DEMO-01-20261109-0001` (SQL Id 99); cart retained, resend disabled, history showed code; no second POST | Pass on `e83ccb8` |
+| QA-S4-044, timeout after upstream 201 | One create POST, cart retained, uncertain-result guidance, order visible in history | One 29,000đ order `BF-DEMO-01-20261109-0002` (SQL Id 100); cart retained, resend disabled, history showed code; no second POST | Pass on `e83ccb8` |
+| Four-role local UI spot check | Appropriate navigation/data for Employee, Owner, Branch Admin and System Admin | Employee saw own order/menu; Owner saw all three demo branches and orders without edit controls; Branch Admin saw only Demo 01 and branch menu toggle without common-price editing; System Admin saw all three branches and common catalog editing | Pass for inspected screens only |
+
+The two fault-injection orders remain in `BranchFlow_Test` as local evidence. The prior 43 case passes include browser cases 017 and 026 on an older core; they require a same-build rerun for final catalog sign-off. RevenueSmoke initially returned 404 because the API Release DLL had not been rebuilt after merge; the full solution build corrected the test setup and the rerun passed. This was not recorded as a product defect. Public smoke and stakeholder acceptance remain Not Run.
 
 ## Run 2026-11-06-L: independent browser and SQL closeout
 

@@ -17,10 +17,10 @@ public sealed class StockSqlIntegrationCollection;
 public sealed class StockTransactionIntegrationTests
 {
     private const string ExpectedDatabase = "BranchFlow_Test";
-    private const int BranchId = 4;
-    private const int SystemAdminId = 4;
-    private const int BranchAdminId = 5;
-    private const int OtherBranchId = 5;
+    private int BranchId;
+    private int SystemAdminId;
+    private int BranchAdminId;
+    private int OtherBranchId;
     private const int UnitId = 1;
 
     [SqlServerFact]
@@ -45,6 +45,10 @@ public sealed class StockTransactionIntegrationTests
             // Kiểm tra fixture và tạo Ingredient riêng cho test.
             await using (var db = new BranchFlowDbContext(options))
             {
+                BranchId = await db.Branches.Where(x => x.Code == "BF-DEMO-01").Select(x => x.Id).SingleAsync();
+                OtherBranchId = await db.Branches.Where(x => x.Code == "BF-DEMO-02").Select(x => x.Id).SingleAsync();
+                SystemAdminId = await db.AppUsers.Where(x => x.Username == "demo.systemadmin").Select(x => x.Id).SingleAsync();
+                BranchAdminId = await db.AppUsers.Where(x => x.Username == "demo.branchadmin.01").Select(x => x.Id).SingleAsync();
                 Assert.True(await db.Branches.AnyAsync(x => x.Id == BranchId && !x.Deleted));
                 Assert.True(await db.Branches.AnyAsync(x => x.Id == OtherBranchId && !x.Deleted));
                 Assert.True(await db.AppUsers.AnyAsync(x => x.Id == SystemAdminId && !x.Deleted && x.IsActive));
@@ -265,7 +269,7 @@ public sealed class StockTransactionIntegrationTests
         }
     }
 
-    private static StockWriteRequest CreateStockRequest(
+    private StockWriteRequest CreateStockRequest(
         int ingredientId,
         decimal quantity,
         string rowVersion,
@@ -337,7 +341,7 @@ public sealed class StockTransactionIntegrationTests
             CancellationToken.None);
     }
 
-    private static async Task<(decimal Quantity, string RowVersion)> ReadBalanceAsync(
+    private async Task<(decimal Quantity, string RowVersion)> ReadBalanceAsync(
         DbContextOptions<BranchFlowDbContext> options,
         int ingredientId)
     {
