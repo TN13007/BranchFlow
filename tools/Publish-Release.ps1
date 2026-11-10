@@ -33,7 +33,13 @@ try {
     $staging = Join-Path $output 'staging'
     $apiPublish = Join-Path $staging 'api'
     $webPublish = Join-Path $staging 'web'
+    $apiZip = Join-Path $output "branchflow-api-$RuntimeIdentifier.zip"
+    $webZip = Join-Path $output "branchflow-web-$RuntimeIdentifier.zip"
+    $manifestPath = Join-Path $output 'release-manifest.json'
     New-Item -ItemType Directory -Force -Path $output | Out-Null
+    foreach ($artifact in @($apiZip,$webZip,$manifestPath)) {
+        if (Test-Path $artifact) { Remove-Item $artifact -Force }
+    }
     if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $apiPublish,$webPublish | Out-Null
 
@@ -93,8 +99,6 @@ try {
     Assert-PublishedApp $webPublish 'BranchFlow.Web' $true
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-    $apiZip = Join-Path $output "branchflow-api-$RuntimeIdentifier.zip"
-    $webZip = Join-Path $output "branchflow-web-$RuntimeIdentifier.zip"
     foreach ($zip in @($apiZip,$webZip)) { if (Test-Path $zip) { Remove-Item $zip -Force } }
 
     [System.IO.Compression.ZipFile]::CreateFromDirectory(

@@ -22,6 +22,8 @@ $env:BRANCHFLOW_TEST_CONNECTION_STRING = '<chuỗi kết nối SQL Server cục 
 Remove-Item Env:BRANCHFLOW_TEST_CONNECTION_STRING
 ```
 
+Trước khi build, script xóa manifest và hai ZIP cũ của cùng runtime để lần chạy thất bại không khiến người nhận nhầm gói cũ là đầu ra mới.
+
 Script thực hiện lần lượt:
 
 1. `dotnet restore BranchFlow.slnx`.
