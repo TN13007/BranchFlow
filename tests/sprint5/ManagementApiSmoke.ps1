@@ -98,7 +98,7 @@ function Get-StockSignature([int]$BranchId) {
 }
 
 function Get-BranchSignature([int]$BranchId) {
-    return Sql "SELECT CONCAT(Name,N'|',Address,N'|',CONVERT(varchar(1),IsActive)) FROM dbo.Branch WHERE Id=$BranchId;"
+    return Sql "SELECT CONCAT(Code,N'|',Name,N'|',Address,N'|',CONVERT(varchar(1),IsActive)) FROM dbo.Branch WHERE Id=$BranchId;"
 }
 
 function Get-AdminUserSignature([int]$UserId) {
@@ -114,7 +114,7 @@ function Get-BranchProductSignature([int]$BranchId) {
 }
 
 function Get-ProductCatalogSignature {
-    return Sql "SELECT COALESCE(STRING_AGG(CONVERT(nvarchar(max),CONCAT(p.Id,N':',p.Name,N':',CONVERT(varchar(1),p.IsActive),N':',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(ps.Id,N':',ps.SizeId,N':',CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive))),N',') WITHIN GROUP (ORDER BY ps.Id) FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id),N''))),N';') WITHIN GROUP (ORDER BY p.Id),N'') FROM dbo.Product p;"
+    return Sql "SELECT COALESCE(STRING_AGG(CONVERT(nvarchar(max),CONCAT(p.Id,N':',p.CategoryId,N':',p.Name,N':',COALESCE(p.ImageUrl,N''),N':',CONVERT(varchar(1),p.IsActive),N':',CONVERT(varchar(1),p.Deleted),N':',COALESCE(CONVERT(varchar(33),p.UpdatedAt,127),N''),N':',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(ps.Id,N':',ps.SizeId,N':',CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive),N':',CONVERT(varchar(1),ps.Deleted),N':',COALESCE(CONVERT(varchar(33),ps.UpdatedAt,127),N''))),N',') WITHIN GROUP (ORDER BY ps.Id) FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id),N''))),N';') WITHIN GROUP (ORDER BY p.Id),N'') FROM dbo.Product p;"
 }
 
 function Assert-ApiAndSqlBranch([int]$Id, [string]$Code, [string]$ExpectedName, [string]$ExpectedAddress, [string]$Token) {
@@ -327,7 +327,7 @@ try {
         username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'BranchAdmin cannot create accounts'
     $productBefore = Get-ProductCatalogSignature
-    $productCountBefore = Sql "SELECT COUNT(*) FROM dbo.Product;"
+    $productCountBefore = Sql "SELECT COUNT(*) FROM dbo.Product WHERE Deleted=0;"
     Write-Case 'Product catalog fixture is present for denied-write verification' 'greater than 0' $productCountBefore ([int]$productCountBefore -gt 0)
     Assert-Status (Invoke-Api 'POST' 'api/management/products' $Tokens.BRANCH_ADMIN_01 @{
         name = 'Must not be created'; categoryId = 1; isActive = $true
