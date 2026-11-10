@@ -1,111 +1,111 @@
-# Sprint 5 — Management API verification (SCRUM-110/111/112)
+# Sprint 5 — Kiểm chứng API quản trị (SCRUM-110/111/112)
 
-## Source and status
+## Thông tin nguồn và trạng thái
 
-- Repository: `TN13007/BranchFlow`
-- Intended test base: latest integrated `main` commit `bf69ad0a59943ca554ef1b9740b3da954f2a8698` (verify the current main head before running).
-- Related implementation: `ManagementController.cs`, `MvpService.cs`, `MvpRepository.cs`, `BranchAccessService.cs`, and `AuthRepository.cs`.
-- Runner: [ManagementApiSmoke.ps1](ManagementApiSmoke.ps1).
-- Environment required: local HTTPS API on port 7107, local SQL Server database `BranchFlow_Test`, seeded demo accounts.
-- Execution state for this handoff: **Not Run in this workspace**. The workspace does not contain the .NET SDK or SQL Server runtime. This file records test intent and expected outcomes, not a claim of passing HTTP tests.
+- Kho mã nguồn: `TN13007/BranchFlow`.
+- Mã nguồn nền được rà soát: `main` tại commit `bf69ad0a59943ca554ef1b9740b3da954f2a8698`. Trước khi chạy, cần kiểm tra lại commit mới nhất của `main`.
+- Các thành phần liên quan: `ManagementController.cs`, `MvpService.cs`, `MvpRepository.cs`, `BranchAccessService.cs` và `AuthRepository.cs`.
+- Trình chạy kiểm thử: [ManagementApiSmoke.ps1](ManagementApiSmoke.ps1).
+- Môi trường cần có: API HTTPS chạy trên máy cục bộ ở cổng 7107, SQL Server cục bộ với database `BranchFlow_Test`, cùng các tài khoản demo đã được tạo.
+- Trạng thái tại thời điểm bàn giao: **Chưa chạy trong môi trường hiện tại**. Môi trường làm việc này không có .NET SDK và SQL Server. Tài liệu ghi lại mục tiêu kiểm thử và kết quả mong đợi, không phải xác nhận các ca HTTP đã chạy thành công.
 
-## What is already present in the core
+## Những phần đã có sẵn trong mã nguồn nền
 
-The integrated source already contains:
+Qua rà soát mã nguồn tích hợp, các chức năng sau đã tồn tại:
 
-1. Branch list/create/update API endpoints in `ManagementController`.
-2. SystemAdmin-only branch create/update authorization.
-3. Branch list scoping through `MvpService.BranchesAsync` and `BranchAccessService`.
-4. User creation restricted to `BRANCH_ADMIN` and `EMPLOYEE` roles by `MvpService.CreateUserAsync`.
-5. BranchAdmin profile updates limited by service logic to Employee accounts in an accessible branch; the non-SystemAdmin path does not apply submitted role, active-state, or stock-permission fields.
-6. Assignment checks for one effective BranchAdmin per branch and one effective Employee assignment.
-7. SQL filtered unique indexes protecting open assignments, plus API mapping of expected assignment conflicts to HTTP 409.
-8. Management response DTOs that do not define password or password-hash fields.
+1. API lấy danh sách, tạo và cập nhật chi nhánh trong `ManagementController`.
+2. Chỉ SystemAdmin được phép tạo hoặc cập nhật chi nhánh.
+3. Danh sách chi nhánh được giới hạn theo phạm vi truy cập thông qua `MvpService.BranchesAsync` và `BranchAccessService`.
+4. `MvpService.CreateUserAsync` chỉ cho phép tạo tài khoản có vai trò `BRANCH_ADMIN` hoặc `EMPLOYEE`.
+5. BranchAdmin chỉ được cập nhật hồ sơ Employee thuộc chi nhánh mình có quyền truy cập. Nhánh xử lý không phải SystemAdmin không áp dụng các trường phân quyền, trạng thái hoạt động hoặc quyền kho do người gọi tự gửi lên.
+6. Có kiểm tra phân công hiệu lực để bảo đảm mỗi chi nhánh chỉ có một BranchAdmin và mỗi Employee chỉ có một phân công hiệu lực.
+7. SQL có unique index lọc để bảo vệ các phân công đang mở; API ánh xạ xung đột phân công thành HTTP 409.
+8. DTO trả về từ API quản trị không khai báo trường mật khẩu hoặc mã băm mật khẩu.
 
-These are source-level findings only. They are not a substitute for real HTTP/SQL execution.
+Đây là kết quả rà soát mã nguồn, không thay thế cho việc gọi API và đối chiếu SQL thực tế.
 
-The stock-write denials target a uniquely created temporary branch rather than the shared WBS demo branches. The Employee fixture receives a test-only permission row for that temporary branch so the scope guard is the denial being exercised. Cleanup removes only stock transactions, audit rows, balances, and permissions related to the temporary branch/profile before deleting the QA branch.
+Các ca ghi kho trái quyền sử dụng một chi nhánh QA tạm được tạo riêng, không dùng các chi nhánh demo WBS đang được chia sẻ. Tài khoản Employee trong fixture được cấp một dòng quyền kho chỉ phục vụ kiểm thử trên chi nhánh tạm đó, nhằm bảo đảm request bị từ chối do kiểm tra phạm vi chi nhánh. Khi dọn dữ liệu, script chỉ xóa giao dịch kho, nhật ký, số dư và quyền liên quan đến chi nhánh/hồ sơ QA tạm trước khi xóa chi nhánh đó.
 
-## Test matrix
+## Ma trận kiểm thử
 
-| ID | Actor | Request / operation | Expected result | Status |
+| Mã | Tác nhân | Request / thao tác | Kết quả mong đợi | Trạng thái |
 |---|---|---|---:|---|
-| M-001 | No token | GET `/api/management/branches` | 401 | Not Run |
-| M-002 | SystemAdmin | GET branch list | 200; all non-deleted branches | Not Run |
-| M-003 | Owner | GET branch list | 200; readable branch data | Not Run |
-| M-004 | Owner | POST/PUT branch | 403; no SQL change | Not Run |
-| M-005 | Owner | GET management users | 403; endpoint role policy excludes Owner | Not Run |
-| M-006 | SystemAdmin | POST branch, then PUT branch | 200; response matches SQL | Not Run |
-| M-007 | BranchAdmin 01 | GET branch list | 200; only BF-DEMO-01 | Not Run |
-| M-008 | BranchAdmin 01 | GET stock in BF-DEMO-02 | 403 | Not Run |
-| M-009 | BranchAdmin 01 | Change availability in BF-DEMO-02 | 403; no SQL change | Not Run |
-| M-010 | BranchAdmin 01 | POST branch/user/assignment | 403 | Not Run |
-| M-011 | Employee A | GET stock in BF-DEMO-01 | 200 | Not Run |
-| M-012 | Employee A | GET stock in BF-DEMO-02 | 403 | Not Run |
-| M-013 | Employee A | POST user/assignment | 403 | Not Run |
-| M-014 | SystemAdmin | Assign one BranchAdmin to two temporary branches | Both assignments accepted | Not Run |
-| M-015 | SystemAdmin | Assign a second effective BranchAdmin to an occupied branch | 409; no second assignment | Not Run |
-| M-016 | SystemAdmin | Create Employee with initial branch assignment | 200; account/profile/assignment created | Not Run |
-| M-017 | SystemAdmin | Give that Employee a second effective assignment | 409; original assignment retained | Not Run |
-| M-018 | BranchAdmin | Update Employee profile in its own branch | 200; allowed profile fields change | Not Run |
-| M-019 | BranchAdmin | Submit role/status/branch/stock-permission escalation fields in profile update | Role, active state, assignment and permissions remain unchanged | Not Run |
-| M-020 | SystemAdmin / BranchAdmin | Read management user response | No password or password-hash fields | Not Run |
-| M-021 | BranchAdmin 01 | PUT Employee B profile in Demo 02 | 403; SQL profile unchanged | Not Run |
-| M-022 | BranchAdmin 01 | POST/PUT product (including prices) | 403; catalog unchanged | Not Run |
-| M-023 | BranchAdmin 01 | POST stock in temporary QA branch B (outside scope) | 403; SQL stock signature unchanged; temporary writes removed by cleanup | Not Run |
-| M-024 | Employee A | POST stock in temporary QA branch B (outside assignment), with a test-only permission row | 403; SQL stock signature unchanged; temporary writes removed by cleanup | Not Run |
-| M-025 | SystemAdmin | After rejected second BranchAdmin assignment | SQL contains exactly one open assignment for branch A | Not Run |
-| M-026 | SystemAdmin | After rejected second Employee assignment | SQL contains exactly one open assignment for Employee A | Not Run |
-| M-027 | BranchAdmin | After attempted privilege escalation on Employee profile | SQL keeps role, active state, branch assignment, and stock permissions unchanged | Not Run |
-| M-028 | Owner / BranchAdmin / Employee | After denied branch/user creation requests | SQL contains no denied fixture row | Not Run |
+| M-001 | Không có token | GET `/api/management/branches` | 401 | Chưa chạy |
+| M-002 | SystemAdmin | GET danh sách chi nhánh | 200; tất cả chi nhánh chưa bị xóa | Chưa chạy |
+| M-003 | Owner | GET danh sách chi nhánh | 200; đọc được dữ liệu chi nhánh | Chưa chạy |
+| M-004 | Owner | POST/PUT chi nhánh | 403; SQL không thay đổi | Chưa chạy |
+| M-005 | Owner | GET danh sách tài khoản quản trị | 403; chính sách vai trò không cho Owner truy cập endpoint này | Chưa chạy |
+| M-006 | SystemAdmin | POST tạo chi nhánh, sau đó PUT cập nhật | 200; response khớp SQL | Chưa chạy |
+| M-007 | BranchAdmin 01 | GET danh sách chi nhánh | 200; chỉ có BF-DEMO-01 | Chưa chạy |
+| M-008 | BranchAdmin 01 | GET tồn kho tại BF-DEMO-02 | 403 | Chưa chạy |
+| M-009 | BranchAdmin 01 | Đổi trạng thái khả dụng tại BF-DEMO-02 | 403; SQL không thay đổi | Chưa chạy |
+| M-010 | BranchAdmin 01 | POST tạo chi nhánh/tài khoản/phân công | 403 | Chưa chạy |
+| M-011 | Employee A | GET tồn kho tại BF-DEMO-01 | 200 | Chưa chạy |
+| M-012 | Employee A | GET tồn kho tại BF-DEMO-02 | 403 | Chưa chạy |
+| M-013 | Employee A | POST tạo tài khoản/phân công | 403 | Chưa chạy |
+| M-014 | SystemAdmin | Phân một BranchAdmin vào hai chi nhánh tạm | Cả hai phân công được chấp nhận | Chưa chạy |
+| M-015 | SystemAdmin | Phân BranchAdmin thứ hai vào chi nhánh đã có Admin hiệu lực | 409; không tạo phân công thứ hai | Chưa chạy |
+| M-016 | SystemAdmin | Tạo Employee kèm phân công ban đầu | 200; tài khoản, hồ sơ và phân công được tạo | Chưa chạy |
+| M-017 | SystemAdmin | Tạo phân công hiệu lực thứ hai cho Employee đó | 409; giữ nguyên phân công ban đầu | Chưa chạy |
+| M-018 | BranchAdmin | Cập nhật hồ sơ Employee trong phạm vi chi nhánh | 200; các trường hồ sơ được phép thay đổi | Chưa chạy |
+| M-019 | BranchAdmin | Gửi thêm trường vai trò/trạng thái/chi nhánh/quyền kho nhằm tự nâng quyền | Vai trò, trạng thái, phân công và quyền kho không thay đổi | Chưa chạy |
+| M-020 | SystemAdmin / BranchAdmin | Đọc response danh sách tài khoản quản trị | Không có trường mật khẩu hoặc mã băm mật khẩu | Chưa chạy |
+| M-021 | BranchAdmin 01 | PUT hồ sơ Employee B ở Demo 02 | 403; hồ sơ trong SQL không đổi | Chưa chạy |
+| M-022 | BranchAdmin 01 | POST/PUT sản phẩm, bao gồm giá | 403; danh mục sản phẩm không đổi | Chưa chạy |
+| M-023 | BranchAdmin 01 | POST giao dịch kho trên chi nhánh QA tạm ngoài phạm vi | 403; dữ liệu kho trong SQL không đổi; dữ liệu thử được dọn | Chưa chạy |
+| M-024 | Employee A | POST giao dịch kho trên chi nhánh QA tạm ngoài phân công, dù có dòng quyền kho thử | 403; dữ liệu kho trong SQL không đổi; dữ liệu thử được dọn | Chưa chạy |
+| M-025 | SystemAdmin | Sau khi từ chối phân công BranchAdmin thứ hai | SQL còn đúng một phân công Admin đang mở cho chi nhánh A | Chưa chạy |
+| M-026 | SystemAdmin | Sau khi từ chối phân công Employee lần thứ hai | SQL còn đúng một phân công đang mở cho Employee A | Chưa chạy |
+| M-027 | BranchAdmin | Sau request thử nâng quyền hồ sơ Employee | SQL giữ nguyên vai trò, trạng thái, chi nhánh và quyền kho | Chưa chạy |
+| M-028 | Owner / BranchAdmin / Employee | Sau request tạo chi nhánh/tài khoản bị từ chối | SQL không có bản ghi fixture bị từ chối | Chưa chạy |
 
-The HTTP status expectations follow the current controller and service implementation; the runner confirms them against the live local API. A 403 can arise either from the controller's role policy or from service-level branch-scope validation. Keep those causes distinct when recording results.
+Các mã HTTP mong đợi được xác định theo controller và service hiện tại. HTTP 403 có thể xuất phát từ chính sách vai trò ở controller hoặc từ kiểm tra phạm vi chi nhánh ở service; khi ghi nhận kết quả cần phân biệt hai nguyên nhân này.
 
-## Run the smoke suite
+## Cách chạy bộ kiểm thử
 
-Use a disposable local test database. Do not run against production, a shared demo database, or a personal database containing work that must be preserved.
+Chỉ dùng một database kiểm thử cục bộ dành riêng cho mục đích này. Không chạy trên production, database demo đang được chia sẻ hoặc database cá nhân có dữ liệu cần giữ lại.
 
-1. Create / verify the dedicated local `BranchFlow_Test` database and run the existing baseline, reference data, and DemoSeed only if this Test database is intentionally fresh. Follow [database/README.md](../../database/README.md).
-2. Configure the API User Secret to point to the Test database. This replaces the Dev connection string only in the local User Secrets store; do not commit it:
+1. Tạo hoặc xác nhận database cục bộ `BranchFlow_Test`. Chỉ chạy baseline, dữ liệu tham chiếu và DemoSeed khi đây thực sự là database mới được tạo riêng cho kiểm thử. Xem [database/README.md](../../database/README.md).
+2. Cấu hình User Secrets của API trỏ đến database Test. Lệnh sau chỉ thay đổi User Secrets trên máy cá nhân; không commit thông tin kết nối:
 
 ```powershell
 dotnet user-secrets set 'ConnectionStrings:BranchFlowDb' 'Server=localhost;Database=BranchFlow_Test;Trusted_Connection=True;TrustServerCertificate=True' --project src/BranchFlow.Api
 ```
 
-3. Start the API in a separate terminal:
+3. Mở một terminal riêng để chạy API:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = 'Development'
 dotnet run --project src/BranchFlow.Api --launch-profile https
 ```
 
-The HTTPS launch profile listens on `https://localhost:7107`. Keep that terminal open. For a named local SQL instance, use the correct server in User Secrets and pass the same instance to the runner with `-Server '.\SQLEXPRESS'`.
+Profile HTTPS lắng nghe tại `https://localhost:7107`. Giữ terminal này hoạt động trong suốt quá trình kiểm thử. Với SQL Server dùng instance có tên, hãy cấu hình đúng tên server trong User Secrets và truyền cùng tên server cho script bằng tham số `-Server '.\SQLEXPRESS'`.
 
-4. In another PowerShell 7+ terminal at the repository root, set the demo password only in process memory and run:
+4. Mở terminal PowerShell 7+ khác tại thư mục gốc repository, nhập mật khẩu demo vào biến môi trường của tiến trình rồi chạy:
 
 ```powershell
-$env:BRANCHFLOW_DEMO_PASSWORD = Read-Host 'Demo account password'
+$env:BRANCHFLOW_DEMO_PASSWORD = Read-Host 'Mật khẩu tài khoản demo'
 ./tests/sprint5/ManagementApiSmoke.ps1
 Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD
 ```
 
-The demo password must come from the group's approved private channel. Do not place it in the script, command history, screenshots, or Jira. The script verifies the SQL target is exactly `BranchFlow_Test` before making requests.
+Mật khẩu demo phải lấy từ kênh riêng tư đã được nhóm thống nhất. Không ghi mật khẩu vào script, lịch sử lệnh, ảnh chụp màn hình hoặc Jira. Trước khi gửi request, script xác nhận database SQL đang kết nối chính xác là `BranchFlow_Test`.
 
-The script also checks the SQL connection target. It creates two uniquely named temporary branches, a temporary BranchAdmin, a second BranchAdmin, and a temporary Employee. It checks API and SQL branch values, assignment conflicts, role denials, branch scope, and profile escalation. Its `finally` block logs out test sessions and deletes only the temporary QA-prefixed records created by that run.
+Script tạo hai chi nhánh tạm có mã duy nhất, một BranchAdmin tạm, một BranchAdmin thứ hai và một Employee tạm. Script kiểm tra giá trị chi nhánh qua API và SQL, xung đột phân công, quyền theo vai trò, giới hạn phạm vi và khả năng tự nâng quyền qua payload cập nhật hồ sơ. Trong khối `finally`, script đăng xuất các phiên thử nghiệm và chỉ xóa những bản ghi QA có tiền tố do chính lần chạy đó tạo ra.
 
-If cleanup cannot be confirmed, stop and inspect only `QA110A-*`, `QA110B-*`, and `qa110.*` records in `BranchFlow_Test` before rerunning. Do not reset the database.
+Nếu không xác nhận được việc dọn dữ liệu, hãy dừng và chỉ kiểm tra các bản ghi `QA110A-*`, `QA110B-*` và `qa110.*` trong `BranchFlow_Test` trước khi chạy lại. Không reset database.
 
-## Handoff record to complete after execution
+## Thông tin cần bàn giao sau khi chạy
 
-Record the following in the Jira issue comment after a real run:
+Sau khi kiểm thử thật, cập nhật comment Jira với các thông tin sau:
 
-- Exact source SHA and branch.
-- API base URL and confirmed SQL database name.
-- PowerShell version and .NET SDK version.
-- Runner output with each Expected/Actual result.
-- Build and test command exit codes, plus exact test counts.
-- Cleanup confirmation.
-- Any failed case, linked defect, fix SHA, and retest result.
-- Khang's actual review result.
+- SHA source và tên nhánh chính xác.
+- API base URL và tên database SQL đã xác nhận.
+- Phiên bản PowerShell và .NET SDK.
+- Kết quả từng ca theo cặp Mong đợi/Thực tế.
+- Exit code của lệnh build/test và số lượng test chính xác.
+- Xác nhận fixture tạm đã được dọn.
+- Ca thất bại, bug liên quan, SHA sửa lỗi và kết quả kiểm thử lại.
+- Kết quả review thực tế của Khang.
 
-Do not change an issue to Done until the required HTTP/SQL cases have run, failures have been retested, and Khang has reviewed the evidence.
+Không chuyển issue sang Done khi các ca HTTP/SQL bắt buộc chưa chạy, lỗi chưa được kiểm thử lại hoặc Khang chưa review minh chứng.
