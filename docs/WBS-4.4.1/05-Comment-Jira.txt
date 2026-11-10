@@ -1,0 +1,9 @@
+WBS: 4.4.1 | Người thực hiện: Công Thành (có công cụ hỗ trợ)
+Ngày thực hiện / ngày kiểm chứng: 10/11/2026
+Branch / commit / PR: docs/SCRUM-131-wbs-4.4.1-thanh-uat; nền47541ee; PR chưa mở. Link commit cụ thể được bổ sung khi đăng Jira.
+Môi trường / dữ liệu: Local Web17132 → API17107 → BranchFlow_Test. Ảnh/actual thuộc47541ee+working tree lúc chạy; không gọi SHA commit tài liệu là SHA UAT ứng dụng. Public chưa có URL/deployedSHA.
+Đã thực hiện: Em tiếp nhận core và lượt tự kiểm có sẵn, tách kịch bản/expected, actual local, phản hồi/tồn đọng và biên bản chờ xác nhận; cập nhật U25 theo retest và thêm U27/U28. Không sửa ứng dụng hoặc đưa code task khác vào nhánh này.
+Kiểm chứng: 28kịch bản local:27Pass trong phạm vi đã quan sát,1Blocked/U26 Owner đọc hồ sơ. Mỗi dòng có role, expected/actual, lượt/người/ngày/candidate và minh chứng. Năm smoke public đều NotRun. Lượt đóng gói chạy lại SQL chỉ đọc: đơn24/snapshot/lịch sử, kho18/19, tồn7/15/4 và đơn25/26/27 khớp. Không nhận vừa chạy lại toàn bộ UI, không lấy build/unit/HTTP thay nghiệm thu người dùng.
+Minh chứng: 00-Ban-giao.md;01-Kich-ban.md;02-Ket-qua-local.md;03-Phan-hoi-ton-dong.md;04-Bien-ban-va-xac-nhan.md; ảnh thật và records/log/SQL trong evidence/. ZIP bàn giao chỉ gồm WBS4.4.1, có danh mục file/hash.
+Chưa đạt / phụ thuộc / người nhận: Thuận nhận đầu vào4.4.3; SCRUM-131 đang giao Thuận, đây là đóng góp của Thành, không đổi assignee. Chờ Thuần/Khang chốt quyền Owner; Khang cung cấp public URL/SHA. Chưa có ba người dùng/QA độc lập/PM xác nhận; biên bản giữ CHƯA XÁC NHẬN, không ký thay, không tự Done cả issue/Story.
+Đề nghị review: Khang; Thuận QA retest theo candidate được chốt.

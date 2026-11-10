@@ -1,0 +1,6 @@
+AfterCount LastId
+---------- ------
+11 25
+Id Code Status TotalAmount
+-- ---- ------ -----------
+25 BF-DEMO-01-20261110-0010 COMPLETED 29000.00
