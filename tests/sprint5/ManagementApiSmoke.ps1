@@ -73,6 +73,11 @@ function Assert-Status($Response, [int]$Expected, [string]$Name) {
 
 function Login([string]$Username, [string]$Role, [string]$Password = $env:BRANCHFLOW_DEMO_PASSWORD) {
     $response = Invoke-Api 'POST' 'api/auth/login' '' @{ username = $Username; password = $Password }
+    if ($response.Status -eq 429) {
+        Write-Output "Login rate limit reached for $Role; waiting for the configured one-minute window."
+        Start-Sleep -Seconds 60
+        $response = Invoke-Api 'POST' 'api/auth/login' '' @{ username = $Username; password = $Password }
+    }
     Assert-Status $response 200 "Login $Role"
     if (-not $response.Body.accessToken) { throw "Login $Role did not return an access token." }
     $Tokens[$Role] = [string]$response.Body.accessToken
