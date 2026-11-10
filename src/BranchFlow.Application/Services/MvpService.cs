@@ -121,6 +121,10 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         if (account.Role.Code is not ("EMPLOYEE" or "BRANCH_ADMIN")) throw new UnauthorizedAccessException();
         var profile = account.EmployeeProfile;
         var now = Now;
+        if (system && account.Role.Code == "BRANCH_ADMIN" && account.IsActive && !input.IsActive &&
+            (await repo.AdminAssignmentsAsync(ct)).Any(a => a.AdminUserId == account.Id &&
+                (a.EffectiveTo is null || a.EffectiveTo > now)))
+            throw new ArgumentException("Không thể khóa Admin Chi nhánh đang được phân công. MVP chưa hỗ trợ chuyển hoặc thu hồi phân công.");
         var assignment = profile is null ? null : (await repo.EmployeeAssignmentsAsync(ct))
             .FirstOrDefault(a => a.EmployeeProfileId == profile.Id && Effective(a.EffectiveFrom, a.EffectiveTo, now));
         if (!system)

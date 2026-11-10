@@ -34,11 +34,14 @@ Các ca ghi kho trái quyền sử dụng một chi nhánh QA tạm được t�
 | M-002 | SystemAdmin | GET danh sách chi nhánh | 200; tất cả chi nhánh chưa bị xóa | Chưa chạy |
 | M-003 | Owner | GET danh sách chi nhánh | 200; đọc được dữ liệu chi nhánh | Chưa chạy |
 | M-004 | Owner | POST/PUT chi nhánh | 403; SQL không thay đổi | Chưa chạy |
+| M-029 | SystemAdmin | Tắt tài khoản BranchAdmin đang có phân công hiệu lực | 400; tài khoản và các phân công không đổi | Chưa chạy |
+| M-030 | SystemAdmin | Tạo chi nhánh trùng mã | 409; chỉ còn một bản ghi có mã đó | Chưa chạy |
+| M-031 | SystemAdmin / BranchAdmin | Khóa rồi mở lại chi nhánh tạm đang được phân công | Chi nhánh khóa biến mất khỏi phạm vi; mở lại thì xuất hiện | Chưa chạy |
 | M-005 | Owner | GET danh sách tài khoản quản trị | 403; chính sách vai trò không cho Owner truy cập endpoint này | Chưa chạy |
 | M-006 | SystemAdmin | POST tạo chi nhánh, sau đó PUT cập nhật | 200; response khớp SQL | Chưa chạy |
 | M-007 | BranchAdmin 01 | GET danh sách chi nhánh | 200; chỉ có BF-DEMO-01 | Chưa chạy |
 | M-008 | BranchAdmin 01 | GET tồn kho tại BF-DEMO-02 | 403 | Chưa chạy |
-| M-009 | BranchAdmin 01 | Đổi trạng thái khả dụng tại BF-DEMO-02 | 403; SQL không thay đổi | Chưa chạy |
+| M-009 | BranchAdmin 01 | Đổi trạng thái khả dụng tại BF-DEMO-02 | 403; toàn bộ trạng thái khả dụng SQL không thay đổi | Chưa chạy |
 | M-010 | BranchAdmin 01 | POST tạo chi nhánh/tài khoản/phân công | 403 | Chưa chạy |
 | M-011 | Employee A | GET tồn kho tại BF-DEMO-01 | 200 | Chưa chạy |
 | M-012 | Employee A | GET tồn kho tại BF-DEMO-02 | 403 | Chưa chạy |
@@ -50,8 +53,8 @@ Các ca ghi kho trái quyền sử dụng một chi nhánh QA tạm được t�
 | M-018 | BranchAdmin | Cập nhật hồ sơ Employee trong phạm vi chi nhánh | 200; các trường hồ sơ được phép thay đổi | Chưa chạy |
 | M-019 | BranchAdmin | Gửi thêm trường vai trò/trạng thái/chi nhánh/quyền kho nhằm tự nâng quyền | Vai trò, trạng thái, phân công và quyền kho không thay đổi | Chưa chạy |
 | M-020 | SystemAdmin / BranchAdmin | Đọc response danh sách tài khoản quản trị | Không có trường mật khẩu hoặc mã băm mật khẩu | Chưa chạy |
-| M-021 | BranchAdmin 01 | PUT hồ sơ Employee B ở Demo 02 | 403; hồ sơ trong SQL không đổi | Chưa chạy |
-| M-022 | BranchAdmin 01 | POST/PUT sản phẩm, bao gồm giá | 403; danh mục sản phẩm không đổi | Chưa chạy |
+| M-021 | BranchAdmin 01 | PUT hồ sơ Employee B ở Demo 02 | 403; tài khoản, hồ sơ, phân công và quyền kho trong SQL không đổi | Chưa chạy |
+| M-022 | BranchAdmin 01 | POST/PUT sản phẩm, bao gồm giá | 403; toàn bộ danh mục và giá sản phẩm trong SQL không đổi | Chưa chạy |
 | M-023 | BranchAdmin 01 | POST giao dịch kho trên chi nhánh QA tạm ngoài phạm vi | 403; dữ liệu kho trong SQL không đổi; dữ liệu thử được dọn | Chưa chạy |
 | M-024 | Employee A | POST giao dịch kho trên chi nhánh QA tạm ngoài phân công, dù có dòng quyền kho thử | 403; dữ liệu kho trong SQL không đổi; dữ liệu thử được dọn | Chưa chạy |
 | M-025 | SystemAdmin | Sau khi từ chối phân công BranchAdmin thứ hai | SQL còn đúng một phân công Admin đang mở cho chi nhánh A | Chưa chạy |
@@ -91,9 +94,9 @@ Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD
 
 Mật khẩu demo phải lấy từ kênh riêng tư đã được nhóm thống nhất. Không ghi mật khẩu vào script, lịch sử lệnh, ảnh chụp màn hình hoặc Jira. Trước khi gửi request, script xác nhận database SQL đang kết nối chính xác là `BranchFlow_Test`.
 
-Script tạo hai chi nhánh tạm có mã duy nhất, một BranchAdmin tạm, một BranchAdmin thứ hai và một Employee tạm. Script kiểm tra giá trị chi nhánh qua API và SQL, xung đột phân công, quyền theo vai trò, giới hạn phạm vi và khả năng tự nâng quyền qua payload cập nhật hồ sơ. Trong khối `finally`, script đăng xuất các phiên thử nghiệm và chỉ xóa những bản ghi QA có tiền tố do chính lần chạy đó tạo ra.
+Script tạo hai chi nhánh tạm có mã duy nhất, một BranchAdmin tạm, một BranchAdmin thứ hai và một Employee tạm. Script kiểm tra giá trị chi nhánh qua API và SQL, xung đột mã chi nhánh, khóa/mở chi nhánh, chống khóa Admin còn phân công, quyền theo vai trò và giới hạn phạm vi. Với request bị từ chối, runner chụp trạng thái SQL trước và sau để chứng minh dữ liệu không đổi; phần sản phẩm kiểm tra toàn bộ danh mục cùng các dòng giá. Trong khối `finally`, script đăng xuất các phiên thử nghiệm và chỉ xóa những bản ghi QA có tiền tố do chính lần chạy đó tạo ra. Nếu dọn fixture thất bại, runner kết thúc với mã lỗi khác 0 để không báo thành công giả.
 
-Nếu không xác nhận được việc dọn dữ liệu, hãy dừng và chỉ kiểm tra các bản ghi `QA110A-*`, `QA110B-*` và `qa110.*` trong `BranchFlow_Test` trước khi chạy lại. Không reset database.
+Nếu không xác nhận được việc dọn dữ liệu, runner sẽ trả mã lỗi khác 0. Hãy dừng và chỉ kiểm tra các bản ghi `QA110A-*`, `QA110B-*` và `qa110.*` trong `BranchFlow_Test` trước khi chạy lại. Không reset database.
 
 ## Thông tin cần bàn giao sau khi chạy
 
