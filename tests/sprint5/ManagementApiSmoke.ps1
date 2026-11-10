@@ -84,7 +84,7 @@ function Login([string]$Username, [string]$Role, [string]$Password = $env:BRANCH
 }
 
 function Sql([string]$Query) {
-    $output = & sqlcmd -S $Server -E -C -b -f 65001 -d $Database -h -1 -W -Q "SET NOCOUNT ON; $Query"
+    $output = & sqlcmd -S $Server -E -C -b -f 65001 -d $Database -h -1 -W -y 0 -w 65535 -Q "SET NOCOUNT ON; $Query"
     if ($LASTEXITCODE -ne 0) { throw 'SQL query failed; inspect the local Test database.' }
     return (($output -join [Environment]::NewLine).Trim())
 }
