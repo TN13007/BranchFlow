@@ -93,6 +93,14 @@ function New-TemporaryPassword {
     return "Q!a-$([Guid]::NewGuid().ToString('N'))-9Z"
 }
 
+function Get-StockSignature([int]$BranchId) {
+    return Sql "SELECT CONCAT((SELECT COUNT_BIG(*) FROM dbo.StockTransaction WHERE BranchId=$BranchId),N'|',(SELECT COUNT_BIG(*) FROM dbo.AuditLog WHERE BranchId=$BranchId AND EntityName=N'StockTransaction'),N'|',(SELECT COUNT_BIG(*) FROM dbo.BranchIngredient WHERE BranchId=$BranchId),N'|',(SELECT COALESCE(SUM(Quantity),0) FROM dbo.BranchIngredient WHERE BranchId=$BranchId));"
+}
+
+function Get-ProductSignature([int]$ProductId) {
+    return Sql "SELECT CONCAT(p.Name,N'|',CONVERT(varchar(1),p.IsActive),N'|',COALESCE((SELECT STRING_AGG(CONCAT(CONVERT(varchar(20),ps.Id),N':',CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive)),N',') WITHIN GROUP (ORDER BY ps.Id) FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id),N'')) FROM dbo.Product p WHERE p.Id=$ProductId;"
+}
+
 function Assert-ApiAndSqlBranch([int]$Id, [string]$Code, [string]$ExpectedName, [string]$ExpectedAddress, [string]$Token) {
     $api = Invoke-Api 'GET' 'api/management/branches' $Token
     Assert-Status $api 200 "Read branch list $Code"
@@ -239,10 +247,13 @@ try {
     Write-Case 'Existing BranchAdmin sees only Demo 01' 'BF-DEMO-01' (($existingAdmin.Body | ForEach-Object code) -join ',') (@($existingAdmin.Body).Count -eq 1 -and $existingAdmin.Body[0].code -eq 'BF-DEMO-01')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.BRANCH_ADMIN_01) 403 'BranchAdmin cannot read stock from another branch'
+    $branchAdminStockBefore = Get-StockSignature ([int]$demo02.id)
     Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.BRANCH_ADMIN_01 @{
         branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
         lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
     }) 403 'BranchAdmin cannot write stock in another branch'
+    $branchAdminStockAfter = Get-StockSignature ([int]$demo02.id)
+    Write-Case 'BranchAdmin denied stock write leaves SQL unchanged' $branchAdminStockBefore $branchAdminStockAfter ($branchAdminStockBefore -eq $branchAdminStockAfter)
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
     $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
     if ($demoEmployeeBId -le 0) { throw 'Could not find demo.employee.b in BranchFlow_Test.' }
@@ -254,22 +265,28 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.BRANCH_ADMIN_01 @{
         username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'BranchAdmin cannot create accounts'
+    $productBefore = Get-ProductSignature 1
     Assert-Status (Invoke-Api 'POST' 'api/management/products' $Tokens.BRANCH_ADMIN_01 @{
         name = 'Must not be created'; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot create or change product prices'
     Assert-Status (Invoke-Api 'PUT' 'api/management/products/1' $Tokens.BRANCH_ADMIN_01 @{
         id = 1; name = 'Must not be changed'; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot update a product or its prices'
+    $productAfter = Get-ProductSignature 1
+    Write-Case 'BranchAdmin denied product/price changes leave SQL unchanged' $productBefore $productAfter ($productBefore -eq $productAfter)
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.BRANCH_ADMIN_01 @{
         userId = 1; branchId = [int]$demo01.id
     }) 403 'BranchAdmin cannot create assignments'
     Write-Case 'BranchAdmin create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") -eq '0')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.EMPLOYEE_A) 403 'Employee cannot read stock from another branch'
+    $employeeStockBefore = Get-StockSignature ([int]$demo02.id)
     Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.EMPLOYEE_A @{
         branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
         lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
     }) 403 'Employee cannot write stock in another branch'
+    $employeeStockAfter = Get-StockSignature ([int]$demo02.id)
+    Write-Case 'Employee denied stock write leaves SQL unchanged' $employeeStockBefore $employeeStockAfter ($employeeStockBefore -eq $employeeStockAfter)
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo01.id)/stock" $Tokens.EMPLOYEE_A) 200 'Employee can read stock within assigned branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.EMPLOYEE_A @{
         username = "deny-employee-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
