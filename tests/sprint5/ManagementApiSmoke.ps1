@@ -88,8 +88,11 @@ function Sql([string]$Query) {
     if ($LASTEXITCODE -ne 0) { throw 'SQL query failed; inspect the local Test database.' }
 
     $lines = @($output)
-    if ($lines.Count -ge 2 -and $lines[1] -match '^\s*-+\s*
-
+    if ($lines.Count -ge 2) {
+        $lines = @($lines | Select-Object -Skip 2)
+    }
+    return (($lines -join [Environment]::NewLine).Trim())
+}
 function New-TemporaryPassword {
     return "Q!a-$([Guid]::NewGuid().ToString('N'))-9Z"
 }
