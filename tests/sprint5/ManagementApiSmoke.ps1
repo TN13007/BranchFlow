@@ -208,12 +208,6 @@ try {
 
     $forbiddenBranch = @{ code = $DeniedBranchCode; name = 'Must not be created by Owner'; address = 'Local test'; isActive = $true }
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.OWNER $forbiddenBranch) 403 'Owner cannot create branch'
-    $ownerBranchBefore = Get-BranchSignature ([int]$demo01.id)
-    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo01.id)" $Tokens.OWNER @{
-        code = $demo01.code; name = $demo01.name; address = $demo01.address; isActive = $demo01.isActive
-    }) 403 'Owner cannot update branch'
-    $ownerBranchAfter = Get-BranchSignature ([int]$demo01.id)
-    Write-Case 'Owner denied branch update leaves SQL unchanged' $ownerBranchBefore $ownerBranchAfter ($ownerBranchBefore -eq $ownerBranchAfter)
     $deniedBranchCount = Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';"
     Write-Case 'Owner create request leaves no branch in SQL' '0' $deniedBranchCount ($deniedBranchCount -eq '0')
 
@@ -237,6 +231,11 @@ try {
     $branchBodyA.address = 'Local test A Updated'
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$branchIdA" $Tokens.SYSTEM_ADMIN $branchBodyA) 200 'SystemAdmin updates branch A'
     Assert-ApiAndSqlBranch $branchIdA $BranchA $branchBodyA.name $branchBodyA.address $Tokens.SYSTEM_ADMIN
+
+    $ownerBranchBefore = Get-BranchSignature $branchIdA
+    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$branchIdA" $Tokens.OWNER $branchBodyA) 403 'Owner cannot update branch'
+    $ownerBranchAfter = Get-BranchSignature $branchIdA
+    Write-Case 'Owner denied branch update leaves SQL unchanged' $ownerBranchBefore $ownerBranchAfter ($ownerBranchBefore -eq $ownerBranchAfter)
 
     $TempPasswords.AdminA = New-TemporaryPassword
     $branchAdminCreate = Invoke-Api 'POST' 'api/management/users' $Tokens.SYSTEM_ADMIN @{
