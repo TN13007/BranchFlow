@@ -82,3 +82,5 @@ Do gói được publish theo dạng framework-dependent, máy chủ Linux phả
 | Triển khai | URL và SHA đã triển khai do Khang cung cấp | Không thuộc phạm vi SCRUM-113 |
 
 Không chuyển SCRUM-113 sang Done cho đến khi script đã chạy thật, các đầu ra được kiểm tra và Khang đã nhận hai gói ZIP, log cùng manifest.
+
+Script cũng chạy trên checkout detached HEAD của CI/review. Khi đó `sourceBranch` trong manifest là `detached`; `sourceCommit` vẫn là SHA đầy đủ của đúng source đã publish. Đây không phải lỗi hoặc tên nhánh mới. Sau khi tích hợp PR vào main, tạo lại gói từ SHA main được chọn để deploy.
