@@ -1,4 +1,8 @@
-param([ValidateSet('BranchFlow_Dev','BranchFlow_Test')][string]$Database='BranchFlow_Dev', [string]$BaseUrl='https://localhost:7107')
+param(
+    [ValidateSet('BranchFlow_Dev','BranchFlow_Test')][string]$Database='BranchFlow_Dev',
+    [string]$BaseUrl='https://localhost:7107',
+    [ValidatePattern('^(localhost|\.)(\\[A-Za-z0-9_-]+)?$')][string]$SqlServer='localhost'
+)
 $ErrorActionPreference='Stop'
 if ($BaseUrl -notmatch '^https://localhost:\d+$') { throw 'Local HTTPS only.' }
 if (-not $env:BRANCHFLOW_DEMO_PASSWORD) { throw 'Set BRANCHFLOW_DEMO_PASSWORD only in process environment.' }
@@ -10,7 +14,7 @@ function Assert($condition,$label) {
     if (-not $condition) { throw $label }
     Write-Output "PASS $label"
 }
-$manifestText = & sqlcmd -S localhost -E -C -b -f 65001 -d $Database -h -1 -w 65535 -y 4000 -Q "SET NOCOUNT ON; SELECT JSON_VALUE(a.AfterData,'$.Case') AS caseName,o.Id,o.BranchId,o.BusinessDate,o.Status,o.TotalAmount FROM dbo.AuditLog a JOIN dbo.SalesOrder o ON o.Id=a.EntityId WHERE a.EntityName='BF-WBS5-v1' FOR JSON PATH;"
+$manifestText = & sqlcmd -S $SqlServer -E -C -b -f 65001 -d $Database -h -1 -w 65535 -y 4000 -Q "SET NOCOUNT ON; SELECT JSON_VALUE(a.AfterData,'$.Case') AS caseName,o.Id,o.BranchId,o.BusinessDate,o.Status,o.TotalAmount FROM dbo.AuditLog a JOIN dbo.SalesOrder o ON o.Id=a.EntityId WHERE a.EntityName='BF-WBS5-v1' FOR JSON PATH;"
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read fixture manifest.' }
 $fixtures = ConvertFrom-Json -InputObject ($manifestText -join '')
 Assert ($fixtures.Count -eq 4) 'SQL fixture contains exactly four orders'
@@ -35,7 +39,8 @@ try {
     Assert (@($branches | Where-Object code -Like 'BF-DEMO-*').Count -eq 3) 'Three demo branches readable by API'
     $date=$fixtures[0].businessDate
     $revenue=@(ReadJson "api/management/revenue?from=$date&to=$date" $sessions.systemadmin)
-    $sqlAmount = & sqlcmd -S localhost -E -C -b -d $Database -h -1 -W -Q "SET NOCOUNT ON; SELECT COALESCE(SUM(TotalAmount),0) FROM dbo.SalesOrder WHERE Status='COMPLETED' AND CONVERT(date,DATEADD(hour,7,CreatedAt))='$date';"
+    $sqlAmount = & sqlcmd -S $SqlServer -E -C -b -d $Database -h -1 -W -Q "SET NOCOUNT ON; SELECT COALESCE(SUM(TotalAmount),0) FROM dbo.SalesOrder WHERE Status='COMPLETED' AND CONVERT(date,DATEADD(hour,7,CreatedAt))='$date';"
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot read SQL revenue total.' }
     Assert (($revenue | Measure-Object amount -Sum).Sum -eq [decimal](($sqlAmount -join '').Trim())) 'API daily revenue equals SQL including pre-existing orders'
     foreach ($fixture in $fixtures) {
         $order=ReadJson "api/management/orders/$($fixture.id)" $sessions.owner

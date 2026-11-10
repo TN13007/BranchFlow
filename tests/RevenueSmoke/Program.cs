@@ -36,9 +36,17 @@ Process? host = null;
 
 var from = new DateOnly(2026, 11, 8);
 var to = new DateOnly(2026, 11, 9);
+var rangeStartUtc = new DateTime(2026, 11, 7, 17, 0, 0, DateTimeKind.Utc);
+var rangeEndUtc = new DateTime(2026, 11, 9, 17, 0, 0, DateTimeKind.Utc);
 
 try
 {
+    // Keep this smoke isolated from earlier local QA/demo orders in the same Test DB.
+    var existingCompleted = db.SalesOrders.Where(x => x.Status == "COMPLETED" &&
+        x.CreatedAt >= rangeStartUtc && x.CreatedAt < rangeEndUtc);
+    var baselineOrders = await existingCompleted.CountAsync();
+    var baselineAmount = await existingCompleted.SumAsync(x => (decimal?)x.TotalAmount) ?? 0m;
+
     var ownerRole = await db.Roles.SingleAsync(r => r.Code == "OWNER" && !r.Deleted);
     var systemAdminRole = await db.Roles.SingleAsync(r => r.Code == "SYSTEM_ADMIN" && !r.Deleted);
     var branchAdminRole = await db.Roles.SingleAsync(r => r.Code == "BRANCH_ADMIN" && !r.Deleted);
@@ -306,9 +314,9 @@ try
         new DateOnly(2026, 11, 9), new DateOnly(2026, 11, 8)));
 
     // Expected global revenue.
-    if (Orders(ownerRows) != 3 || Amount(ownerRows) != 601.50m)
+    if (Orders(ownerRows) != baselineOrders + 3 || Amount(ownerRows) != baselineAmount + 601.50m)
         throw new Exception(
-            $"System revenue sai: orders={Orders(ownerRows)}, amount={Amount(ownerRows)}.");
+            $"System revenue sai: expected={baselineOrders + 3}/{baselineAmount + 601.50m}, actual={Orders(ownerRows)}/{Amount(ownerRows)}.");
 
     var day8 = ownerRows.Single(x =>
         x.GetProperty("branchId").GetInt32() == branchA.Id &&
@@ -336,8 +344,15 @@ try
     // System total equals sum of branch-specific results.
     var branchBResult = Rows(await Check(200, ownerToken, Query(branchB.Id)));
 
-    var summedOrders = Orders(branchAResult) + Orders(branchBResult);
-    var summedAmount = Amount(branchAResult) + Amount(branchBResult);
+    var branchResults = new List<JsonElement>();
+    branchResults.AddRange(branchAResult);
+    branchResults.AddRange(branchBResult);
+    foreach (var branchId in ownerRows.Select(x => x.GetProperty("branchId").GetInt32())
+        .Distinct().Where(id => id != branchA.Id && id != branchB.Id))
+        branchResults.AddRange(Rows(await Check(200, ownerToken, Query(branchId))));
+
+    var summedOrders = Orders(branchResults.ToArray());
+    var summedAmount = Amount(branchResults.ToArray());
 
     if (summedOrders != Orders(ownerRows) || summedAmount != Amount(ownerRows))
         throw new Exception("Tong doanh thu cac chi nhanh khong bang tong he thong.");
