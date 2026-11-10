@@ -1,6 +1,6 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
-Owner: Nguyễn Đặng Hòa Thuận. Updated: 10/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Current tested core: `Thuanaj` at `19baf09` after merging `main` `bf69ad0` and applying the BE1 fix; QA runners committed separately. The 06/11 catalog snapshot was 43 Pass / 1 Fail. QA-S4-017, 026 and 044 passed focused browser retests on 10/11. A same-build 44/44 claim still requires a full catalog rerun on the final candidate.
+Owner: Nguyễn Đặng Hòa Thuận. Updated: 10/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Tested product core: `Thuanaj` at `19baf09` after merging `main` `bf69ad0` and applying the BE1 fix; QA runners committed separately. Later `main` docs-only `ae8c7f2` was merged as `cd25528`, with clean build and 83/83 SQL-enabled tests. The 06/11 catalog snapshot was 43 Pass / 1 Fail. QA-S4-017, 026 and 044 passed focused browser retests on 10/11. A same-build 44/44 claim still requires a full catalog rerun on the final candidate.
 
 ## Run 2026-11-10-N: merged main, management and MVP local retest
 
