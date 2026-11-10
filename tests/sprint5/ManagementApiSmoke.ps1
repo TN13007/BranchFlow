@@ -97,8 +97,24 @@ function Get-StockSignature([int]$BranchId) {
     return Sql "SELECT CONCAT((SELECT COUNT_BIG(*) FROM dbo.StockTransaction WHERE BranchId=$BranchId),N'|',(SELECT COUNT_BIG(*) FROM dbo.AuditLog WHERE BranchId=$BranchId AND EntityName=N'StockTransaction'),N'|',(SELECT COUNT_BIG(*) FROM dbo.BranchIngredient WHERE BranchId=$BranchId),N'|',(SELECT COALESCE(SUM(Quantity),0) FROM dbo.BranchIngredient WHERE BranchId=$BranchId));"
 }
 
-function Get-ProductSignature([int]$ProductId) {
-    return Sql "SELECT CONCAT(p.Name,N'|',CONVERT(varchar(1),p.IsActive),N'|',COALESCE((SELECT STRING_AGG(CONCAT(CONVERT(varchar(20),ps.Id),N':',CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive)),N',') WITHIN GROUP (ORDER BY ps.Id) FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id),N'')) FROM dbo.Product p WHERE p.Id=$ProductId;"
+function Get-BranchSignature([int]$BranchId) {
+    return Sql "SELECT CONCAT(Name,N'|',Address,N'|',CONVERT(varchar(1),IsActive)) FROM dbo.Branch WHERE Id=$BranchId;"
+}
+
+function Get-AdminUserSignature([int]$UserId) {
+    return Sql "SELECT CONCAT(u.Username,N'|',u.FullName,N'|',COALESCE(u.Email,N''),N'|',COALESCE(u.Phone,N''),N'|',CONVERT(varchar(1),u.IsActive),N'|',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(a.Id,N':',a.BranchId,N':',CONVERT(varchar(33),a.EffectiveFrom,127),N':',COALESCE(CONVERT(varchar(33),a.EffectiveTo,127),N'NULL'))),N',') WITHIN GROUP (ORDER BY a.Id) FROM dbo.AdminBranchAssignment a WHERE a.AdminUserId=u.Id),N'')) FROM dbo.AppUser u WHERE u.Id=$UserId;"
+}
+
+function Get-EmployeeUserSignature([int]$UserId) {
+    return Sql "SELECT CONCAT(u.Username,N'|',u.FullName,N'|',COALESCE(u.Email,N''),N'|',COALESCE(u.Phone,N''),N'|',r.Code,N'|',CONVERT(varchar(1),u.IsActive),N'|',COALESCE(ep.Position,N''),N'|',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(a.Id,N':',a.BranchId,N':',CONVERT(varchar(33),a.EffectiveFrom,127),N':',COALESCE(CONVERT(varchar(33),a.EffectiveTo,127),N'NULL'))),N',') WITHIN GROUP (ORDER BY a.Id) FROM dbo.EmployeeBranchAssignment a WHERE a.EmployeeProfileId=ep.Id),N''),N'|',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(p.BranchId,N':',CONVERT(varchar(1),p.CanReceive),N':',CONVERT(varchar(1),p.CanIssue))),N',') WITHIN GROUP (ORDER BY p.BranchId) FROM dbo.EmployeeStockPermission p WHERE p.EmployeeProfileId=ep.Id),N'')) FROM dbo.AppUser u JOIN dbo.Role r ON r.Id=u.RoleId LEFT JOIN dbo.EmployeeProfile ep ON ep.UserId=u.Id WHERE u.Id=$UserId;"
+}
+
+function Get-BranchProductSignature([int]$BranchId) {
+    return Sql "SELECT COALESCE(STRING_AGG(CONVERT(nvarchar(max),CONCAT(ProductId,N':',CONVERT(varchar(1),IsAvailable),N':',CONVERT(varchar(33),UpdatedAt,127))),N',') WITHIN GROUP (ORDER BY ProductId),N'') FROM dbo.BranchProduct WHERE BranchId=$BranchId;"
+}
+
+function Get-ProductCatalogSignature {
+    return Sql "SELECT COALESCE(STRING_AGG(CONVERT(nvarchar(max),CONCAT(p.Id,N':',p.Name,N':',CONVERT(varchar(1),p.IsActive),N':',COALESCE((SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(ps.Id,N':',ps.SizeId,N':',CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive))),N',') WITHIN GROUP (ORDER BY ps.Id) FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id),N''))),N';') WITHIN GROUP (ORDER BY p.Id),N'') FROM dbo.Product p;"
 }
 
 function Assert-ApiAndSqlBranch([int]$Id, [string]$Code, [string]$ExpectedName, [string]$ExpectedAddress, [string]$Token) {
@@ -138,6 +154,8 @@ DELETE FROM dbo.Branch WHERE Id IN (SELECT Id FROM @branchIds);
 COMMIT TRANSACTION;
 "@
 
+$testFailure = $null
+$cleanupFailure = $null
 try {
     if ((Sql 'SELECT DB_NAME();') -ne $Database) { throw "SQL connection must target $Database." }
 
@@ -163,10 +181,14 @@ try {
 
     $forbiddenBranch = @{ code = "DENY-$RunId"; name = 'Must not be created by Owner'; address = 'Local test'; isActive = $true }
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.OWNER $forbiddenBranch) 403 'Owner cannot create branch'
+    $ownerBranchBefore = Get-BranchSignature ([int]$demo01.id)
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo01.id)" $Tokens.OWNER @{
         code = $demo01.code; name = 'Must not be updated by Owner'; address = $demo01.address; isActive = $demo01.isActive
     }) 403 'Owner cannot update branch'
-    Write-Case 'Owner create request leaves no branch in SQL' '0' (Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';") -eq '0')
+    $ownerBranchAfter = Get-BranchSignature ([int]$demo01.id)
+    Write-Case 'Owner denied branch update leaves SQL unchanged' $ownerBranchBefore $ownerBranchAfter ($ownerBranchBefore -eq $ownerBranchAfter)
+    $deniedBranchCount = Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';"
+    Write-Case 'Owner create request leaves no branch in SQL' '0' $deniedBranchCount ($deniedBranchCount -eq '0')
 
     $branchBodyA = @{ code = $BranchA; name = 'QA Temporary Branch A'; address = 'Local test A'; isActive = $true }
     $branchBodyB = @{ code = $BranchB; name = 'QA Temporary Branch B'; address = 'Local test B'; isActive = $true }
@@ -177,6 +199,12 @@ try {
     $branchIdA = [int]$createdA.Body
     $branchIdB = [int]$createdB.Body
     if ($branchIdA -le 0 -or $branchIdB -le 0) { throw 'Create branch returned an invalid ID.' }
+    $duplicateBranch = Invoke-Api 'POST' 'api/management/branches' $Tokens.SYSTEM_ADMIN @{
+        code = $BranchA; name = 'Duplicate QA branch'; address = 'Must not be inserted'; isActive = $true
+    }
+    Assert-Status $duplicateBranch 409 'SystemAdmin cannot create a duplicate branch code'
+    $branchCodeCount = Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'$BranchA';"
+    Write-Case 'Duplicate branch code leaves exactly one SQL row' '1' $branchCodeCount ($branchCodeCount -eq '1')
 
     $branchBodyA.name = 'QA Temporary Branch A Updated'
     $branchBodyA.address = 'Local test A Updated'
@@ -227,6 +255,25 @@ try {
     Assert-Status $scopedAdminBranches 200 'Temporary BranchAdmin reads branch list'
     Write-Case 'BranchAdmin with two assignments sees exactly those two branches' "$BranchA,$BranchB" ((@($scopedAdminBranches.Body | Select-Object -ExpandProperty code | Sort-Object)) -join ',') (@($scopedAdminBranches.Body).Count -eq 2 -and @($scopedAdminBranches.Body | Where-Object code -in @($BranchA,$BranchB)).Count -eq 2)
 
+    $adminBeforeDisable = Get-AdminUserSignature $branchAdminId
+    Assert-Status (Invoke-Api 'PUT' "api/management/users/$branchAdminId" $Tokens.SYSTEM_ADMIN @{
+        username = $AdminA; fullName = 'QA Temporary Branch Admin'; role = 'BRANCH_ADMIN'
+        isActive = $false; branchId = $branchIdA
+    }) 400 'SystemAdmin cannot deactivate a BranchAdmin who still has assignments'
+    $adminAfterDisable = Get-AdminUserSignature $branchAdminId
+    Write-Case 'Rejected BranchAdmin deactivation leaves account and assignments unchanged' $adminBeforeDisable $adminAfterDisable ($adminBeforeDisable -eq $adminAfterDisable)
+
+    $branchBodyB.isActive = $false
+    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$branchIdB" $Tokens.SYSTEM_ADMIN $branchBodyB) 200 'SystemAdmin deactivates temporary branch B'
+    $hiddenBranchList = Invoke-Api 'GET' 'api/management/branches' $Tokens.TEMP_BRANCH_ADMIN
+    Assert-Status $hiddenBranchList 200 'BranchAdmin reads branches after branch B is deactivated'
+    Write-Case 'Inactive branch is removed from BranchAdmin scope' $BranchA (($hiddenBranchList.Body | ForEach-Object code) -join ',') (@($hiddenBranchList.Body).Count -eq 1 -and $hiddenBranchList.Body[0].code -eq $BranchA)
+    Assert-Status (Invoke-Api 'GET' "api/management/branches/$branchIdB/stock" $Tokens.TEMP_BRANCH_ADMIN) 403 'BranchAdmin cannot access an inactive assigned branch'
+    $branchBodyB.isActive = $true
+    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$branchIdB" $Tokens.SYSTEM_ADMIN $branchBodyB) 200 'SystemAdmin reactivates temporary branch B'
+    $restoredBranchList = Invoke-Api 'GET' 'api/management/branches' $Tokens.TEMP_BRANCH_ADMIN
+    Write-Case 'Reactivated branch returns to BranchAdmin scope' "$BranchA,$BranchB" ((@($restoredBranchList.Body | Select-Object -ExpandProperty code | Sort-Object)) -join ',') (@($restoredBranchList.Body).Count -eq 2)
+
     $scopedUsers = Invoke-Api 'GET' 'api/management/users' $Tokens.TEMP_BRANCH_ADMIN
     Assert-Status $scopedUsers 200 'BranchAdmin reads Employee directory in assigned branches'
     $tempEmployee = @($scopedUsers.Body | Where-Object username -eq $EmployeeA) | Select-Object -First 1
@@ -262,26 +309,34 @@ try {
     }) 403 'BranchAdmin cannot write stock in another branch'
     $branchAdminStockAfter = Get-StockSignature $branchIdB
     Write-Case 'BranchAdmin denied stock write leaves SQL unchanged' $branchAdminStockBefore $branchAdminStockAfter ($branchAdminStockBefore -eq $branchAdminStockAfter)
+    $availabilityBefore = Get-BranchProductSignature ([int]$demo02.id)
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
+    $availabilityAfter = Get-BranchProductSignature ([int]$demo02.id)
+    Write-Case 'Denied cross-branch availability update leaves SQL unchanged' $availabilityBefore $availabilityAfter ($availabilityBefore -eq $availabilityAfter)
     $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
     if ($demoEmployeeBId -le 0) { throw 'Could not find demo.employee.b in BranchFlow_Test.' }
+    $foreignEmployeeBefore = Get-EmployeeUserSignature $demoEmployeeBId
     Assert-Status (Invoke-Api 'PUT' "api/management/users/$demoEmployeeBId" $Tokens.BRANCH_ADMIN_01 @{
         username = 'demo.employee.b'; fullName = 'Must not be updated across branches'; role = 'SYSTEM_ADMIN'
         isActive = $false; branchId = [int]$demo02.id; position = 'Denied'
     }) 403 'BranchAdmin cannot update Employee profile outside assigned branch'
+    $foreignEmployeeAfter = Get-EmployeeUserSignature $demoEmployeeBId
+    Write-Case 'Denied cross-branch Employee update leaves SQL unchanged' $foreignEmployeeBefore $foreignEmployeeAfter ($foreignEmployeeBefore -eq $foreignEmployeeAfter)
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.BRANCH_ADMIN_01 $forbiddenBranch) 403 'BranchAdmin cannot create branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.BRANCH_ADMIN_01 @{
         username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'BranchAdmin cannot create accounts'
-    $productBefore = Get-ProductSignature 1
+    $productBefore = Get-ProductCatalogSignature
+    $productCountBefore = Sql "SELECT COUNT(*) FROM dbo.Product;"
+    Write-Case 'Product catalog fixture is present for denied-write verification' 'greater than 0' $productCountBefore ([int]$productCountBefore -gt 0)
     Assert-Status (Invoke-Api 'POST' 'api/management/products' $Tokens.BRANCH_ADMIN_01 @{
         name = 'Must not be created'; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot create or change product prices'
     Assert-Status (Invoke-Api 'PUT' 'api/management/products/1' $Tokens.BRANCH_ADMIN_01 @{
         id = 1; name = 'Must not be changed'; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot update a product or its prices'
-    $productAfter = Get-ProductSignature 1
-    Write-Case 'BranchAdmin denied product/price changes leave SQL unchanged' $productBefore $productAfter ($productBefore -eq $productAfter)
+    $productAfter = Get-ProductCatalogSignature
+    Write-Case 'BranchAdmin denied product/price changes leave entire SQL catalog unchanged' $productBefore $productAfter ($productBefore -eq $productAfter)
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.BRANCH_ADMIN_01 @{
         userId = 1; branchId = [int]$demo01.id
     }) 403 'BranchAdmin cannot create assignments'
@@ -309,6 +364,9 @@ try {
 
     Write-Output 'Local API/SQL role, assignment, and branch verification completed.'
 }
+catch {
+    $testFailure = $_
+}
 finally {
     foreach ($token in $Tokens.Values) { try { Invoke-Api 'POST' 'api/auth/logout' $token | Out-Null } catch { } }
     try {
@@ -316,7 +374,8 @@ finally {
         Write-Output 'Temporary test branches, users, profiles and assignments were cleaned.'
     }
     catch {
-        Write-Warning 'Automatic cleanup could not be confirmed. Inspect BranchFlow_Test for QA110A/QA110B and qa110.* records before any rerun.'
+        $cleanupFailure = $_.Exception.Message
+        Write-Warning 'Automatic cleanup failed. Inspect BranchFlow_Test for QA110A/QA110B and qa110.* records before any rerun.'
     }
     $Results | Format-Table -AutoSize | Out-String | Write-Output
     $failed = @($Results | Where-Object Result -eq 'FAIL').Count
@@ -324,3 +383,5 @@ finally {
     $TempPasswords.Clear()
     $Tokens.Clear()
 }
+if ($testFailure) { throw $testFailure }
+if ($cleanupFailure) { throw "Test cleanup failed. QA fixture records may remain in BranchFlow_Test: $cleanupFailure" }
