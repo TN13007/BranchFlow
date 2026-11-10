@@ -1,0 +1,16 @@
+Result ProductSizes
+------ ------------
+Menu demo sẵn sàng 11
+DemoCase Id Code BranchCode Status TotalAmount BusinessDate
+-------- -- ---- ---------- ------ ----------- ------------
+completed-a 2 BF-DEMO-01-20261110-0001 BF-DEMO-01 COMPLETED 98000.00 2026-11-10
+cancelled-a 3 BF-DEMO-01-20261110-0002 BF-DEMO-01 CANCELLED 147000.00 2026-11-10
+review-a 4 BF-DEMO-01-20261110-0003 BF-DEMO-01 NEEDS_REVIEW 49000.00 2026-11-10
+completed-b 5 BF-DEMO-02-20261110-0001 BF-DEMO-02 COMPLETED 30000.00 2026-11-10
+Code Name Quantity WarningThreshold
+---- ---- -------- ----------------
+BF-DEMO-01 WBS5 - Cốt trà đào 7.000 8.000
+BF-DEMO-02 WBS5 - Cốt trà đào 15.000 8.000
+BF-DEMO-03 WBS5 - Cốt trà đào 4.000 8.000
+PASS BF-WBS5-v1: 4 orders, 3 branch balances, fixture revenue 128000; rerun does not duplicate.
+PASS BranchFlow_Dev seeded; existing accounts, passwords and account states unchanged.
