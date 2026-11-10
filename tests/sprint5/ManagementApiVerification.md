@@ -48,6 +48,14 @@ These are source-level findings only. They are not a substitute for real HTTP/SQ
 | M-018 | BranchAdmin | Update Employee profile in its own branch | 200; allowed profile fields change | Not Run |
 | M-019 | BranchAdmin | Submit role/status/branch/stock-permission escalation fields in profile update | Role, active state, assignment and permissions remain unchanged | Not Run |
 | M-020 | SystemAdmin / BranchAdmin | Read management user response | No password or password-hash fields | Not Run |
+| M-021 | BranchAdmin 01 | PUT Employee B profile in Demo 02 | 403; SQL profile unchanged | Not Run |
+| M-022 | BranchAdmin 01 | POST/PUT product (including prices) | 403; catalog unchanged | Not Run |
+| M-023 | BranchAdmin 01 | POST stock in Demo 02 | 403; balances/history unchanged | Not Run |
+| M-024 | Employee A | POST stock in Demo 02 | 403; balances/history unchanged | Not Run |
+| M-025 | SystemAdmin | After rejected second BranchAdmin assignment | SQL contains exactly one open assignment for branch A | Not Run |
+| M-026 | SystemAdmin | After rejected second Employee assignment | SQL contains exactly one open assignment for Employee A | Not Run |
+| M-027 | BranchAdmin | After attempted privilege escalation on Employee profile | SQL keeps role, active state, branch assignment, and stock permissions unchanged | Not Run |
+| M-028 | Owner / BranchAdmin / Employee | After denied branch/user creation requests | SQL contains no denied fixture row | Not Run |
 
 The HTTP status expectations follow the current controller and service implementation; the runner confirms them against the live local API. A 403 can arise either from the controller's role policy or from service-level branch-scope validation. Keep those causes distinct when recording results.
 
