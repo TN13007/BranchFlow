@@ -152,6 +152,7 @@ try {
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo01.id)" $Tokens.OWNER @{
         code = $demo01.code; name = 'Must not be updated by Owner'; address = $demo01.address; isActive = $demo01.isActive
     }) 403 'Owner cannot update branch'
+    Write-Case 'Owner create request leaves no branch in SQL' '0' (Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.Branch WHERE Code=N'DENY-$RunId';") -eq '0')
 
     $branchBodyA = @{ code = $BranchA; name = 'QA Temporary Branch A'; address = 'Local test A'; isActive = $true }
     $branchBodyB = @{ code = $BranchB; name = 'QA Temporary Branch B'; address = 'Local test B'; isActive = $true }
@@ -189,6 +190,8 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.SYSTEM_ADMIN @{
         userId = [int]$secondAdminCreate.Body; branchId = $branchIdA
     }) 409 'Second effective BranchAdmin for the same branch is rejected'
+    $adminAssignments = Sql "SELECT COUNT(*) FROM dbo.AdminBranchAssignment WHERE BranchId=$branchIdA AND EffectiveTo IS NULL;"
+    Write-Case 'SQL keeps exactly one open Admin assignment' '1' $adminAssignments ($adminAssignments -eq '1')
 
     $TempPasswords.EmployeeA = New-TemporaryPassword
     $employeeCreate = Invoke-Api 'POST' 'api/management/users' $Tokens.SYSTEM_ADMIN @{
@@ -200,6 +203,8 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.SYSTEM_ADMIN @{
         userId = $employeeId; branchId = $branchIdB
     }) 409 'Second effective Employee assignment is rejected'
+    $employeeAssignments = Sql "SELECT COUNT(*) FROM dbo.EmployeeBranchAssignment ea JOIN dbo.EmployeeProfile ep ON ep.Id=ea.EmployeeProfileId JOIN dbo.AppUser u ON u.Id=ep.UserId WHERE u.Username=N'$EmployeeA' AND ea.EffectiveTo IS NULL;"
+    Write-Case 'SQL keeps exactly one open Employee assignment' '1' $employeeAssignments ($employeeAssignments -eq '1')
 
     Login $AdminA 'TEMP_BRANCH_ADMIN' $TempPasswords.AdminA
     $scopedAdminBranches = Invoke-Api 'GET' 'api/management/branches' $Tokens.TEMP_BRANCH_ADMIN
@@ -220,6 +225,9 @@ try {
     $updatedEmployee = @($afterUpdate.Body | Where-Object username -eq $EmployeeA) | Select-Object -First 1
     Write-Case 'BranchAdmin cannot change Employee role or active state' 'EMPLOYEE / active' "$($updatedEmployee.role) / $($updatedEmployee.isActive)" ($updatedEmployee.role -eq 'EMPLOYEE' -and $updatedEmployee.isActive -eq $true -and $updatedEmployee.branchId -eq $branchIdA)
     Write-Case 'BranchAdmin cannot reassign Employee through profile update' ([string]$branchIdA) ([string]$updatedEmployee.branchId) ($updatedEmployee.branchId -eq $branchIdA)
+    $profileSql = Sql "SELECT CONCAT(r.Code,N'|',CONVERT(varchar(1),u.IsActive),N'|',ep.Position,N'|',COALESCE(CONVERT(varchar(12),ea.BranchId),N'0'),N'|',CONVERT(varchar(1),COALESCE(p.CanReceive,0)),N'|',CONVERT(varchar(1),COALESCE(p.CanIssue,0))) FROM dbo.AppUser u JOIN dbo.Role r ON r.Id=u.RoleId JOIN dbo.EmployeeProfile ep ON ep.UserId=u.Id LEFT JOIN dbo.EmployeeBranchAssignment ea ON ea.EmployeeProfileId=ep.Id AND ea.EffectiveTo IS NULL LEFT JOIN dbo.EmployeeStockPermission p ON p.EmployeeProfileId=ep.Id AND p.BranchId=ea.BranchId WHERE u.Id=$employeeId;"
+    $profileExpected = "EMPLOYEE|1|QA Profile|$branchIdA|0|0"
+    Write-Case 'BranchAdmin profile update preserves protected SQL fields' $profileExpected $profileSql ($profileSql -eq $profileExpected)
 
     $existingAdminUsers = Invoke-Api 'GET' 'api/management/users' $Tokens.BRANCH_ADMIN_01
     Assert-Status $existingAdminUsers 200 'BranchAdmin 01 reads Employee list in scope'
@@ -231,6 +239,10 @@ try {
     Write-Case 'Existing BranchAdmin sees only Demo 01' 'BF-DEMO-01' (($existingAdmin.Body | ForEach-Object code) -join ',') (@($existingAdmin.Body).Count -eq 1 -and $existingAdmin.Body[0].code -eq 'BF-DEMO-01')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.BRANCH_ADMIN_01) 403 'BranchAdmin cannot read stock from another branch'
+    Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.BRANCH_ADMIN_01 @{
+        branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
+        lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
+    }) 403 'BranchAdmin cannot write stock in another branch'
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
     $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
     if ($demoEmployeeBId -le 0) { throw 'Could not find demo.employee.b in BranchFlow_Test.' }
@@ -251,8 +263,13 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.BRANCH_ADMIN_01 @{
         userId = 1; branchId = [int]$demo01.id
     }) 403 'BranchAdmin cannot create assignments'
+    Write-Case 'BranchAdmin create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") -eq '0')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.EMPLOYEE_A) 403 'Employee cannot read stock from another branch'
+    Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.EMPLOYEE_A @{
+        branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
+        lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
+    }) 403 'Employee cannot write stock in another branch'
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo01.id)/stock" $Tokens.EMPLOYEE_A) 200 'Employee can read stock within assigned branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.EMPLOYEE_A @{
         username = "deny-employee-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
@@ -260,6 +277,7 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.EMPLOYEE_A @{
         userId = 1; branchId = [int]$demo01.id
     }) 403 'Employee cannot create assignments'
+    Write-Case 'Employee create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-employee-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-employee-$RunId';") -eq '0')
 
     $serializedUsers = ConvertTo-Json -InputObject $scopedUsers.Body -Depth 12 -Compress
     Write-Case 'Management response omits password and hash fields' 'no password/hash field' 'not present' ($serializedUsers -notmatch '"(password|passwordHash)"\s*:')
