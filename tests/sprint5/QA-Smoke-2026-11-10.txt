@@ -1,0 +1,240 @@
+AuthSmoke on Thuanaj core 19baf09, 2026-11-10, BranchFlow_Test
+PASS QA-S4-001
+PASS QA-S4-002
+PASS QA-S4-003
+PASS QA-S4-004
+PASS QA-S4-006
+PASS QA-S4-007
+PASS QA-S4-008
+PASS concurrent refresh attempt 1: 200/401, one descendant, reused session revoked
+PASS concurrent refresh attempt 2: 200/401, one descendant, reused session revoked
+PASS concurrent refresh attempt 3: 200/401, one descendant, reused session revoked
+PASS QA-S4-009
+PASS QA-S4-010
+PASS QA-S4-011
+PASS QA-S4-012
+PASS natural access expiry, pre-expiry rotation, absolute session expiry
+PASS QA-S4-013
+PASS QA-S4-014
+PASS QA-S4-005
+Auth SQL/HTTP smoke: 14 catalog cases passed, 0 failed.
+Cleaned this run's SQL fixtures.
+MenuSmoke on 19baf09
+PASS HTTP 401 case 1
+PASS HTTP 401 case 2
+PASS HTTP 401 case 3
+PASS HTTP 403 case 4
+PASS HTTP 403 case 5
+PASS HTTP 403 case 6
+PASS HTTP 400 case 7
+PASS HTTP 400 case 8
+PASS HTTP 400 case 9
+PASS HTTP 400 case 10
+PASS HTTP 200 case 11
+PASS HTTP 200 case 12
+PASS HTTP 200 case 13
+PASS HTTP 200 case 14
+PASS HTTP 200 case 15
+PASS HTTP 200 case 16
+PASS HTTP 200 case 17
+PASS HTTP 200 case 18
+PASS HTTP 200 case 19
+PASS HTTP 200 case 20
+PASS HTTP 200 case 21
+PASS HTTP 200 case 22
+PASS HTTP 200 case 23
+PASS HTTP 200 case 24
+PASS HTTP 200 case 25
+PASS HTTP 200 case 26
+PASS HTTP 200 case 27
+PASS HTTP 200 case 28
+PASS HTTP 404 case 29
+PASS HTTP 404 case 30
+PASS HTTP 403 case 31
+PASS HTTP 403 case 32
+PASS HTTP 401 case 33
+PASS HTTP 401 case 34
+PASS QA-S4-019: menu branch, ProductSizeId, current price and option structure
+PASS QA-S4-020: active/deleted and branch availability filters
+PASS QA-S4-021: missing, zero, negative and malformed branchId
+PASS QA-S4-022: nonexistent/out-of-scope branch 403, assigned inactive branch 404
+Menu SQL/HTTP smoke: 34 cases passed.
+Cleaned this run's SQL fixtures.
+OrderSmoke on 19baf09
+PASS 1: POST /api/orders expected=401 actual=401
+PASS 2: Safe ProblemDetails + traceId
+PASS 3: POST /api/orders expected=403 actual=403
+PASS 4: Safe ProblemDetails + traceId
+PASS 5: POST /api/orders expected=403 actual=403
+PASS 6: Safe ProblemDetails + traceId
+PASS 7: POST /api/orders expected=400 actual=400
+PASS 8: Safe ProblemDetails + traceId
+PASS 9: POST /api/orders expected=400 actual=400
+PASS 10: Safe ProblemDetails + traceId
+PASS 11: POST /api/orders expected=400 actual=400
+PASS 12: Safe ProblemDetails + traceId
+PASS 13: POST /api/orders expected=400 actual=400
+PASS 14: Safe ProblemDetails + traceId
+PASS 15: POST /api/orders expected=400 actual=400
+PASS 16: Safe ProblemDetails + traceId
+PASS 17: POST /api/orders expected=400 actual=400
+PASS 18: Safe ProblemDetails + traceId
+PASS 19: POST /api/orders expected=400 actual=400
+PASS 20: Safe ProblemDetails + traceId
+PASS 21: POST /api/orders expected=400 actual=400
+PASS 22: Safe ProblemDetails + traceId
+PASS 23: POST /api/orders expected=400 actual=400
+PASS 24: Safe ProblemDetails + traceId
+PASS 25: POST /api/orders expected=400 actual=400
+PASS 26: Safe ProblemDetails + traceId
+PASS 27: POST /api/orders expected=400 actual=400
+PASS 28: Safe ProblemDetails + traceId
+PASS 29: POST /api/orders expected=400 actual=400
+PASS 30: Safe ProblemDetails + traceId
+PASS 31: POST /api/orders expected=400 actual=400
+PASS 32: Safe ProblemDetails + traceId
+PASS 33: POST /api/orders expected=400 actual=400
+PASS 34: Safe ProblemDetails + traceId
+PASS 35: POST /api/orders expected=400 actual=400
+PASS 36: Safe ProblemDetails + traceId
+PASS 37: POST /api/orders expected=400 actual=400
+PASS 38: Safe ProblemDetails + traceId
+PASS 39: POST /api/orders expected=400 actual=400
+PASS 40: Safe ProblemDetails + traceId
+PASS 41: POST /api/orders expected=400 actual=400
+PASS 42: Safe ProblemDetails + traceId
+PASS 43: POST /api/orders expected=400 actual=400
+PASS 44: Safe ProblemDetails + traceId
+PASS 45: POST /api/orders expected=400 actual=400
+PASS 46: Safe ProblemDetails + traceId
+PASS 47: POST /api/orders expected=400 actual=400
+PASS 48: Safe ProblemDetails + traceId
+PASS 49: Invalid requests leave no counter/order
+PASS 50: POST /api/orders expected=201 actual=201
+PASS 51: SQL price: (30000 + 3*5000 + 4000)*2 = 98000
+PASS 52: Header/details/topping/note persisted in SQL
+PASS 53: Vietnam business date + first daily sequence
+PASS 54: GET /api/orders/124 expected=200 actual=200
+PASS 55: GET /api/orders/124 expected=404 actual=404
+PASS 56: Safe ProblemDetails + traceId
+PASS 57: GET /api/orders/mine?keyword=OS6280475458-20261110-0001&businessDate=2026-11-10 expected=200 actual=200
+PASS 58: Own history filters match SQL order
+PASS 59: GET /api/orders/124 expected=200 actual=200
+PASS 60: Historical product snapshot unchanged
+PASS 61: POST /api/orders expected=201 actual=201
+PASS 62: New order uses changed SQL price
+PASS 63: POST /api/orders expected=400 actual=400
+PASS 64: Safe ProblemDetails + traceId
+PASS 65: Unavailable product rolls back allocated counter
+PASS 66: POST /api/orders expected=500 actual=500
+PASS 67: Safe ProblemDetails + traceId
+PASS 68: SQL detail failure rolls back header/details/counter
+PASS 69: POST /api/orders expected=201 actual=201
+PASS 70: POST /api/orders expected=201 actual=201
+PASS 71: POST /api/orders expected=201 actual=201
+PASS 72: POST /api/orders expected=201 actual=201
+PASS 73: POST /api/orders expected=201 actual=201
+PASS 74: POST /api/orders expected=201 actual=201
+PASS 75: POST /api/orders expected=201 actual=201
+PASS 76: POST /api/orders expected=201 actual=201
+PASS 77: POST /api/orders expected=201 actual=201
+PASS 78: POST /api/orders expected=201 actual=201
+PASS 79: POST /api/orders expected=201 actual=201
+PASS 80: POST /api/orders expected=201 actual=201
+PASS 81: Twelve concurrent orders have distinct codes
+PASS 82: POST /api/orders expected=201 actual=201
+PASS 83: Multiple rows total from SQL 100000 + 31000 = 131000
+PASS 84: POST /api/orders expected=201 actual=201
+PASS 85: Topping quantity price 1
+PASS 86: POST /api/orders expected=201 actual=201
+PASS 87: Topping quantity price 2
+PASS 88: POST /api/orders expected=201 actual=201
+PASS 89: Topping quantity price 3
+PASS 90: POST /api/orders expected=400 actual=400
+PASS 91: Safe ProblemDetails + traceId
+PASS 92: POST /api/orders expected=400 actual=400
+PASS 93: Safe ProblemDetails + traceId
+PASS 94: POST /api/orders expected=201 actual=201
+PASS 95: API code retains sequence 10000
+PASS 96: POST /api/orders expected=201 actual=201
+PASS 97: Current topping SQL price is applied
+PASS 98: GET /api/orders/124 expected=200 actual=200
+PASS 99: Old topping name/price snapshot preserved
+PASS 100: POST /api/orders expected=201 actual=201
+PASS 101: POST /api/orders expected=201 actual=201
+PASS 102: QA-S4-041 Vietnam business date changes at 17:00:00Z
+PASS 103: QA-S4-041 SQL CreatedAt remains exact UTC
+PASS 104: QA-S4-041 HTTP business dates match SQL
+PASS 105: POST /api/orders expected=404 actual=404
+PASS 106: Safe ProblemDetails + traceId
+RESULT: 106 checks PASS. API/SQL transaction, scope, price, snapshots and concurrency verified.
+Fixture cleanup completed; no Dev/cloud changes.
+RevenueSmoke on 19baf09
+Fixture creation completed.
+PASS HTTP 401 case 1
+PASS HTTP 401 case 2
+PASS HTTP 401 case 3
+PASS HTTP 403 case 4
+PASS HTTP 200 case 5
+PASS HTTP 200 case 6
+PASS HTTP 200 case 7
+PASS HTTP 200 case 8
+PASS HTTP 403 case 9
+PASS HTTP 400 case 10
+REVENUE SMOKE ORIGINAL ERROR:
+System.Exception: System revenue sai: orders=5, amount=58601.50.
+   at Program.<Main>$(String[] args) in C:\Users\Thuan Nguyen\Desktop\PM\BranchFlow\tests\RevenueSmoke\Program.cs:line 310
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP AuthSession: 83651283-4110-460c-8e79-5142f2b88966, deleted=1
+CLEANUP AuthSession: d3de330e-1aba-47c1-bb17-f33410247cad, deleted=1
+CLEANUP AuthSession: e4f1f15a-a0d1-4f2e-9c8e-c2fec126bb6d, deleted=1
+CLEANUP AuthSession: ab3bc499-6377-4db5-ada3-eff76ae95314, deleted=1
+CLEANUP PASS: AdminBranchAssignment
+CLEANUP PASS: Branch
+CLEANUP PASS: Branch
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+Cleaned this run's SQL fixtures.
+RevenueSmoke retest with baseline on 19baf09
+Fixture creation completed.
+PASS HTTP 401 case 1
+PASS HTTP 401 case 2
+PASS HTTP 401 case 3
+PASS HTTP 403 case 4
+PASS HTTP 200 case 5
+PASS HTTP 200 case 6
+PASS HTTP 200 case 7
+PASS HTTP 200 case 8
+PASS HTTP 403 case 9
+PASS HTTP 400 case 10
+PASS HTTP 200 case 11
+PASS HTTP 200 case 12
+PASS: OWNER and SYSTEM_ADMIN can read system revenue.
+PASS: BRANCH_ADMIN is restricted to assigned branch.
+PASS: EMPLOYEE cannot access management revenue.
+PASS: COMPLETED included, CANCELLED excluded.
+PASS: Vietnam midnight boundary and date grouping.
+PASS: System revenue equals sum of branch revenue.
+Revenue SQL/HTTP smoke: 12 cases passed.
+System total: 5 orders, 58,601.50.
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP AuthSession: 71b64d9f-faa6-49d2-a864-decf49a85d73, deleted=1
+CLEANUP AuthSession: 7f76ad75-becd-4601-a6c1-dc7f8d0715d9, deleted=1
+CLEANUP AuthSession: 558334e5-bf15-4c1d-ae24-59519ec23131, deleted=1
+CLEANUP AuthSession: 274b98f5-a80e-4796-815d-cf5245529464, deleted=1
+CLEANUP PASS: AdminBranchAssignment
+CLEANUP PASS: Branch
+CLEANUP PASS: Branch
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+Cleaned this run's SQL fixtures.
