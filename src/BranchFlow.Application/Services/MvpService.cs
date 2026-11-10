@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using BranchFlow.Application.DTOs.Mvp;
 using BranchFlow.Infrastructure.Models;
 using BranchFlow.Infrastructure.Repositories;
@@ -457,35 +457,109 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         return view;
     }
     private static decimal UnitAmount(OrderItem item) => item.UnitPriceSnapshot + item.OrderItemToppings.Sum(t => t.UnitPriceSnapshot * t.Quantity);
-    private static string Snapshot(SalesOrder order) => JsonSerializer.Serialize(new { order.Status, order.TotalAmount,
-        Items = order.OrderItems.OrderBy(x => x.Id).Select(x => new { x.Id, x.ProductNameSnapshot, x.SizeNameSnapshot, x.Quantity, x.SubtotalAmount }) });
+    private static string Snapshot(SalesOrder order) => JsonSerializer.Serialize(new
+    {
+        order.Id,
+        order.Code,
+        order.Status,
+        order.TotalAmount,
+        Items = order.OrderItems.OrderBy(x => x.Id).Select(x => new
+        {
+            x.Id,
+            x.ProductSizeId,
+            x.ProductNameSnapshot,
+            x.SizeNameSnapshot,
+            x.UnitPriceSnapshot,
+            x.Quantity,
+            x.SubtotalAmount,
+            Toppings = x.OrderItemToppings.OrderBy(t => t.Id).Select(t => new
+            {
+                t.ToppingId,
+                t.ToppingNameSnapshot,
+                t.Quantity,
+                t.UnitPriceSnapshot
+            }),
+            Notes = x.OrderItemNotes.OrderBy(n => n.Id).Select(n => new
+            {
+                n.NoteOptionId,
+                n.NoteNameSnapshot
+            })
+        })
+    });
 
     public async Task<int> AdjustOrderAsync(int actor, int id, AdjustOrderRequest input, CancellationToken ct)
     {
+        if (input is null) throw new ArgumentException("Thông tin điều chỉnh không hợp lệ.");
+
         var order = Found(await repo.OrderAsync(id, ct));
         await ScopeAsync(actor, order.BranchId, ct);
-        if (order.Status == "CANCELLED") throw new InvalidOperationException("Đơn đã hủy không thể chỉnh sửa.");
+
+        if (order.Status == "CANCELLED")
+            throw new InvalidOperationException("Đơn đã hủy không thể chỉnh sửa.");
+
         var reason = Required(input.Reason, 500);
-        repo.ExpectVersion(order, Version(input.RowVersion));
-        var before = Snapshot(order);
-        if (input.Cancel) order.Status = "CANCELLED";
-        else
+        var version = Version(input.RowVersion);
+
+        if (!input.Cancel)
         {
-            if (input.Items is not { Count: >= 1 and <= 100 } || input.Items.Any(x => x is null || x.Quantity is < 1 or > 999) ||
+            if (input.Items is not { Count: >= 1 and <= 100 } ||
+                input.Items.Any(x => x is null || x.Quantity is < 1 or > 999 || x.ItemId <= 0) ||
                 input.Items.Select(x => x.ItemId).Distinct().Count() != input.Items.Count)
                 throw new ArgumentException("Số ly phải từ 1–999 và mỗi dòng chỉ được sửa một lần.");
+
             foreach (var change in input.Items)
             {
-                var line = order.OrderItems.SingleOrDefault(x => x.Id == change.ItemId) ?? throw new ArgumentException("Dòng món không thuộc đơn.");
-                line.Quantity = change.Quantity;
-                line.SubtotalAmount = UnitAmount(line) * change.Quantity;
+                if (!order.OrderItems.Any(x => x.Id == change.ItemId))
+                    throw new ArgumentException("Dòng món không thuộc đơn.");
             }
-            order.TotalAmount = Amount(order.OrderItems.Sum(x => x.SubtotalAmount), 2);
         }
-        order.UpdatedAt = Now;
-        repo.Add(new OrderAdjustment { SalesOrderId = id, AdjustedByUserId = actor, Reason = reason, BeforeData = before, AfterData = Snapshot(order), CreatedAt = Now });
-        await work.SaveChangesAsync(ct);
-        return id;
+
+        repo.ExpectVersion(order, version);
+
+        await work.BeginTransactionAsync(ct);
+
+        try
+        {
+            var before = Snapshot(order);
+
+            if (input.Cancel)
+            {
+                order.Status = "CANCELLED";
+            }
+            else
+            {
+                foreach (var change in input.Items)
+                {
+                    var line = order.OrderItems.Single(x => x.Id == change.ItemId);
+                    line.Quantity = change.Quantity;
+                    line.SubtotalAmount = checked(UnitAmount(line) * change.Quantity);
+                }
+
+                order.TotalAmount = Amount(order.OrderItems.Sum(x => x.SubtotalAmount), 2);
+            }
+
+            order.UpdatedAt = Now;
+
+            repo.Add(new OrderAdjustment
+            {
+                SalesOrderId = id,
+                AdjustedByUserId = actor,
+                Reason = reason,
+                BeforeData = before,
+                AfterData = Snapshot(order),
+                CreatedAt = Now
+            });
+
+            await work.SaveChangesAsync(ct);
+            await work.CommitTransactionAsync(ct);
+
+            return id;
+        }
+        catch
+        {
+            await work.RollbackTransactionAsync(CancellationToken.None);
+            throw;
+        }
     }
     public async Task<List<RevenueView>> RevenueAsync(int actor, int? branch, DateOnly from, DateOnly to, CancellationToken ct)
     {
