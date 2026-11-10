@@ -1,0 +1,9 @@
+Excerpt from prior combined runner, 10/11/2026; not a new HTTP execution and not an independent QA result.
+PASS Server calculates order total
+PASS Admin adjustment retains price and audit history
+PASS Employee detail reflects admin cancellation
+PASS Old order snapshot survives common price update
+PASS Revenue excludes cancelled fixture and counts completed order
+PASS Revenue uses committed snapshot total
+Source SHA256: 368D2D2FB672D53B020502001E652FBCEF6C88AAA0E28A44812543D0E7B10B55
+Negative HTTP statuses were aggregated by the runner; no per-request status trace is retained in this excerpt.

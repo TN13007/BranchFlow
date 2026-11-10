@@ -1,0 +1,11 @@
+PASS retained completion fixture: cancelled196000, quantity4, size/toppings/notes preserved, exactly3 history
+PASS original browser evidence remains cancelled147000 with exactly2 history
+Id Code Status TotalAmount
+-- ---- ------ -----------
+34 WBS3421-e5356f5b170f CANCELLED 196000.00
+Reason PerformedBy BeforeTotal AfterTotal AfterStatus
+------ ----------- ----------- ---------- -----------
+WBS3421 quantity demo.branchadmin.01 98000.00 147000.00 COMPLETED
+WBS3421 system quantity demo.systemadmin 147000.00 196000.00 COMPLETED
+WBS3421 cancel demo.branchadmin.01 196000.00 196000.00 CANCELLED
+This read-only script checks retained state; the HTTP/rollback execution is recorded in Completion-HTTP-SQL-2026-11-10.txt.
