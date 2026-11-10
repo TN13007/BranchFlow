@@ -65,15 +65,31 @@ The HTTP status expectations follow the current controller and service implement
 
 Use a disposable local test database. Do not run against production, a shared demo database, or a personal database containing work that must be preserved.
 
-1. Configure local API secrets according to [Sprint 4 Auth local setup](../../docs/Sprint4-Auth-Local-Setup.md).
-2. Ensure the API connection string targets `BranchFlow_Test`, then run the API with the HTTPS launch profile.
-3. Set the demo password in the current PowerShell process only. Do not place it in the script, command history, screenshots, or Jira.
+1. Create / verify the dedicated local `BranchFlow_Test` database and run the existing baseline, reference data, and DemoSeed only if this Test database is intentionally fresh. Follow [database/README.md](../../database/README.md).
+2. Configure the API User Secret to point to the Test database. This replaces the Dev connection string only in the local User Secrets store; do not commit it:
+
+```powershell
+dotnet user-secrets set 'ConnectionStrings:BranchFlowDb' 'Server=localhost;Database=BranchFlow_Test;Trusted_Connection=True;TrustServerCertificate=True' --project src/BranchFlow.Api
+```
+
+3. Start the API in a separate terminal:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+dotnet run --project src/BranchFlow.Api --launch-profile https
+```
+
+The HTTPS launch profile listens on `https://localhost:7107`. Keep that terminal open. For a named local SQL instance, use the correct server in User Secrets and pass the same instance to the runner with `-Server '.\\SQLEXPRESS'`.
+
+4. In another PowerShell 7+ terminal at the repository root, set the demo password only in process memory and run:
 
 ```powershell
 $env:BRANCHFLOW_DEMO_PASSWORD = Read-Host 'Demo account password'
 ./tests/sprint5/ManagementApiSmoke.ps1
 Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD
 ```
+
+The demo password must come from the group's approved private channel. Do not place it in the script, command history, screenshots, or Jira. The script verifies the SQL target is exactly `BranchFlow_Test` before making requests.
 
 The script also checks the SQL connection target. It creates two uniquely named temporary branches, a temporary BranchAdmin, a second BranchAdmin, and a temporary Employee. It checks API and SQL branch values, assignment conflicts, role denials, branch scope, and profile escalation. Its `finally` block logs out test sessions and deletes only the temporary QA-prefixed records created by that run.
 
