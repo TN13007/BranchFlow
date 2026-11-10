@@ -1,0 +1,14 @@
+PASS UAT order final state CANCELLED, creator Employee A, total 147000
+PASS item and topping snapshots match three cups at 49000 each
+PASS exactly two history records: adjust then cancel; invalid empty reason did not add history
+PASS stock 7 -> 9 -> 7; failed OUT 10 did not commit a third UAT transaction
+PASS stock restored; selling/adjusting/cancelling did not consume WBS ingredient
+Id Code Status TotalAmount
+-- ---- ------ -----------
+24 BF-DEMO-01-20261110-0009 CANCELLED 147000.00
+Code CompletedOrders Revenue
+---- --------------- -------
+BF-DEMO-01 6 185020.50
+BF-DEMO-02 1 30000.00
+PASS retained U25/U27/U28 orders25/26/27 exist once per code, completed29000 each
+Read-only evidence recheck; does not replay browser, double click or post-fault events.
