@@ -100,6 +100,19 @@ Nếu không xác nhận được việc dọn dữ liệu, runner sẽ trả m�
 
 ## Thông tin cần bàn giao sau khi chạy
 
+### Chạy độc lập khi không dùng mật khẩu demo chung
+
+```powershell
+dotnet build src/BranchFlow.Api -c Release
+$env:BRANCHFLOW_TEST_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=BranchFlow_Test;Trusted_Connection=True;TrustServerCertificate=True'
+dotnet run --project tests/ManagementSmoke -c Release -- (Get-Location).Path
+Remove-Item Env:BRANCHFLOW_TEST_CONNECTION_STRING
+```
+
+Yêu cầu PowerShell 7, sqlcmd, .NET HTTPS development certificate và baseline/reference/DemoSeed đã có trên Test. Harness không đổi mật khẩu hay reset DB. Nó mở API HTTPS local riêng bằng khóa ký ngẫu nhiên, tạo các phiên ngắn hạn cho bốn tài khoản demo đang active và chuyển token trong môi trường tiến trình con. JWT, session, role và scope vẫn được middleware thật kiểm tra; token/khóa không in ra log. Đây là kiểm thử quyền management, không phải đăng nhập bằng mật khẩu của các tài khoản dùng chung. Các tài khoản tạm do runner tạo vẫn đăng nhập bằng mật khẩu ngẫu nhiên thực.
+
+Harness dừng đúng API mà nó mở và xóa các phiên do nó tạo. Runner dọn riêng fixture có mã GUID của lượt chạy; các lệnh SQL bật đầy đủ SET options cho filtered index, gồm QUOTED_IDENTIFIER. Lỗi cleanup được báo cùng nguyên nhân và làm lượt chạy thất bại. Không gọi trực tiếp `-UseSyntheticSessions` bằng token của môi trường khác.
+
 Sau khi kiểm thử thật, cập nhật comment Jira với các thông tin sau:
 
 - SHA source và tên nhánh chính xác.
