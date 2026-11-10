@@ -1,0 +1,24 @@
+PASS SQL fixture contains exactly four orders
+PASS Login owner with existing password
+PASS Role owner equals OWNER
+PASS Login systemadmin with existing password
+PASS Role systemadmin equals SYSTEM_ADMIN
+PASS Login branchadmin.01 with existing password
+PASS Role branchadmin.01 equals BRANCH_ADMIN
+PASS Login employee.a with existing password
+PASS Role employee.a equals EMPLOYEE
+PASS Three demo branches readable by API
+PASS API daily revenue equals SQL including pre-existing orders
+PASS Order snapshot completed-a matches SQL
+PASS Employee A reads own completed-a
+PASS Order snapshot cancelled-a matches SQL
+PASS Employee A reads own cancelled-a
+PASS Order snapshot review-a matches SQL
+PASS Employee A reads own review-a
+PASS Order snapshot completed-b matches SQL
+PASS Stock BF-DEMO-01 equals 7
+PASS Stock BF-DEMO-02 equals 15
+PASS Stock BF-DEMO-03 equals 4
+PASS Branch Admin remains limited to assigned branch
+PASS Sample drink is in live employee menu
+WBS demo API/SQL read verification completed; UI review is separate.
