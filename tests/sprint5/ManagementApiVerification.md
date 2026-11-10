@@ -24,6 +24,8 @@ The integrated source already contains:
 
 These are source-level findings only. They are not a substitute for real HTTP/SQL execution.
 
+The stock-write denials target a uniquely created temporary branch rather than the shared WBS demo branches. The Employee fixture receives a test-only permission row for that temporary branch so the scope guard is the denial being exercised. Cleanup removes only stock transactions, audit rows, balances, and permissions related to the temporary branch/profile before deleting the QA branch.
+
 ## Test matrix
 
 | ID | Actor | Request / operation | Expected result | Status |
@@ -50,8 +52,8 @@ These are source-level findings only. They are not a substitute for real HTTP/SQ
 | M-020 | SystemAdmin / BranchAdmin | Read management user response | No password or password-hash fields | Not Run |
 | M-021 | BranchAdmin 01 | PUT Employee B profile in Demo 02 | 403; SQL profile unchanged | Not Run |
 | M-022 | BranchAdmin 01 | POST/PUT product (including prices) | 403; catalog unchanged | Not Run |
-| M-023 | BranchAdmin 01 | POST stock in Demo 02 | 403; balances/history unchanged | Not Run |
-| M-024 | Employee A | POST stock in Demo 02 | 403; balances/history unchanged | Not Run |
+| M-023 | BranchAdmin 01 | POST stock in temporary QA branch B (outside scope) | 403; SQL stock signature unchanged; temporary writes removed by cleanup | Not Run |
+| M-024 | Employee A | POST stock in temporary QA branch B (outside assignment), with a test-only permission row | 403; SQL stock signature unchanged; temporary writes removed by cleanup | Not Run |
 | M-025 | SystemAdmin | After rejected second BranchAdmin assignment | SQL contains exactly one open assignment for branch A | Not Run |
 | M-026 | SystemAdmin | After rejected second Employee assignment | SQL contains exactly one open assignment for Employee A | Not Run |
 | M-027 | BranchAdmin | After attempted privilege escalation on Employee profile | SQL keeps role, active state, branch assignment, and stock permissions unchanged | Not Run |
