@@ -38,7 +38,7 @@ Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD
 
 Runner kiểm tra:
 
-- Trang gốc Web trả về HTML qua HTTPS.
+- Trang gốc Web trả về HTML qua HTTPS; PowerShell xác minh chứng chỉ và tên miền của máy chủ, không bỏ qua lỗi chứng chỉ hết hạn/không hợp lệ.
 - API trả HTTP 401 khi gọi endpoint danh sách chi nhánh mà không có bearer token.
 - SystemAdmin và Owner đọc được dữ liệu chi nhánh demo; Owner không thể tạo chi nhánh.
 - BranchAdmin 01 chỉ truy cập được Demo 01, không đọc được tồn kho Demo 02 và không tạo được phân công.

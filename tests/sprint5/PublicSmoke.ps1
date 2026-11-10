@@ -93,7 +93,7 @@ function Login([string]$Username,[string]$Role) {
 }
 
 try {
-    $web = Invoke-WebRequest -Uri "$WebBaseUrl/" -Method Get -SkipCertificateCheck -MaximumRedirection 5 -TimeoutSec 30
+    $web = Invoke-WebRequest -Uri "$WebBaseUrl/" -Method Get -MaximumRedirection 5 -TimeoutSec 30
     Write-Case 'Public Web root responds over HTTPS' '200' ([string][int]$web.StatusCode) ([int]$web.StatusCode -eq 200)
     Write-Case 'Public Web root is HTML' 'text/html' ([string]$web.Headers['Content-Type']) ([string]$web.Headers['Content-Type'] -match 'text/html')
 
