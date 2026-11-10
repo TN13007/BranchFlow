@@ -234,15 +234,16 @@ public sealed class StockTransactionIntegrationTests
             await using (var db = new BranchFlowDbContext(options))
             {
                 var details = await db.StockTransactionDetails
-                    .Where(x => x.IngredientId == ingredientId)
-                    .OrderBy(x => x.Id)
-                    .Select(x => new
-                    {
-                        x.QuantityBefore,
-                        x.QuantityChange,
-                        x.QuantityAfter
-                    })
-                    .ToListAsync();
+                                    .Where(x => x.IngredientId == ingredientId)
+                                    .OrderBy(x => x.Id)
+                                    .Select(x => new
+                                    {
+                                        x.StockTransactionId,
+                                        x.QuantityBefore,
+                                        x.QuantityChange,
+                                        x.QuantityAfter
+                                    })
+                                    .ToListAsync();
 
                 Assert.Equal(4, details.Count);
 
@@ -257,6 +258,25 @@ public sealed class StockTransactionIntegrationTests
 
                 Assert.Equal((6m, -4m, 2m),
                     (details[3].QuantityBefore, details[3].QuantityChange, details[3].QuantityAfter));
+
+                // Kiểm tra AuditLog của các giao dịch thành công.
+                var transactionIds = details.Select(x => x.StockTransactionId).ToList();
+
+                var auditLogs = await db.AuditLogs
+                    .Where(x => x.EntityName == "StockTransaction" &&
+                                transactionIds.Contains(x.EntityId))
+                    .ToListAsync();
+
+                Assert.Equal(4, auditLogs.Count);
+
+                Assert.All(auditLogs, audit =>
+                {
+                    Assert.Equal(BranchId, audit.BranchId);
+                    Assert.Equal(SystemAdminId, audit.PerformedByUserId);
+                    Assert.Equal("CREATE", audit.Action);
+                    Assert.False(string.IsNullOrWhiteSpace(audit.AfterData));
+                    Assert.Contains("Reason", audit.AfterData);
+                });
             }
         }
         finally
