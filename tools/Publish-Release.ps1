@@ -10,6 +10,12 @@ $root = git rev-parse --show-toplevel
 if ($LASTEXITCODE -ne 0 -or -not $root) { throw 'Run this script from inside the BranchFlow Git repository.' }
 Push-Location $root
 try {
+    $workingTree = git status --porcelain
+    if ($LASTEXITCODE -ne 0) { throw 'Could not read Git working-tree status.' }
+    if ($workingTree) {
+        throw 'Release must be built from a clean committed working tree so the manifest SHA identifies the exact published source.'
+    }
+
     $sdk = (& dotnet --version).Trim()
     if ($LASTEXITCODE -ne 0 -or $sdk -notmatch '^10\.') {
         throw "The .NET 10 SDK required by global.json is unavailable. Detected: $sdk"
