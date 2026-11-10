@@ -8,6 +8,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7+ is required.' }
+$repoRoot = git rev-parse --show-toplevel
+if ($LASTEXITCODE -ne 0 -or -not $repoRoot) { throw 'Run this script from inside the BranchFlow Git repository.' }
+Push-Location $repoRoot
 if (-not $env:BRANCHFLOW_DEMO_PASSWORD) { throw 'Set BRANCHFLOW_DEMO_PASSWORD in this process only.' }
 
 foreach ($address in @($ApiBaseUrl,$WebBaseUrl)) {
@@ -80,6 +83,8 @@ function Login([string]$Username,[string]$Role) {
     Assert-Status $response 200 "Public login $Role"
     if (-not $response.Body.accessToken) { throw "Public login $Role returned no access token." }
     $Tokens[$Role] = [string]$response.Body.accessToken
+    $me = Invoke-Api 'GET' 'api/auth/me' $Tokens[$Role]
+    Assert-Status $me 200 "Public identity endpoint $Role"
 }
 
 try {
@@ -106,7 +111,9 @@ try {
     $owner = Invoke-Api 'GET' 'api/management/branches' $Tokens.OWNER
     Assert-Status $owner 200 'Public Owner branch list'
     $ownerCodes = @($owner.Body | ForEach-Object code)
-    Write-Case 'Owner can read demo branch data' 'BF-DEMO-01/02/03 accessible' ($ownerCodes -join ',') (@('BF-DEMO-01','BF-DEMO-02','BF-DEMO-03' | Where-Object { $ownerCodes -contains $_ }).Count -eq 3)
+    $ownerDemoCount = @($ownerCodes | Where-Object { $_ -in @('BF-DEMO-01','BF-DEMO-02','BF-DEMO-03') }).Count
+    Write-Case 'Owner can read demo branch data' '3 demo branches' ([string]$ownerDemoCount) ($ownerDemoCount -eq 3)
+    Assert-Status (Invoke-Api 'GET' 'api/management/users' $Tokens.OWNER) 403 'Public Owner cannot read management user directory'
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.OWNER @{
         code='PUBLIC-DENY'; name='Must not be created'; address='Smoke test'; isActive=$true
     }) 403 'Public Owner cannot create a branch'
@@ -159,4 +166,6 @@ finally {
     $Results | Format-Table -AutoSize | Out-String | Write-Output
     Write-Output "Public smoke evidence written to $out."
     $Tokens.Clear()
+    Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD -ErrorAction SilentlyContinue
+    Pop-Location
 }
