@@ -1,5 +1,7 @@
 # WBS-3.4.2.1 — Hiển thị yêu cầu điều chỉnh theo chi nhánh
 
+> **Cập nhật sau bàn giao:** các ca quyền, sửa sau hủy, stale409 và rollback khi lỗi ghi chi tiết/lịch sử đã có lượt bổ sung đạt52checks. Xem [kết quả mới](WBS-3.4.2.1-Completion-2026-11-10.md); trạng thái NotRun tương ứng bên dưới là lịch sử trước đợt bổ sung, không còn là trạng thái mới nhất.
+
 Người thực hiện: Công Thành, có công cụ hỗ trợ. Ngày thực hiện/kiểm chứng: 10/11/2026. Jira: SCRUM-124, phần Lịch / effort / WBS map 3.4.2.1 và 3.4.3.1; Story SCRUM-103. Bản này chỉ bàn giao 3.4.2.1, không chốt toàn bộ SCRUM-124.
 
 ## Branch, build và nguồn minh chứng
