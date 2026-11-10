@@ -1,6 +1,6 @@
 # Danh mục minh chứng WBS4.4.1
 
-Hash được tính khi đóng gói10/11/2026; không suy hash lúc này thành hash candidate lịch sử. Không chứa token/mật khẩu.
+SHA256 của đúng bytes trong Git/ZIP, kiểm khi đóng gói10/11/2026; không suy thành hash candidate lịch sử. Không chứa token/mật khẩu.
 
 | File | SHA256 |
 |---|---|
@@ -24,18 +24,18 @@ Hash được tính khi đóng gói10/11/2026; không suy hash lúc này thành 
 | [evidence/owner-cancelled-1366.png](evidence/owner-cancelled-1366.png) | B556E1055FBEA97B2D846BB185FDAAB815A63420E3019540A61F5B2A8F81D1C1 |
 | [evidence/owner-revenue-1366.png](evidence/owner-revenue-1366.png) | 723EB16F1539311A6D5EAD40F908CC93FB34935ACA2028DFD96885854FEACA47 |
 | [evidence/owner-stock-1366.png](evidence/owner-stock-1366.png) | B0B90FA2FA7647C70EDCF42C7A9238AC6D38C49C40BFFB5591E4765292C734BB |
+| [evidence/records/Package-Check-2026-11-10.txt](evidence/records/Package-Check-2026-11-10.txt) | C1D437EE3A43BDD128C600B5D4CC0C5CDC06EB0FD56140F301B12A428547FAB1 |
+| [evidence/records/Retest-DoubleClick-Sql.txt](evidence/records/Retest-DoubleClick-Sql.txt) | E6FED0572AAC59C3AB8DE0FCD4CCAE622D6588334F7EAAF20AB0E938E29F118F |
+| [evidence/records/Retest-PostFault-Sql.txt](evidence/records/Retest-PostFault-Sql.txt) | 66B5E8845CDE53DC417C6E494C4B78304B2CAE62B6C559A496BFE41B7DBD559E |
+| [evidence/records/Source-L01-Excerpt.md](evidence/records/Source-L01-Excerpt.md) | BD6DC1C1C071C548483D43179E072664CE5D1FE8DB7AD3A41DB98C67DC3B4E63 |
+| [evidence/records/Source-L02-Excerpt.md](evidence/records/Source-L02-Excerpt.md) | 1475DFAA753616314C4FE45F5440805BF5D8F26D20D844D017586ADB1377FA00 |
+| [evidence/records/Sql-Recheck-2026-11-10.txt](evidence/records/Sql-Recheck-2026-11-10.txt) | 17DDCD3F3CA46507EC4ED38BD8C5113AC6165A4EB256716986E2180656B77383 |
+| [evidence/records/UatApiResult-2026-11-10.txt](evidence/records/UatApiResult-2026-11-10.txt) | E6FAE11AEDA4CA008AED082861A0B5C1F1D0009A67BE4E5283437E60C538C288 |
+| [evidence/records/UatBuildResult-2026-11-10.txt](evidence/records/UatBuildResult-2026-11-10.txt) | BEF23AE976137A5155DB38610646076778CFC2C7F61B9C77A74C75327EF0FE8E |
+| [evidence/records/UatUnitResult-2026-11-10.txt](evidence/records/UatUnitResult-2026-11-10.txt) | D27D66D6818C56D45B770FD28635282322BEEC54794F4877DB0B1D593595E0A7 |
+| [evidence/records/Verify-UatEvidence.sql](evidence/records/Verify-UatEvidence.sql) | 482F5DA4589960DECA305D82C13F2798DA50CB61510D82362866CA761B0215D3 |
 | [evidence/retest-401-relogin-cart.png](evidence/retest-401-relogin-cart.png) | 910D4CF8515122DA7E427518485F51729F215183CFC448308F8AA06AE0A47C13 |
 | [evidence/retest-double-click.png](evidence/retest-double-click.png) | 0906656E4B47B046EED0A7D7918FF36D177E41ADDFC017A0A86593FD0CA1EF60 |
 | [evidence/retest-post-timeout.png](evidence/retest-post-timeout.png) | 0D1A899255C0CFA826BB46E2BD8D908A9771ACD422BFDCB0CD5FB3A6F467085D |
 | [evidence/system-catalog-1366.png](evidence/system-catalog-1366.png) | 7B8011636A3EF49575196DD9006179B5B74156A531E6EE1DC190BE5BED2F40BF |
 | [evidence/system-employees-768.png](evidence/system-employees-768.png) | E9B86A258BEB9F79C05051E7728100D54DBE66743991F1778CFAF9C2E2DA81DE |
-| [evidence/records/Package-Check-2026-11-10.txt](evidence/records/Package-Check-2026-11-10.txt) | C1D437EE3A43BDD128C600B5D4CC0C5CDC06EB0FD56140F301B12A428547FAB1 |
-| [evidence/records/Retest-DoubleClick-Sql.txt](evidence/records/Retest-DoubleClick-Sql.txt) | E6FED0572AAC59C3AB8DE0FCD4CCAE622D6588334F7EAAF20AB0E938E29F118F |
-| [evidence/records/Retest-PostFault-Sql.txt](evidence/records/Retest-PostFault-Sql.txt) | 66B5E8845CDE53DC417C6E494C4B78304B2CAE62B6C559A496BFE41B7DBD559E |
-| [evidence/records/Source-L01-Excerpt.md](evidence/records/Source-L01-Excerpt.md) | E7BEB48721C38539A0092C5A1D89B2ADBCCECD600B8131E597CFE6E47805554F |
-| [evidence/records/Source-L02-Excerpt.md](evidence/records/Source-L02-Excerpt.md) | B15D974A85F6C64BF5D0F0BD7809E9FC78A4E5F3B7B6CC01CBAF7F4872BAB593 |
-| [evidence/records/Sql-Recheck-2026-11-10.txt](evidence/records/Sql-Recheck-2026-11-10.txt) | 17DDCD3F3CA46507EC4ED38BD8C5113AC6165A4EB256716986E2180656B77383 |
-| [evidence/records/UatApiResult-2026-11-10.txt](evidence/records/UatApiResult-2026-11-10.txt) | E6FAE11AEDA4CA008AED082861A0B5C1F1D0009A67BE4E5283437E60C538C288 |
-| [evidence/records/UatBuildResult-2026-11-10.txt](evidence/records/UatBuildResult-2026-11-10.txt) | BEF23AE976137A5155DB38610646076778CFC2C7F61B9C77A74C75327EF0FE8E |
-| [evidence/records/UatUnitResult-2026-11-10.txt](evidence/records/UatUnitResult-2026-11-10.txt) | D27D66D6818C56D45B770FD28635282322BEEC54794F4877DB0B1D593595E0A7 |
-| [evidence/records/Verify-UatEvidence.sql](evidence/records/Verify-UatEvidence.sql) | A79BC45A2FD3A5205797591E4C1AF5B7EF31B28F8962B1C0EFDB1CB3C89C7B8F |
