@@ -220,6 +220,12 @@ try {
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.BRANCH_ADMIN_01) 403 'BranchAdmin cannot read stock from another branch'
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
+    $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
+    if ($demoEmployeeBId -le 0) { throw 'Could not find demo.employee.b in BranchFlow_Test.' }
+    Assert-Status (Invoke-Api 'PUT' "api/management/users/$demoEmployeeBId" $Tokens.BRANCH_ADMIN_01 @{
+        username = 'demo.employee.b'; fullName = 'Must not be updated across branches'; role = 'SYSTEM_ADMIN'
+        isActive = $false; branchId = [int]$demo02.id; position = 'Denied'
+    }) 403 'BranchAdmin cannot update Employee profile outside assigned branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.BRANCH_ADMIN_01 $forbiddenBranch) 403 'BranchAdmin cannot create branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.BRANCH_ADMIN_01 @{
         username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
