@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$ApiBaseUrl,
     [Parameter(Mandatory=$true)][string]$WebBaseUrl,
+    [Parameter(Mandatory=$true)][string]$ReleaseManifest,
     [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{7,40}$')][string]$ExpectedSha,
     [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{7,40}$')][string]$DeployedSha,
     [string]$OutputRoot = 'artifacts/public-smoke'
@@ -20,6 +21,11 @@ foreach ($address in @($ApiBaseUrl,$WebBaseUrl)) {
 }
 $ExpectedSha = $ExpectedSha.ToLowerInvariant()
 $DeployedSha = $DeployedSha.ToLowerInvariant()
+$release = Get-Content -LiteralPath $ReleaseManifest -Raw | ConvertFrom-Json
+$manifestSha = ([string]$release.sourceCommit).ToLowerInvariant()
+if ($manifestSha -notmatch '^[0-9a-f]{40}$' -or $ExpectedSha -ne $manifestSha) {
+    throw 'ExpectedSha must equal the full sourceCommit in the supplied release manifest.'
+}
 if ($ExpectedSha -ne $DeployedSha) {
     throw "The SHA supplied by the deployment owner does not match the release SHA. Expected $ExpectedSha; supplied $DeployedSha."
 }
@@ -120,7 +126,7 @@ try {
     Write-Case 'Owner can read demo branch data' '3 demo branches' ([string]$ownerDemoCount) ($ownerDemoCount -eq 3)
     Assert-Status (Invoke-Api 'GET' 'api/management/users' $Tokens.OWNER) 403 'Public Owner cannot read management user directory'
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.OWNER @{
-        code='PUBLIC-DENY'; name='Must not be created'; address='Smoke test'; isActive=$true
+        code=''; name=''; address=''; isActive=$false
     }) 403 'Public Owner cannot create a branch'
 
     $branchAdmin = Invoke-Api 'GET' 'api/management/branches' $Tokens.BRANCH_ADMIN_01
@@ -154,6 +160,7 @@ finally {
     $manifest = [ordered]@{
         checkedAtUtc = [DateTime]::UtcNow.ToString('o')
         expectedReleaseSha = $ExpectedSha
+        sourceCommitFromReleaseManifest = $manifestSha
         deployedShaProvidedByReleaseOwner = $DeployedSha
         apiBaseUrl = $ApiBaseUrl
         webBaseUrl = $WebBaseUrl

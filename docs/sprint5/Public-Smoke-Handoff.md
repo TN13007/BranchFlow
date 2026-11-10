@@ -30,7 +30,8 @@ $env:BRANCHFLOW_DEMO_PASSWORD = Read-Host 'Mật khẩu tài khoản demo'
 ./tests/sprint5/PublicSmoke.ps1 `
   -ApiBaseUrl 'https://<hostname-api-da-trien-khai>' `
   -WebBaseUrl 'https://<hostname-web-da-trien-khai>' `
-  -ExpectedSha '<sourceCommit trong release-manifest.json>' `
+  -ReleaseManifest './artifacts/release/release-manifest.json' `
+  -ExpectedSha '<sourceCommit đầy đủ 40 ký tự trong release-manifest.json>' `
   -DeployedSha '<SHA chinh xac do Khang cung cap>'
 
 Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD
@@ -47,6 +48,8 @@ Runner kiểm tra:
 - Kết quả JSON được ghi vào `artifacts/public-smoke/`; file chứa SHA được cung cấp, URL public và kết quả Mong đợi/Thực tế, không chứa token hoặc mật khẩu.
 
 Đây là kiểm thử HTTP smoke. Runner không thực hiện browser E2E, không đối chiếu dữ liệu SQL public, không xác nhận khả năng backup/restore và không thay thế nghiệm thu của stakeholder. Những phần đó cần quy trình và minh chứng riêng.
+
+Runner đọc `sourceCommit` từ manifest được bàn giao và so với ExpectedSha/DeployedSha trước khi gửi request. DeployedSha vẫn do Khang cung cấp từ nhật ký triển khai; đây không phải chứng thực mã nguồn từ máy chủ. Payload thử Owner tạo chi nhánh cố ý không hợp lệ để không tạo dữ liệu nếu kiểm tra quyền bị hồi quy.
 
 ## Trạng thái hiện tại
 
