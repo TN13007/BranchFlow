@@ -131,8 +131,7 @@ try {
     $head = (git rev-parse HEAD).Trim()
     $branchOutput = git branch --show-current
     if ($LASTEXITCODE -ne 0) { throw 'Could not read the release source branch.' }
-    $branch = ([string]$branchOutput).Trim()
-    if (-not $branch) { $branch = 'detached' }
+    $branch = if ($branchOutput) { $branchOutput.Trim() } else { 'detached' }
     $manifest = [ordered]@{
         product = 'BranchFlow'
         sourceCommit = $head
