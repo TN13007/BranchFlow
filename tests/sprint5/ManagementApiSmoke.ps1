@@ -16,6 +16,10 @@ $BranchB = "QA110B-$RunId"
 $AdminA = "qa110.admin.$($RunId.ToLowerInvariant())"
 $AdminB = "qa110.admin2.$($RunId.ToLowerInvariant())"
 $EmployeeA = "qa110.employee.$($RunId.ToLowerInvariant())"
+$DeniedBranchCode = "DENY-$RunId"
+$DeniedBranchAdminUsername = "deny-$RunId"
+$DeniedEmployeeUsername = "deny-employee-$RunId"
+$DeniedProductName = "QA_DENIED_PRODUCT_$RunId"
 $Results = [System.Collections.Generic.List[object]]::new()
 $Tokens = @{}
 $TempPasswords = @{}
@@ -143,9 +147,10 @@ $cleanupSql = @"
 SET XACT_ABORT ON;
 BEGIN TRANSACTION;
 DECLARE @branchIds TABLE (Id int PRIMARY KEY);
-INSERT @branchIds SELECT Id FROM dbo.Branch WHERE Code IN (N'$BranchA',N'$BranchB');
+INSERT @branchIds SELECT Id FROM dbo.Branch WHERE Code IN (N'$BranchA',N'$BranchB',N'$DeniedBranchCode');
 DECLARE @userIds TABLE (Id int PRIMARY KEY);
-INSERT @userIds SELECT Id FROM dbo.AppUser WHERE Username IN (N'$AdminA',N'$AdminB',N'$EmployeeA');
+INSERT @userIds SELECT Id FROM dbo.AppUser WHERE Username IN
+    (N'$AdminA',N'$AdminB',N'$EmployeeA',N'$DeniedBranchAdminUsername',N'$DeniedEmployeeUsername');
 DECLARE @profileIds TABLE (Id int PRIMARY KEY);
 INSERT @profileIds SELECT Id FROM dbo.EmployeeProfile WHERE UserId IN (SELECT Id FROM @userIds);
 DECLARE @stockTransactionIds TABLE (Id int PRIMARY KEY);
@@ -154,6 +159,12 @@ DELETE FROM dbo.AuditLog WHERE BranchId IN (SELECT Id FROM @branchIds) AND Entit
 DELETE FROM dbo.StockTransactionDetail WHERE StockTransactionId IN (SELECT Id FROM @stockTransactionIds);
 DELETE FROM dbo.StockTransaction WHERE Id IN (SELECT Id FROM @stockTransactionIds);
 DELETE FROM dbo.BranchIngredient WHERE BranchId IN (SELECT Id FROM @branchIds);
+DELETE FROM dbo.BranchProduct WHERE BranchId IN (SELECT Id FROM @branchIds);
+DECLARE @deniedProductIds TABLE (Id int PRIMARY KEY);
+INSERT @deniedProductIds SELECT Id FROM dbo.Product WHERE Name=N'$DeniedProductName';
+DELETE FROM dbo.BranchProduct WHERE ProductId IN (SELECT Id FROM @deniedProductIds);
+DELETE FROM dbo.ProductSize WHERE ProductId IN (SELECT Id FROM @deniedProductIds);
+DELETE FROM dbo.Product WHERE Id IN (SELECT Id FROM @deniedProductIds);
 DELETE FROM dbo.RefreshToken WHERE SessionId IN (SELECT Id FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds));
 DELETE FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds);
 DELETE FROM dbo.EmployeeStockPermission WHERE EmployeeProfileId IN (SELECT Id FROM @profileIds);
@@ -195,11 +206,11 @@ try {
     Write-Case 'Owner receives all accessible demo branches' 'at least 3' ([string]$demoCount) ($demoCount -ge 3)
     Assert-Status (Invoke-Api 'GET' 'api/management/users' $Tokens.OWNER) 403 'Owner cannot read management user directory'
 
-    $forbiddenBranch = @{ code = "DENY-$RunId"; name = 'Must not be created by Owner'; address = 'Local test'; isActive = $true }
+    $forbiddenBranch = @{ code = $DeniedBranchCode; name = 'Must not be created by Owner'; address = 'Local test'; isActive = $true }
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.OWNER $forbiddenBranch) 403 'Owner cannot create branch'
     $ownerBranchBefore = Get-BranchSignature ([int]$demo01.id)
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo01.id)" $Tokens.OWNER @{
-        code = $demo01.code; name = 'Must not be updated by Owner'; address = $demo01.address; isActive = $demo01.isActive
+        code = $demo01.code; name = $demo01.name; address = $demo01.address; isActive = $demo01.isActive
     }) 403 'Owner cannot update branch'
     $ownerBranchAfter = Get-BranchSignature ([int]$demo01.id)
     Write-Case 'Owner denied branch update leaves SQL unchanged' $ownerBranchBefore $ownerBranchAfter ($ownerBranchBefore -eq $ownerBranchAfter)
@@ -325,38 +336,40 @@ try {
     }) 403 'BranchAdmin cannot write stock in another branch'
     $branchAdminStockAfter = Get-StockSignature $branchIdB
     Write-Case 'BranchAdmin denied stock write leaves SQL unchanged' $branchAdminStockBefore $branchAdminStockAfter ($branchAdminStockBefore -eq $branchAdminStockAfter)
-    $availabilityBefore = Get-BranchProductSignature ([int]$demo02.id)
-    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
-    $availabilityAfter = Get-BranchProductSignature ([int]$demo02.id)
+    $fixtureProductId = [int](Sql "SELECT MIN(Id) FROM dbo.Product WHERE Deleted=0;")
+    if ($fixtureProductId -le 0) { throw 'No active product exists for the availability permission test.' }
+    Sql "IF NOT EXISTS (SELECT 1 FROM dbo.BranchProduct WHERE BranchId=$branchIdB AND ProductId=$fixtureProductId) INSERT dbo.BranchProduct(BranchId,ProductId,IsAvailable,UpdatedAt) VALUES($branchIdB,$fixtureProductId,1,SYSUTCDATETIME());" | Out-Null
+    $availabilityBefore = Get-BranchProductSignature $branchIdB
+    Assert-Status (Invoke-Api 'PUT' "api/management/branches/$branchIdB/availability/products/$fixtureProductId" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
+    $availabilityAfter = Get-BranchProductSignature $branchIdB
     Write-Case 'Denied cross-branch availability update leaves SQL unchanged' $availabilityBefore $availabilityAfter ($availabilityBefore -eq $availabilityAfter)
-    $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
-    if ($demoEmployeeBId -le 0) { throw 'Could not find demo.employee.b in BranchFlow_Test.' }
-    $foreignEmployeeBefore = Get-EmployeeUserSignature $demoEmployeeBId
-    Assert-Status (Invoke-Api 'PUT' "api/management/users/$demoEmployeeBId" $Tokens.BRANCH_ADMIN_01 @{
-        username = 'demo.employee.b'; fullName = 'Must not be updated across branches'; role = 'SYSTEM_ADMIN'
+    $foreignEmployeeBefore = Get-EmployeeUserSignature $employeeId
+    Assert-Status (Invoke-Api 'PUT' "api/management/users/$employeeId" $Tokens.BRANCH_ADMIN_01 @{
+        username = $EmployeeA; fullName = 'Must not be updated across branches'; role = 'SYSTEM_ADMIN'
         isActive = $false; branchId = [int]$demo02.id; position = 'Denied'
     }) 403 'BranchAdmin cannot update Employee profile outside assigned branch'
-    $foreignEmployeeAfter = Get-EmployeeUserSignature $demoEmployeeBId
+    $foreignEmployeeAfter = Get-EmployeeUserSignature $employeeId
     Write-Case 'Denied cross-branch Employee update leaves SQL unchanged' $foreignEmployeeBefore $foreignEmployeeAfter ($foreignEmployeeBefore -eq $foreignEmployeeAfter)
     Assert-Status (Invoke-Api 'POST' 'api/management/branches' $Tokens.BRANCH_ADMIN_01 $forbiddenBranch) 403 'BranchAdmin cannot create branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.BRANCH_ADMIN_01 @{
-        username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
+        username = $DeniedBranchAdminUsername; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'BranchAdmin cannot create accounts'
     $productBefore = Get-ProductCatalogSignature
     $productCountBefore = Sql "SELECT COUNT(*) FROM dbo.Product WHERE Deleted=0;"
     Write-Case 'Product catalog fixture is present for denied-write verification' 'greater than 0' $productCountBefore ([int]$productCountBefore -gt 0)
     Assert-Status (Invoke-Api 'POST' 'api/management/products' $Tokens.BRANCH_ADMIN_01 @{
-        name = 'Must not be created'; categoryId = 1; isActive = $true
+        name = $DeniedProductName; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot create or change product prices'
-    Assert-Status (Invoke-Api 'PUT' 'api/management/products/1' $Tokens.BRANCH_ADMIN_01 @{
-        id = 1; name = 'Must not be changed'; categoryId = 1; isActive = $true
+    $unusedProductId = [int](Sql "SELECT COALESCE(MAX(Id),0)+1 FROM dbo.Product;")
+    Assert-Status (Invoke-Api 'PUT' "api/management/products/$unusedProductId" $Tokens.BRANCH_ADMIN_01 @{
+        id = $unusedProductId; name = 'Must not be changed'; categoryId = 1; isActive = $true
     }) 403 'BranchAdmin cannot update a product or its prices'
     $productAfter = Get-ProductCatalogSignature
     Write-Case 'BranchAdmin denied product/price changes leave entire SQL catalog unchanged' $productBefore $productAfter ($productBefore -eq $productAfter)
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.BRANCH_ADMIN_01 @{
-        userId = 1; branchId = [int]$demo01.id
+        userId = [int]$secondAdminCreate.Body; branchId = $branchIdB
     }) 403 'BranchAdmin cannot create assignments'
-    Write-Case 'BranchAdmin create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") -eq '0')
+    Write-Case 'BranchAdmin create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'$DeniedBranchAdminUsername';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'$DeniedBranchAdminUsername';") -eq '0')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.EMPLOYEE_A) 403 'Employee cannot read stock from another branch'
     $employeeStockBefore = Get-StockSignature $branchIdB
@@ -368,12 +381,12 @@ try {
     Write-Case 'Employee denied stock write leaves SQL unchanged' $employeeStockBefore $employeeStockAfter ($employeeStockBefore -eq $employeeStockAfter)
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo01.id)/stock" $Tokens.EMPLOYEE_A) 200 'Employee can read stock within assigned branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.EMPLOYEE_A @{
-        username = "deny-employee-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
+        username = $DeniedEmployeeUsername; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'Employee cannot create accounts'
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.EMPLOYEE_A @{
-        userId = 1; branchId = [int]$demo01.id
+        userId = $employeeId; branchId = $branchIdB
     }) 403 'Employee cannot create assignments'
-    Write-Case 'Employee create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-employee-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-employee-$RunId';") -eq '0')
+    Write-Case 'Employee create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'$DeniedEmployeeUsername';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'$DeniedEmployeeUsername';") -eq '0')
 
     $serializedUsers = ConvertTo-Json -InputObject $scopedUsers.Body -Depth 12 -Compress
     Write-Case 'Management response omits password and hash fields' 'no password/hash field' 'not present' ($serializedUsers -notmatch '"(password|passwordHash)"\s*:')
