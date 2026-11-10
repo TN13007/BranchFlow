@@ -75,9 +75,15 @@ function Assert-Status($Response,[int]$Expected,[string]$Name) {
 }
 
 function Login([string]$Username,[string]$Role) {
-    $response = Invoke-Api 'POST' 'api/auth/login' '' @{
+    $loginBody = @{
         username = $Username
         password = $env:BRANCHFLOW_DEMO_PASSWORD
+    }
+    $response = Invoke-Api 'POST' 'api/auth/login' '' $loginBody
+    if ($response.Status -eq 429) {
+        Write-Output "Login rate limit reached for $Role; waiting for the configured one-minute window."
+        Start-Sleep -Seconds 60
+        $response = Invoke-Api 'POST' 'api/auth/login' '' $loginBody
     }
     Assert-Status $response 200 "Public login $Role"
     if (-not $response.Body.accessToken) { throw "Public login $Role returned no access token." }
