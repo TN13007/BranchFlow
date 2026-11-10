@@ -79,7 +79,7 @@ $env:ASPNETCORE_ENVIRONMENT = 'Development'
 dotnet run --project src/BranchFlow.Api --launch-profile https
 ```
 
-The HTTPS launch profile listens on `https://localhost:7107`. Keep that terminal open. For a named local SQL instance, use the correct server in User Secrets and pass the same instance to the runner with `-Server '.\\SQLEXPRESS'`.
+The HTTPS launch profile listens on `https://localhost:7107`. Keep that terminal open. For a named local SQL instance, use the correct server in User Secrets and pass the same instance to the runner with `-Server '.\SQLEXPRESS'`.
 
 4. In another PowerShell 7+ terminal at the repository root, set the demo password only in process memory and run:
 
