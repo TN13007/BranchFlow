@@ -10,7 +10,6 @@ $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7+ is required.' }
 $repoRoot = git rev-parse --show-toplevel
 if ($LASTEXITCODE -ne 0 -or -not $repoRoot) { throw 'Run this script from inside the BranchFlow Git repository.' }
-Push-Location $repoRoot
 if (-not $env:BRANCHFLOW_DEMO_PASSWORD) { throw 'Set BRANCHFLOW_DEMO_PASSWORD in this process only.' }
 
 foreach ($address in @($ApiBaseUrl,$WebBaseUrl)) {
@@ -143,9 +142,7 @@ finally {
         try { Invoke-Api 'POST' 'api/auth/logout' $token | Out-Null } catch { }
     }
 
-    $root = git rev-parse --show-toplevel
-    if (-not $root) { $root = (Get-Location).Path }
-    $out = Join-Path $root $OutputRoot
+    $out = Join-Path $repoRoot $OutputRoot
     New-Item -ItemType Directory -Force -Path $out | Out-Null
     $stamp = [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')
     $manifest = [ordered]@{
@@ -167,5 +164,4 @@ finally {
     Write-Output "Public smoke evidence written to $out."
     $Tokens.Clear()
     Remove-Item Env:BRANCHFLOW_DEMO_PASSWORD -ErrorAction SilentlyContinue
-    Pop-Location
 }
