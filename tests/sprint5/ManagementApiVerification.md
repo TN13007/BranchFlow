@@ -34,9 +34,6 @@ Các ca ghi kho trái quyền sử dụng một chi nhánh QA tạm được t�
 | M-002 | SystemAdmin | GET danh sách chi nhánh | 200; tất cả chi nhánh chưa bị xóa | Chưa chạy |
 | M-003 | Owner | GET danh sách chi nhánh | 200; đọc được dữ liệu chi nhánh | Chưa chạy |
 | M-004 | Owner | POST/PUT chi nhánh | 403; SQL không thay đổi | Chưa chạy |
-| M-029 | SystemAdmin | Tắt tài khoản BranchAdmin đang có phân công hiệu lực | 400; tài khoản và các phân công không đổi | Chưa chạy |
-| M-030 | SystemAdmin | Tạo chi nhánh trùng mã | 409; chỉ còn một bản ghi có mã đó | Chưa chạy |
-| M-031 | SystemAdmin / BranchAdmin | Khóa rồi mở lại chi nhánh tạm đang được phân công | Chi nhánh khóa biến mất khỏi phạm vi; mở lại thì xuất hiện | Chưa chạy |
 | M-005 | Owner | GET danh sách tài khoản quản trị | 403; chính sách vai trò không cho Owner truy cập endpoint này | Chưa chạy |
 | M-006 | SystemAdmin | POST tạo chi nhánh, sau đó PUT cập nhật | 200; response khớp SQL | Chưa chạy |
 | M-007 | BranchAdmin 01 | GET danh sách chi nhánh | 200; chỉ có BF-DEMO-01 | Chưa chạy |
@@ -61,6 +58,9 @@ Các ca ghi kho trái quyền sử dụng một chi nhánh QA tạm được t�
 | M-026 | SystemAdmin | Sau khi từ chối phân công Employee lần thứ hai | SQL còn đúng một phân công đang mở cho Employee A | Chưa chạy |
 | M-027 | BranchAdmin | Sau request thử nâng quyền hồ sơ Employee | SQL giữ nguyên vai trò, trạng thái, chi nhánh và quyền kho | Chưa chạy |
 | M-028 | Owner / BranchAdmin / Employee | Sau request tạo chi nhánh/tài khoản bị từ chối | SQL không có bản ghi fixture bị từ chối | Chưa chạy |
+| M-029 | SystemAdmin | Tắt tài khoản BranchAdmin đang có phân công hiệu lực | 400; tài khoản và các phân công không đổi | Chưa chạy |
+| M-030 | SystemAdmin | Tạo chi nhánh trùng mã | 409; chỉ còn một bản ghi có mã đó | Chưa chạy |
+| M-031 | SystemAdmin / BranchAdmin | Khóa rồi mở lại chi nhánh tạm đang được phân công | Chi nhánh khóa biến mất khỏi phạm vi; mở lại thì xuất hiện | Chưa chạy |
 
 Các mã HTTP mong đợi được xác định theo controller và service hiện tại. HTTP 403 có thể xuất phát từ chính sách vai trò ở controller hoặc từ kiểm tra phạm vi chi nhánh ở service; khi ghi nhận kết quả cần phân biệt hai nguyên nhân này.
 
