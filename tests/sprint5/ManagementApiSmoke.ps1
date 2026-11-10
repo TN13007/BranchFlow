@@ -108,6 +108,8 @@ DECLARE @userIds TABLE (Id int PRIMARY KEY);
 INSERT @userIds SELECT Id FROM dbo.AppUser WHERE Username IN (N'$AdminA',N'$AdminB',N'$EmployeeA');
 DECLARE @profileIds TABLE (Id int PRIMARY KEY);
 INSERT @profileIds SELECT Id FROM dbo.EmployeeProfile WHERE UserId IN (SELECT Id FROM @userIds);
+DELETE FROM dbo.RefreshToken WHERE SessionId IN (SELECT Id FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds));
+DELETE FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds);
 DELETE FROM dbo.EmployeeStockPermission WHERE EmployeeProfileId IN (SELECT Id FROM @profileIds);
 DELETE FROM dbo.EmployeeBranchAssignment WHERE EmployeeProfileId IN (SELECT Id FROM @profileIds);
 DELETE FROM dbo.AdminBranchAssignment WHERE AdminUserId IN (SELECT Id FROM @userIds) OR BranchId IN (SELECT Id FROM @branchIds);
@@ -214,6 +216,11 @@ try {
     Write-Case 'BranchAdmin cannot change Employee role or active state' 'EMPLOYEE / active' "$($updatedEmployee.role) / $($updatedEmployee.isActive)" ($updatedEmployee.role -eq 'EMPLOYEE' -and $updatedEmployee.isActive -eq $true -and $updatedEmployee.branchId -eq $branchIdA)
     Write-Case 'BranchAdmin cannot reassign Employee through profile update' ([string]$branchIdA) ([string]$updatedEmployee.branchId) ($updatedEmployee.branchId -eq $branchIdA)
 
+    $existingAdminUsers = Invoke-Api 'GET' 'api/management/users' $Tokens.BRANCH_ADMIN_01
+    Assert-Status $existingAdminUsers 200 'BranchAdmin 01 reads Employee list in scope'
+    $employeeBVisible = @($existingAdminUsers.Body | Where-Object username -eq 'demo.employee.b').Count -gt 0
+    Write-Case 'BranchAdmin 01 cannot see Employee B from Demo 02' 'not visible' ([string]$employeeBVisible) (-not $employeeBVisible)
+
     $existingAdmin = Invoke-Api 'GET' 'api/management/branches' $Tokens.BRANCH_ADMIN_01
     Assert-Status $existingAdmin 200 'Existing BranchAdmin reads own branch list'
     Write-Case 'Existing BranchAdmin sees only Demo 01' 'BF-DEMO-01' (($existingAdmin.Body | ForEach-Object code) -join ',') (@($existingAdmin.Body).Count -eq 1 -and $existingAdmin.Body[0].code -eq 'BF-DEMO-01')
@@ -230,6 +237,12 @@ try {
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.BRANCH_ADMIN_01 @{
         username = "deny-$RunId"; password = (New-TemporaryPassword); fullName = 'Denied'; role = 'EMPLOYEE'
     }) 403 'BranchAdmin cannot create accounts'
+    Assert-Status (Invoke-Api 'POST' 'api/management/products' $Tokens.BRANCH_ADMIN_01 @{
+        name = 'Must not be created'; categoryId = 1; isActive = $true
+    }) 403 'BranchAdmin cannot create or change product prices'
+    Assert-Status (Invoke-Api 'PUT' 'api/management/products/1' $Tokens.BRANCH_ADMIN_01 @{
+        id = 1; name = 'Must not be changed'; categoryId = 1; isActive = $true
+    }) 403 'BranchAdmin cannot update a product or its prices'
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.BRANCH_ADMIN_01 @{
         userId = 1; branchId = [int]$demo01.id
     }) 403 'BranchAdmin cannot create assignments'
