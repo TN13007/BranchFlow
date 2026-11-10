@@ -121,6 +121,12 @@ DECLARE @userIds TABLE (Id int PRIMARY KEY);
 INSERT @userIds SELECT Id FROM dbo.AppUser WHERE Username IN (N'$AdminA',N'$AdminB',N'$EmployeeA');
 DECLARE @profileIds TABLE (Id int PRIMARY KEY);
 INSERT @profileIds SELECT Id FROM dbo.EmployeeProfile WHERE UserId IN (SELECT Id FROM @userIds);
+DECLARE @stockTransactionIds TABLE (Id int PRIMARY KEY);
+INSERT @stockTransactionIds SELECT Id FROM dbo.StockTransaction WHERE BranchId IN (SELECT Id FROM @branchIds);
+DELETE FROM dbo.AuditLog WHERE BranchId IN (SELECT Id FROM @branchIds) AND EntityName=N'StockTransaction';
+DELETE FROM dbo.StockTransactionDetail WHERE StockTransactionId IN (SELECT Id FROM @stockTransactionIds);
+DELETE FROM dbo.StockTransaction WHERE Id IN (SELECT Id FROM @stockTransactionIds);
+DELETE FROM dbo.BranchIngredient WHERE BranchId IN (SELECT Id FROM @branchIds);
 DELETE FROM dbo.RefreshToken WHERE SessionId IN (SELECT Id FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds));
 DELETE FROM dbo.AuthSession WHERE UserId IN (SELECT Id FROM @userIds);
 DELETE FROM dbo.EmployeeStockPermission WHERE EmployeeProfileId IN (SELECT Id FROM @profileIds);
@@ -208,6 +214,8 @@ try {
     }
     Assert-Status $employeeCreate 200 'SystemAdmin creates Employee with initial assignment'
     $employeeId = [int]$employeeCreate.Body
+    $employeeProfileId = [int](Sql "SELECT ep.Id FROM dbo.EmployeeProfile ep JOIN dbo.AppUser u ON u.Id=ep.UserId WHERE u.Id=$employeeId;")
+    Sql "INSERT dbo.EmployeeStockPermission(EmployeeProfileId,BranchId,CanReceive,CanIssue) VALUES($employeeProfileId,$branchIdB,1,1);" | Out-Null
     Assert-Status (Invoke-Api 'POST' 'api/management/assignments' $Tokens.SYSTEM_ADMIN @{
         userId = $employeeId; branchId = $branchIdB
     }) 409 'Second effective Employee assignment is rejected'
@@ -247,12 +255,12 @@ try {
     Write-Case 'Existing BranchAdmin sees only Demo 01' 'BF-DEMO-01' (($existingAdmin.Body | ForEach-Object code) -join ',') (@($existingAdmin.Body).Count -eq 1 -and $existingAdmin.Body[0].code -eq 'BF-DEMO-01')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.BRANCH_ADMIN_01) 403 'BranchAdmin cannot read stock from another branch'
-    $branchAdminStockBefore = Get-StockSignature ([int]$demo02.id)
+    $branchAdminStockBefore = Get-StockSignature $branchIdB
     Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.BRANCH_ADMIN_01 @{
-        branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
+        branchId = $branchIdB; type = 'IN'; reason = 'QA denied cross-branch write'
         lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
     }) 403 'BranchAdmin cannot write stock in another branch'
-    $branchAdminStockAfter = Get-StockSignature ([int]$demo02.id)
+    $branchAdminStockAfter = Get-StockSignature $branchIdB
     Write-Case 'BranchAdmin denied stock write leaves SQL unchanged' $branchAdminStockBefore $branchAdminStockAfter ($branchAdminStockBefore -eq $branchAdminStockAfter)
     Assert-Status (Invoke-Api 'PUT' "api/management/branches/$($demo02.id)/availability/products/1" $Tokens.BRANCH_ADMIN_01 @{ isAvailable = $false }) 403 'BranchAdmin cannot change availability outside assigned branch'
     $demoEmployeeBId = [int](Sql "SELECT Id FROM dbo.AppUser WHERE Username=N'demo.employee.b' AND Deleted=0;")
@@ -280,12 +288,12 @@ try {
     Write-Case 'BranchAdmin create-user denial leaves no SQL row' '0' (Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") ((Sql "SELECT COUNT(*) FROM dbo.AppUser WHERE Username=N'deny-$RunId';") -eq '0')
 
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo02.id)/stock" $Tokens.EMPLOYEE_A) 403 'Employee cannot read stock from another branch'
-    $employeeStockBefore = Get-StockSignature ([int]$demo02.id)
+    $employeeStockBefore = Get-StockSignature $branchIdB
     Assert-Status (Invoke-Api 'POST' 'api/management/stock' $Tokens.EMPLOYEE_A @{
-        branchId = [int]$demo02.id; type = 'IN'; reason = 'QA denied cross-branch write'
+        branchId = $branchIdB; type = 'IN'; reason = 'QA denied cross-branch write'
         lines = @(@{ ingredientId = 1; quantity = 1; rowVersion = '' })
     }) 403 'Employee cannot write stock in another branch'
-    $employeeStockAfter = Get-StockSignature ([int]$demo02.id)
+    $employeeStockAfter = Get-StockSignature $branchIdB
     Write-Case 'Employee denied stock write leaves SQL unchanged' $employeeStockBefore $employeeStockAfter ($employeeStockBefore -eq $employeeStockAfter)
     Assert-Status (Invoke-Api 'GET' "api/management/branches/$($demo01.id)/stock" $Tokens.EMPLOYEE_A) 200 'Employee can read stock within assigned branch'
     Assert-Status (Invoke-Api 'POST' 'api/management/users' $Tokens.EMPLOYEE_A @{
