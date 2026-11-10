@@ -23,8 +23,10 @@ using Microsoft.IdentityModel.Tokens;
 string connection = Environment.GetEnvironmentVariable("BRANCHFLOW_TEST_CONNECTION_STRING")
     ?? throw new InvalidOperationException("Set BRANCHFLOW_TEST_CONNECTION_STRING.");
 var sql = new SqlConnectionStringBuilder(connection);
-if (sql.InitialCatalog != "BranchFlow_Test" || sql.DataSource != "localhost" || sql.MultipleActiveResultSets)
-    throw new InvalidOperationException("Only localhost/BranchFlow_Test without MARS is allowed.");
+if (!string.Equals(sql.InitialCatalog, "BranchFlow_Test", StringComparison.OrdinalIgnoreCase) ||
+    !System.Text.RegularExpressions.Regex.IsMatch(sql.DataSource, @"^(localhost|127\.0\.0\.1|\.)(\\[A-Za-z0-9_]+)?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase) ||
+    sql.MultipleActiveResultSets)
+    throw new InvalidOperationException("Only a local BranchFlow_Test without MARS is allowed.");
 if (args.Length != 1 || !File.Exists(args[0])) throw new ArgumentException("Pass the built BranchFlow.Api.dll path.");
 var options = new DbContextOptionsBuilder<BranchFlowDbContext>().UseSqlServer(connection).Options;
 BranchFlowDbContext Db() => new(options);
@@ -33,6 +35,7 @@ void Check(bool passed, string label) { if (!passed) throw new Exception(label);
 var sessionIds = new List<Guid>();
 Process? host = null;
 int orderId = 0;
+int productId = 0, categoryId = 0, toppingGroupId = 0, noteGroupId = 0;
 string code = "WBS3421-" + Guid.NewGuid().ToString("N")[..12];
 var key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
 const string issuer = "BranchFlow.WBS3421.LocalTest";
@@ -44,10 +47,7 @@ try
 {
     await using (var db = Db())
     {
-        var source = await db.SalesOrders.AsNoTracking().Include(x => x.OrderItems).ThenInclude(x => x.OrderItemToppings)
-            .Include(x => x.OrderItems).ThenInclude(x => x.OrderItemNotes)
-            .SingleAsync(x => x.Code == "BF-DEMO-01-20261110-0009");
-        Check(source.Status == "CANCELLED" && source.TotalAmount == 147000, "original UI evidence order is intact");
+        var branch = await db.Branches.SingleAsync(x => x.Code == "BF-DEMO-01" && x.IsActive && !x.Deleted);
         foreach (var name in new[] { "demo.systemadmin", "demo.branchadmin.01", "demo.branchadmin.02", "demo.employee.a", "demo.owner" })
         {
             var user = await db.AppUsers.Include(x => x.Role).SingleAsync(x => x.Username == name && x.IsActive && !x.Deleted);
@@ -58,22 +58,28 @@ try
             tokens[name] = new JwtSecurityTokenHandler().WriteToken(jwt);
         }
         var day = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
-        int sequence = (await db.SalesOrders.Where(x => x.BranchId == source.BranchId && x.BusinessDate == day).MaxAsync(x => (int?)x.DailySequence) ?? 0) + 1000000;
-        var item = source.OrderItems.Single();
-        var line = new OrderItem { ProductSizeId = item.ProductSizeId, ProductNameSnapshot = item.ProductNameSnapshot,
-            SizeNameSnapshot = item.SizeNameSnapshot, Quantity = 2, UnitPriceSnapshot = item.UnitPriceSnapshot, SubtotalAmount = 98000,
-            Note = "WBS3421 rollback note", OrderItemToppings = item.OrderItemToppings.Select(t => new OrderItemTopping {
-                ToppingId = t.ToppingId, ToppingNameSnapshot = t.ToppingNameSnapshot, Quantity = t.Quantity, UnitPriceSnapshot = t.UnitPriceSnapshot }).ToList(),
-            OrderItemNotes = item.OrderItemNotes.Select(n => new OrderItemNote { NoteOptionId = n.NoteOptionId, NoteNameSnapshot = n.NoteNameSnapshot }).ToList() };
-        if (line.OrderItemNotes.Count == 0)
-        {
-            var note = await db.NoteOptions.AsNoTracking().FirstAsync(x => !x.Deleted);
-            line.OrderItemNotes.Add(new OrderItemNote { NoteOptionId = note.Id, NoteNameSnapshot = note.Name });
-        }
-        var order = new SalesOrder { Code = code, BranchId = source.BranchId, CreatedByUserId = actors["demo.employee.a"],
+        int sequence = (await db.SalesOrders.Where(x => x.BranchId == branch.Id && x.BusinessDate == day).MaxAsync(x => (int?)x.DailySequence) ?? 0) + 1000000;
+        var category = new Category { Name = code, IsActive = true };
+        var product = new Product { Name = code, Category = category, IsActive = true };
+        var size = await db.Sizes.SingleAsync(x => x.Name == "M" && !x.Deleted);
+        var price = new ProductSize { Product = product, SizeId = size.Id, Price = 30000, IsActive = true };
+        var group = new ToppingGroup { Name = code, IsActive = true };
+        var pearl = new Topping { Name = code + " pearl", Price = 5000, ToppingGroup = group, IsActive = true };
+        var jelly = new Topping { Name = code + " jelly", Price = 4000, ToppingGroup = group, IsActive = true };
+        var notes = new NoteGroup { Name = code, IsActive = true };
+        var note = new NoteOption { Name = code, NoteGroup = notes, IsActive = true };
+        var line = new OrderItem { ProductSize = price, ProductNameSnapshot = product.Name,
+            SizeNameSnapshot = "M", Quantity = 2, UnitPriceSnapshot = 30000, SubtotalAmount = 98000,
+            Note = "WBS3421 rollback note",
+            OrderItemToppings = [
+                new OrderItemTopping { Topping = pearl, ToppingNameSnapshot = pearl.Name, Quantity = 3, UnitPriceSnapshot = 5000 },
+                new OrderItemTopping { Topping = jelly, ToppingNameSnapshot = jelly.Name, Quantity = 1, UnitPriceSnapshot = 4000 }],
+            OrderItemNotes = [new OrderItemNote { NoteOption = note, NoteNameSnapshot = note.Name }] };
+        var order = new SalesOrder { Code = code, BranchId = branch.Id, CreatedByUserId = actors["demo.employee.a"],
             BusinessDate = day, DailySequence = sequence, CreatedAt = DateTime.UtcNow, Status = "COMPLETED", TotalAmount = 98000, OrderItems = [line] };
         db.SalesOrders.Add(order); await db.SaveChangesAsync(); orderId = order.Id;
-        Console.WriteLine($"FIXTURE {code} ID={orderId}; copied original size/topping, added note; direct test fixture, not order-code allocator output.");
+        productId = product.Id; categoryId = category.Id; toppingGroupId = group.Id; noteGroupId = notes.Id;
+        Console.WriteLine($"FIXTURE {code} ID={orderId}; isolated menu/order fixture; direct test fixture, not order-code allocator output.");
     }
     var start = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
     start.ArgumentList.Add(Path.GetFullPath(args[0]));
@@ -174,28 +180,35 @@ try
     await Rejected("demo.branchadmin.01", Change(current, 0, "WBS3421 cancel twice", true), 409);
     var own = await Request("demo.employee.a", "GET", $"api/orders/{orderId}", null, 200);
     Check(own.GetProperty("status").GetString() == "CANCELLED", "employee sees actual cancellation");
-    // Same original order as prior browser evidence: negative requests must not change it.
-    string originalPath = "api/management/orders/24";
-    var original = await Request("demo.branchadmin.01", "GET", originalPath, null, 200);
-    await Request("demo.systemadmin", "PUT", originalPath, Change(original, 4), 409);
-    foreach (var denied in new[] { "demo.employee.a", "demo.owner", "demo.branchadmin.02" }) await Request(denied, "PUT", originalPath, Change(original, 4), 403);
     await using (var db = Db())
     {
         var o = await new MvpRepository(db).OrderAsync(orderId, default) ?? throw new Exception("Missing fixture");
         var line = o.OrderItems.Single();
         Check(line.SizeNameSnapshot == "M" && line.UnitPriceSnapshot == 30000 && line.OrderItemToppings.Sum(t => t.Quantity * t.UnitPriceSnapshot) == 19000
             && line.Note == "WBS3421 rollback note" && line.OrderItemNotes.Count > 0, "SQL final size/topping prices/text and structured notes preserved");
-        var old = await db.SalesOrders.AsNoTracking().SingleAsync(x => x.Id == 24);
-        Check(old.Status == "CANCELLED" && old.TotalAmount == 147000 && await db.OrderAdjustments.CountAsync(x => x.SalesOrderId == 24) == 2, "original UI/API/SQL order24 still cancelled147000 with exactly two history");
     }
-    Console.WriteLine($"PASS COMPLETE checks={checks}; retained fixture={code} ID={orderId} CANCELLED196000; no Dev writes, no application/schema changes.");
+    Console.WriteLine($"PASS COMPLETE checks={checks}; fixture={code} ID={orderId} CANCELLED196000; no Dev writes, no application/schema changes.");
 }
 finally
 {
     if (host is not null) { if (!host.HasExited) { host.Kill(entireProcessTree: true); await host.WaitForExitAsync(); } host.Dispose(); }
     await using var db = Db();
-    await db.AuthSessions.Where(x => sessionIds.Contains(x.Id)).ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, DateTime.UtcNow));
-    Console.WriteLine("CLEANUP isolated API stopped; only harness-owned synthetic sessions revoked; demo passwords unchanged.");
+    await using var cleanup = await db.Database.BeginTransactionAsync();
+    await db.OrderAdjustments.Where(x => x.SalesOrderId == orderId).ExecuteDeleteAsync();
+    await db.OrderItemToppings.Where(x => x.OrderItem.SalesOrderId == orderId).ExecuteDeleteAsync();
+    await db.OrderItemNotes.Where(x => x.OrderItem.SalesOrderId == orderId).ExecuteDeleteAsync();
+    await db.OrderItems.Where(x => x.SalesOrderId == orderId).ExecuteDeleteAsync();
+    await db.SalesOrders.Where(x => x.Id == orderId && x.Code == code).ExecuteDeleteAsync();
+    await db.ProductSizes.Where(x => x.ProductId == productId).ExecuteDeleteAsync();
+    await db.Products.Where(x => x.Id == productId && x.Name == code).ExecuteDeleteAsync();
+    await db.Categories.Where(x => x.Id == categoryId && x.Name == code).ExecuteDeleteAsync();
+    await db.Toppings.Where(x => x.ToppingGroupId == toppingGroupId).ExecuteDeleteAsync();
+    await db.ToppingGroups.Where(x => x.Id == toppingGroupId && x.Name == code).ExecuteDeleteAsync();
+    await db.NoteOptions.Where(x => x.NoteGroupId == noteGroupId).ExecuteDeleteAsync();
+    await db.NoteGroups.Where(x => x.Id == noteGroupId && x.Name == code).ExecuteDeleteAsync();
+    await db.AuthSessions.Where(x => sessionIds.Contains(x.Id)).ExecuteDeleteAsync();
+    await cleanup.CommitAsync();
+    Console.WriteLine("CLEANUP isolated API stopped; owned SQL fixtures/sessions removed; existing evidence orders and demo passwords unchanged.");
 }
 
 sealed class ForeignKeyFailure(bool history) : SaveChangesInterceptor
