@@ -1,82 +1,82 @@
-# Sprint 5 — Release package handoff (SCRUM-113)
+# Sprint 5 — Bàn giao gói phát hành API và Web (SCRUM-113)
 
-## Purpose and boundary
+## Mục đích và phạm vi
 
-This handoff prepares separate framework-dependent Linux Release packages for the API and Blazor Web application. It does **not** deploy either application and does not create cloud resources.
+Tài liệu này hướng dẫn chuẩn bị riêng hai gói phát hành Linux dạng framework-dependent cho ứng dụng API và ứng dụng Web dùng Blazor. Quy trình **không triển khai ứng dụng lên máy chủ** và không tạo tài nguyên cloud.
 
-The API and Web are published independently because they are separate ASP.NET Core applications. Each archive contains the application files at the archive root. The Web archive must also contain `wwwroot/`.
+API và Web được publish riêng vì đây là hai ứng dụng ASP.NET Core độc lập. Mỗi file ZIP phải chứa các file ứng dụng ngay ở thư mục gốc của gói. Gói Web phải có thêm thư mục `wwwroot/`.
 
-## Build, test, publish, and package
+## Build, test, publish và đóng gói
 
-Run from the repository root on Windows PowerShell 7+ with Git and the .NET 10 SDK selected by `global.json`.
+Chạy từ thư mục gốc repository bằng PowerShell 7+, có Git và .NET 10 SDK được chọn theo `global.json`.
 
-The SQL integration suite is skipped when `BRANCHFLOW_TEST_CONNECTION_STRING` is absent. The packaging script deliberately refuses to proceed unless that variable identifies a local `BranchFlow_Test` database.
+Bộ kiểm thử tích hợp SQL sẽ bị bỏ qua nếu không có biến `BRANCHFLOW_TEST_CONNECTION_STRING`. Vì vậy, script đóng gói chủ động từ chối chạy nếu biến này không trỏ đến database `BranchFlow_Test` cục bộ.
 
 ```powershell
-# Supply the value from your local secret store / existing shell configuration.
-# Do not echo it, paste it into chat, or commit it.
-$env:BRANCHFLOW_TEST_CONNECTION_STRING = '<local SQL Server connection to BranchFlow_Test>'
+# Lấy giá trị từ kho bí mật hoặc cấu hình shell cục bộ đang dùng.
+# Không in giá trị ra terminal, gửi qua chat hoặc commit vào Git.
+$env:BRANCHFLOW_TEST_CONNECTION_STRING = '<chuỗi kết nối SQL Server cục bộ đến BranchFlow_Test>'
 
 ./tools/Publish-Release.ps1 -RuntimeIdentifier linux-x64
 
 Remove-Item Env:BRANCHFLOW_TEST_CONNECTION_STRING
 ```
 
-The script performs, in order:
+Script thực hiện lần lượt:
 
 1. `dotnet restore BranchFlow.slnx`.
 2. `dotnet build BranchFlow.slnx --configuration Release --no-restore`.
 3. `dotnet test BranchFlow.slnx --configuration Release --no-build`.
-4. Publish `BranchFlow.Api` and `BranchFlow.Web` separately for `linux-x64`, framework-dependent.
-5. Check root-level DLL, `.deps.json`, and `.runtimeconfig.json` entries.
-6. Check the Web archive has a non-empty `wwwroot/`, and ZIP paths use forward slashes.
-7. Check published appsettings files do not contain a configured database connection string or JWT signing key.
-8. Write SHA-256 hashes, file sizes, source SHA, runtime, build/test status, and archive entries into `release-manifest.json`.
+4. Publish riêng `BranchFlow.Api` và `BranchFlow.Web` cho `linux-x64`, theo dạng framework-dependent.
+5. Kiểm tra các file DLL, `.deps.json` và `.runtimeconfig.json` nằm ở thư mục gốc của mỗi gói.
+6. Kiểm tra gói Web có `wwwroot/` không rỗng và đường dẫn trong ZIP sử dụng dấu gạch chéo xuôi.
+7. Kiểm tra file appsettings sau publish không chứa chuỗi kết nối database hoặc JWT signing key đã được cấu hình.
+8. Ghi mã SHA-256, dung lượng file, SHA source, runtime, trạng thái build/test và danh sách file trong ZIP vào `release-manifest.json`.
 
-Output:
+Các đầu ra:
 
 - `artifacts/release/branchflow-api-linux-x64.zip`
 - `artifacts/release/branchflow-web-linux-x64.zip`
 - `artifacts/release/release-manifest.json`
-- Build, test, restore, and publish logs in `artifacts/release/`
+- Log restore, build, test và publish trong `artifacts/release/`
 
-A successful script run is the evidence for SCRUM-113. A source review or a checked-in manifest template is not a successful build.
+Chỉ kết quả chạy thành công script mới được xem là minh chứng hoàn thành SCRUM-113. Việc rà source hoặc commit một mẫu manifest không được xem là đã build thành công.
 
-## Runtime configuration to provide outside the archives
+## Cấu hình runtime cần cấp ngoài gói ZIP
 
-The API reads configuration from the environment at runtime. Khang / the deployment owner must supply values through the hosting platform's secret/configuration facility:
+API đọc cấu hình từ biến môi trường khi chạy. Khang hoặc người phụ trách triển khai phải cấp các giá trị này thông qua hệ thống cấu hình/bí mật của nền tảng lưu trữ:
 
-| API setting | Purpose |
+| Cấu hình API | Mục đích |
 |---|---|
-| `ConnectionStrings__BranchFlowDb` | Connection to the approved target SQL Server database |
-| `Jwt__Key` | JWT signing key, at least 32 bytes |
-| `Jwt__Issuer` | Expected token issuer |
-| `Jwt__Audience` | Expected token audience |
-| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ConnectionStrings__BranchFlowDb` | Kết nối đến SQL Server đích đã được phê duyệt |
+| `Jwt__Key` | Khóa ký JWT, tối thiểu 32 byte |
+| `Jwt__Issuer` | Định danh bên phát hành token |
+| `Jwt__Audience` | Đối tượng nhận token |
+| `ASPNETCORE_ENVIRONMENT` | Đặt thành `Production` |
 
-The Web application must be configured with:
+Ứng dụng Web cần cấu hình:
 
-| Web setting | Purpose |
+| Cấu hình Web | Mục đích |
 |---|---|
-| `Api__BaseUrl` | Absolute HTTPS URL of the deployed API, ending in `/` |
-| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `Api__BaseUrl` | URL HTTPS đầy đủ của API đã triển khai, có dấu `/` ở cuối |
+| `ASPNETCORE_ENVIRONMENT` | Đặt thành `Production` |
 
-The checked-in Web `appsettings.json` uses `https://localhost:7107/` for local development. It must be overridden with the real API URL in the deployed environment. Do not write the public URL into a release archive until Khang confirms the actual service endpoint.
+File `src/BranchFlow.Web/appsettings.json` hiện dùng `https://localhost:7107/` cho môi trường local. Khi triển khai, phải ghi đè bằng URL API thực tế ở môi trường máy chủ. Không đưa URL public vào gói phát hành khi Khang chưa xác nhận endpoint thật.
 
-Because the packages are framework-dependent, the Linux host must have the .NET 10 ASP.NET Core runtime installed. TLS termination, DNS, firewall, service supervision, database firewall access, and approved hosting plan remain deployment-owner responsibilities.
+Do gói được publish theo dạng framework-dependent, máy chủ Linux phải có .NET 10 ASP.NET Core Runtime. Việc kết thúc TLS, DNS, firewall, quản lý tiến trình dịch vụ, quyền truy cập database từ máy chủ và lựa chọn gói hosting thuộc trách nhiệm người phụ trách triển khai.
 
-## Release acceptance checklist
+## Danh sách nghiệm thu gói phát hành
 
-| Check | Evidence required | Current state |
+| Hạng mục | Minh chứng cần có | Trạng thái hiện tại |
 |---|---|---|
-| Source SHA selected | Exact Git SHA and branch in manifest | Pending script execution |
-| Full Release build | Build log and exit code 0 | Not Run in this workspace |
-| SQL-enabled test suite | Test log, exact passed/failed/skipped counts | Not Run in this workspace |
-| API publish | Root DLL/deps/runtimeconfig in ZIP | Pending script execution |
-| Web publish | Root DLL/deps/runtimeconfig and non-empty wwwroot | Pending script execution |
-| Linux archive paths | No backslash entries | Pending script execution |
-| Secret configuration | No DB connection or JWT signing key in published appsettings | Pending script execution |
-| Manifest | SHA-256 and file sizes for both ZIPs | Pending script execution |
-| Deployment | URL and deployed SHA supplied by Khang | Not part of SCRUM-113 |
+| Chốt SHA source | SHA và nhánh chính xác trong manifest | Chờ chạy script |
+| Build Release toàn solution | Build log và exit code 0 | Chưa chạy trong môi trường hiện tại |
+| Bộ test có kết nối SQL | Test log, số lượng pass/fail/skip chính xác | Chưa chạy trong môi trường hiện tại |
+| Publish API | DLL/deps/runtimeconfig ở thư mục gốc ZIP | Chờ chạy script |
+| Publish Web | DLL/deps/runtimeconfig và wwwroot không rỗng | Chờ chạy script |
+| Đường dẫn ZIP Linux | Không có đường dẫn chứa dấu gạch chéo ngược | Chờ chạy script |
+| Cấu hình bí mật | Appsettings sau publish không chứa connection string hoặc JWT signing key | Chờ chạy script |
+| Manifest | SHA-256 và dung lượng của cả hai ZIP | Chờ chạy script |
+| Triển khai | URL và SHA đã triển khai do Khang cung cấp | Không thuộc phạm vi SCRUM-113 |
 
-Do not mark SCRUM-113 Done until the script has actually run, the output has been inspected, and Khang has received the two archives, logs, and manifest.
+Không chuyển SCRUM-113 sang Done cho đến khi script đã chạy thật, các đầu ra được kiểm tra và Khang đã nhận hai gói ZIP, log cùng manifest.
