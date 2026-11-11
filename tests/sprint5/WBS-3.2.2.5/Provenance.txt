@@ -1,0 +1,10 @@
+WBS: 3.2.2.5
+Jira: SCRUM-122 (Story SCRUM-101)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+ReceivedUIFile: src/BranchFlow.Web/Components/Business/ManagementWorkspace.razor
+ReceivedFrom: D:\QLDA\BranchFlow\src\BranchFlow.Web\Components\Business\ManagementWorkspace.razor
+GitBlob: d1047067f929057a2f06dab9b9f5a85f6bc20982
+SHA256: 904F8A7D8BB1CCAD059B5ED7E6435F7EC5590D737D028918F7DE1AF3E228298D
+BuildVerification: dotnet build src/BranchFlow.Web -c Release --nologo (0 Warning(s), 0 Error(s) on 2026-11-11)
+UnitVerification: dotnet test tests/BranchFlow.Tests -c Release --nologo --filter "FullyQualifiedName~MvpAdminDeactivationTests|FullyQualifiedName~BranchAccessServiceTests|FullyQualifiedName~AuthServiceTests" (29 Passed, 0 Failed on 2026-11-11)
