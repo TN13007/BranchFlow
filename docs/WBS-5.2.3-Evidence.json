@@ -1,0 +1,82 @@
+{
+  "wbs": "5.2.3",
+  "jira": "SCRUM-127",
+  "story": "SCRUM-107",
+  "preparedDate": "2026-11-11",
+  "branch": "docs/SCRUM-127-wbs-5.2.3-user-guide",
+  "base": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+  "verification": "Cross-checked all Branch Admin and Employee workflows, button labels, validation rules, and error recovery instructions in docs/Sprint5-User-Guide.md against real Blazor components and 10/11/2026 UAT runs",
+  "notRun": "Cross-document alignment with WBS 5.2.2 (Owner/System Admin User Guide by Khang), handoff consolidation into WBS 5.2.4 (Truong Tai), and independent walkthrough by another team member on the final deployed candidate",
+  "guideSource": {
+    "path": "docs/Sprint5-User-Guide.md",
+    "gitBlob": "baf2a5b23ed102206bf9926248decf8d1d8f9caf",
+    "receivedFrom": "D:/QLDA/BranchFlow/docs/Sprint5-User-Guide.md",
+    "sha256": "F02DD8C80E7FF98C729A44D95D9FD8E28A526DD066F954DD07C49967C489167E",
+    "reception": "Existing Sprint5-User-Guide.md from D:/QLDA/BranchFlow copied unchanged"
+  },
+  "images": [
+    {
+      "path": "docs/evidence/WBS-5.2.3/login-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/login-1366.png",
+      "sha256": "8220304FAD9F1EB735C1FAE6A66F42394634CCA195FE7DE879C426D1E0D02156",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/employee-menu-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-menu-1366.png",
+      "sha256": "0C63B190EF8A65C8BDE8AC621B38132B0D318F45EE41E5CDFC4720C53C55AA3D",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/employee-cart-360.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-cart-360.png",
+      "sha256": "F2645AB904B5E85D3EA89F0D2A937EFD2030FC55B946D14C842D119808F2A255",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/employee-history-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-history-1366.png",
+      "sha256": "C84804E25A22FD29CB435AE89A3D31D66AFF1CDA0DAD18B116E4B4037E403908",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/branch-menu-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/branch-menu-1366.png",
+      "sha256": "F3F9CE580683D7CCFE4BDA9D06ED4D07269CEFFAE16676D0C5CEF54EAC7346C1",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/branch-order-adjusted-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/branch-order-adjusted-1366.png",
+      "sha256": "93F3ADD14944E67F44ACF1B1901D67356452CBEA79EABC90EA50046A3B60A165",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/branch-order-cancelled-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/branch-order-cancelled-1366.png",
+      "sha256": "D22364C9BBF4641C6672B047D82BE7F2A3272D271DF60231F1D7DF71F5D22EB4",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/branch-stock-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/branch-stock-1366.png",
+      "sha256": "A5740588014B2A537C70157C5B30B59D3938ACA35A80EBF4F70B2700E9D9EA60",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.2.3/branch-revenue-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/branch-revenue-1366.png",
+      "sha256": "6313A80EF40EF578BFCB5FB49AE2519A233D8575ED866237D5D5EEA8D21BDE08",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Trích log kiểm chống gửi lặp (U25) và POST tạo đơn — 10/11/2026
+# Nguồn local:
+# - D:/QLDA/BranchFlow/docs/Sprint5-Retest-Completion.md
+# - D:/QLDA/BranchFlow/tests/sprint5/Retest-BeforeDoubleClick.txt
+# - D:/QLDA/BranchFlow/tests/sprint5/Retest-DoubleClick-Sql.txt
+# Ngày quan sát gốc: 10/11/2026 trên localhost/BranchFlow_Test (nền 47541ee + working tree thanhnc).
+# Không chạy lại thao tác ghi đơn trong lượt WBS 4.6.2 ngày 11/11/2026; dùng lại kết quả cũ kèm đối chiếu source Create.razor / OrderWorkspace.razor.
+
+[Before double-click — Retest-BeforeDoubleClick.txt]
+BeforeCount LastId
+----------- ------
+10 24
+
+[After clickCount=2 on cart confirm button (1 cup, 29.000đ) — Retest-DoubleClick-Sql.txt]
+AfterCount LastId
+---------- ------
+11 25
+Id Code Status TotalAmount
+-- ---- ------ -----------
+25 BF-DEMO-01-20261110-0010 COMPLETED 29000.00
+
+[Ghi chú phạm vi từ Sprint5-Retest-Completion.md]
+- U25: Chrome gửi clickCount=2 trên nút xác nhận giỏ 1 ly 29.000đ; SQL tăng từ 10 lên 11 đơn, chỉ tạo ID 25 / mã BF-DEMO-01-20261110-0010 (Pass ở cấp UI busy guard trong lượt chạy; không suy ra API có idempotency key).
+- 401/timeout sau commit đơn: proxy giữ giỏ và bật cảnh báo Cart.OutcomeUnknown, khóa nút xác nhận cho tới khi kiểm tra lịch sử đơn (Pass ngày 10/11 cho POST tạo đơn; không thay cho POST kho).

@@ -1,0 +1,9 @@
+WBS: 5.3.3
+JiraReference: SCRUM-107 (Subtask FE liên quan: SCRUM-127)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+ReceivedReportFile: docs/Sprint5-WBS-Sprint-Report.md
+ReceivedFrom: D:\QLDA\BranchFlow\docs\Sprint5-WBS-Sprint-Report.md
+GitBlob: 25742d34f65e8bb28f51156ffa63b4ff97f2df1e
+SHA256: 2A25ECED8C46DEF604A18825F17107FB3FB1C1F516C82CF282562106AFDFBE78
+Verification: Cross-checked 20/20 WBS activities (40h planned schedule 06-25/11/2026 vs internal deadline 13/11/2026), GitHub commits/branches, and Jira links.

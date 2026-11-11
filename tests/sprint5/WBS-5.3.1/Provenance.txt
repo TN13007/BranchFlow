@@ -1,0 +1,23 @@
+=== PROVENANCE & TRACEABILITY LOG — WBS 5.3.1 ===
+WBS: 5.3.1 — Tổng hợp 9 hồ sơ Bài tập Tuần 2 và minh chứng (BF-NB-5.3.1)
+Assignee: Nguyễn Công Thành
+Jira Reference: SCRUM-107 (https://khangba153.atlassian.net/browse/SCRUM-107)
+Branch: docs/SCRUM-107-wbs-5.3.1-week2-dossier
+Base Commit (origin/main): ae595fd3872167a70aa9e3f537601682c31e2e28
+
+1. Primary Deliverable (Unchanged from 2026-11-10 Working Tree D:\QLDA\BranchFlow):
+- File: docs/Sprint5-Week2-Dossier-Index.md
+  + Size: 3,615 bytes
+  + SHA256: B206963AFED33C19C45675B0F76A3FCA6843E63FDEC47E9EE5DC2E7EAA681193
+  + Git Blob: bac5ed52b842ec24415c38f2e26adc776539500b
+
+2. External URLs Extracted from Nhom6_BranchFlow_DanhMucNopTuan2.docx (Status: ONLINE NOT VERIFIED by group account):
+- 01 Stakeholder Register: https://docs.google.com/spreadsheets/d/1MMqkve2c6LfkNGBZlO68XRN4NFa7WTePSWw3jog1DZU/edit
+- 02 Requirement List: https://docs.google.com/spreadsheets/d/1B0Lj9VxySbJL7A6h0cSGABZlZR8j7NEsrgyC8QXekRI/edit
+- 03 Use Case Diagram: https://www.figma.com/board/Tw50ZDSrj29onCYuxc7BZF/Untitled?node-id=7-259
+- 04 BPMN Diagram: https://www.figma.com/board/Tw50ZDSrj29onCYuxc7BZF/Untitled?node-id=9-425
+- 05 Scope Statement: https://docs.google.com/document/d/14EQtOsMGIs4ugCyb_e12OV03jjPhvkNh4WC_mKW7Ty8/edit
+- 06 MVP Definition: https://docs.google.com/document/d/1pJHf-EENUTF03Grrjfu9Bjcno8AM6Ql1iBp6Fb5W1gE/edit
+- 07 Work Breakdown Structure: https://docs.google.com/spreadsheets/d/1sjnF8RxBlGJwSleMsVnfaUJ0GHgpIGYPbgMAWQ3zBKM/edit
+- 08 Product Backlog: https://docs.google.com/spreadsheets/d/1B8neumQ0gYDUgCCeEI43kM7g3cj9LW4COthhkzEFsgw/edit
+- 09 Requirements Traceability Matrix: https://docs.google.com/spreadsheets/d/1B8neumQ0gYDUgCCeEI43kM7g3cj9LW4COthhkzEFsgw/edit

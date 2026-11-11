@@ -141,6 +141,12 @@ public sealed class ManagementController(MvpService service) : ControllerBase
     public Task<IActionResult> StockHistory(int branchId, CancellationToken ct) =>
         RunAsync(() => service.StockHistoryAsync(UserId, branchId, ct));
 
+    [HttpGet("branches/{branchId:int}/stock/capabilities")]
+    [Authorize(Roles = Readers + ",EMPLOYEE")]
+    public Task<IActionResult> StockAccess(int branchId, CancellationToken ct) =>
+        RunAsync(() => service.StockCapabilitiesAsync(UserId, branchId, User.IsInRole("EMPLOYEE"),
+            SystemAdmin || User.IsInRole("BRANCH_ADMIN"), ct));
+
     [HttpPut("branches/{branchId:int}/stock/{ingredientId:int}/threshold")]
     [Authorize(Roles = Admins)]
     public Task<IActionResult> UpdateThreshold(int branchId, int ingredientId, ThresholdRequest input, CancellationToken ct) =>

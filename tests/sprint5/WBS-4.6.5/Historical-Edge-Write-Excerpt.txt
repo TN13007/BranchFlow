@@ -1,0 +1,24 @@
+# Trích log kiểm tương thích Microsoft Edge (chỉ đọc Owner & luồng ghi Admin Tổng) — 10/11/2026
+# Nguồn local:
+# - D:/QLDA/BranchFlow/docs/Sprint5-UAT-Responsive.md
+# - D:/QLDA/BranchFlow/docs/Sprint5-Retest-Completion.md
+# - D:/QLDA/BranchFlow/tests/sprint5/Retest-Catalog-Sql.txt
+# Ngày quan sát gốc: 10/11/2026 trên localhost/BranchFlow_Test (nền 47541ee + working tree thanhnc).
+# Giữ nguyên nguồn và ngày quan sát; không gán ảnh/log ngày 10/11 thành lượt chạy mới ngày 11/11/2026.
+
+[1. Trích báo cáo UAT — Sprint5-UAT-Responsive.md (10/11/2026)]
+- Trình duyệt: Chrome Windows 156.0.8078.81; Edge Windows 157.0.4341.42.
+- Edge Windows (chỉ đọc): Owner đăng nhập, xem doanh thu (`edge-owner-revenue.png`), xem kho chỉ đọc (`edge-owner-stock.png`) và đăng xuất; không lưu mật khẩu trình duyệt -> Đạt smoke đã chạy.
+- Thiết bị Android thật hoặc emulator Android: Không có thiết bị/emulator kết nối -> NotRun; Chrome/Edge viewport 360px không thay kiểm thử Android thật.
+
+[2. Trích báo cáo Retest — Sprint5-Retest-Completion.md (10/11/2026)]
+- Luồng ghi trên Edge: Admin Tổng đăng nhập trên Microsoft Edge, lọc `RETEST5`, mở sửa món `RETEST5 Product`, nhập giá lẻ `15,75đ` bằng phím và lưu; có thông báo thành công (`retest-edge-write.png`). Đã đăng xuất, không lưu mật khẩu trình duyệt -> Pass cho cập nhật món trên Edge; không nhận mọi luồng ghi khác trên Edge đã kiểm hết.
+
+[3. Kết quả SQL đối chiếu — Retest-Catalog-Sql.txt (10/11/2026)]
+Name Price GroupName
+---- ----- ---------
+RETEST5 Topping 4.25 RETEST5 ToppingGroup
+
+Name CategoryName SizeName Price
+---- ------------ -------- -----
+RETEST5 Product RETEST5 Category RETEST5 Size 15.75

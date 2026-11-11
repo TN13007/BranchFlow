@@ -1,0 +1,197 @@
+﻿{
+    "wbs":  "4.6.5",
+    "jira":  "SCRUM-127",
+    "story":  "SCRUM-107",
+    "preparedDate":  "2026-11-11",
+    "preparedBy":  "Công Thành, có công cụ hỗ trợ",
+    "branch":  "docs/SCRUM-127-wbs-4.6.5-browser-compatibility",
+    "predecessorWbs":  "4.6.2",
+    "predecessorCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+    "mergedMainHead":  "ae595fd3872167a70aa9e3f537601682c31e2e28",
+    "newRuntimeIn465":  "NotRun; no application code changed after WBS 4.6.2 commit fe9a0e4. Reuses 2026-11-11 Chrome/Edge responsive runs from WBS 4.6.2 and 2026-11-10 Chrome/Edge UAT + Edge write runs.",
+    "notRun":  "Physical Android device or Android emulator, unexecuted Edge write variants beyond catalog product price update, public HTTPS smoke, independent QA retest (WBS 4.2.5)",
+    "excerptLog":  {
+                       "path":  "tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt",
+                       "sha256":  "A536163CD154080D85CD1347E8DBF8D18892B548E07EE5AC61990DAE50B06EEE"
+                   },
+    "historicalEdgeImages":  [
+                                 {
+                                     "packagedPath":  "docs/evidence/WBS-4.6.5/edge-owner-revenue.png",
+                                     "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\evidence\\sprint5-uat\\edge-owner-revenue.png",
+                                     "sha256":  "C1496478AF095025D2897EEDCC89CBCA5B4E80A94BCB47B939E88FD1D58FBB34",
+                                     "length":  71618,
+                                     "observedDate":  "2026-11-10",
+                                     "knownVersion":  "47541ee plus working tree thanhnc; exact runtime SHA not established",
+                                     "reusedWithoutEditing":  true
+                                 },
+                                 {
+                                     "packagedPath":  "docs/evidence/WBS-4.6.5/edge-owner-stock.png",
+                                     "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\evidence\\sprint5-uat\\edge-owner-stock.png",
+                                     "sha256":  "4D7EDCED7B9CB1A2DE9FFD09CEB6CDEB6ABD86122D54C40A44E0B12210C9AC88",
+                                     "length":  88142,
+                                     "observedDate":  "2026-11-10",
+                                     "knownVersion":  "47541ee plus working tree thanhnc; exact runtime SHA not established",
+                                     "reusedWithoutEditing":  true
+                                 },
+                                 {
+                                     "packagedPath":  "docs/evidence/WBS-4.6.5/retest-edge-write.png",
+                                     "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\evidence\\sprint5-uat\\retest-edge-write.png",
+                                     "sha256":  "AAD12ADE8569A6711FD57CAABB326F3DF6E5B55D305B13C48AD26EE01B60A88D",
+                                     "length":  69133,
+                                     "observedDate":  "2026-11-10",
+                                     "knownVersion":  "47541ee plus working tree thanhnc; exact runtime SHA not established",
+                                     "reusedWithoutEditing":  true
+                                 }
+                             ],
+    "reusedPredecessorArtifacts":  [
+                                       {
+                                           "path":  "docs/WBS-4.6.2-Handoff.md",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "6c1f19bd1e6a2cf193b7eb5ff13160c442474c95",
+                                           "sha256":  "D5E6E5FCECD0331337099B4EF12EBE43128B6211023E8C0C01B0D41BFE20EE99",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/WBS-4.6.2-Evidence.json",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "b9089b626c3d722ee32b66812e331c0f753b0661",
+                                           "sha256":  "0C18FC07A3CC66001FD8ED024DEADCAB413F1E3FDEC03A1117064061C23C439D",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Chrome-Measurements.json",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "b9889a7c621a45ff409181ba1687f66fdf1a56bd",
+                                           "sha256":  "98260A4CB73E15B59B84E3C5EAD934A636639363AEB095ED6B586EB26471AF60",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Edge-360-AX.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "5e3008f602f874302a7e27164aa295513ebed6fc",
+                                           "sha256":  "D2BCC3A72A91B11881B2C2EF26ECBAFB8796339FD1F3008A749BF9D5F1CADCAF",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Edge-768-AX.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "efa260858be91edd4f7f873785ab0c965bb069f3",
+                                           "sha256":  "A9E0CAE7DDE8A9E89F76BB8F925E15EED9AE386D913F38287AA11F692B639FA9",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Edge-1366-AX.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "5585a1a267495d12207d64223413a675d754ee78",
+                                           "sha256":  "948DBCA708800DB63A3575DF85112D025A334889C3427785C7EA2C2CCCA7ED64",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Historical-DoubleClick-Excerpt.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "012e14745171c9cd60d8e7ba4e711143d93da88a",
+                                           "sha256":  "CD2942ABF64E646F4720139E42542815442060C03A5DB34EF20A2203C38B0883",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Build-API-2026-11-11.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "7b104357c1842763b4fe6d85d2c5ea33f513e725",
+                                           "sha256":  "EF070CF588869C61CA108FC15F618251D7780B5D4811854869B7ECB81D0B604E",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Build-Web-2026-11-11.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "3454173e355a9f8be1a452207d5156469b64807d",
+                                           "sha256":  "18648D7878FC14B04A315978AA355677C57288CD513EFCF1A4FE99A4102FC94E",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "tests/sprint5/WBS-4.6.2/Provenance.txt",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "ce3b44635faaf3f9219c236dfb101110d1e68100",
+                                           "sha256":  "EEDFF73F7DB1D7FEFDA19262B8722020AE3207B76A8BF7C15A5CD102DDE4CE3C",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/edge-owner-360.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "97e2c8a6ca854e2e1ff69cba03dccdb33c38082d",
+                                           "sha256":  "3FFCDAD1E66BE649584170BEB279629F801ADB44CB50E38D8E22C20DFDB90A0B",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/edge-owner-768.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "daf53e75a3d425113d9762512778b35fbf324f5b",
+                                           "sha256":  "D409335F2B4E7D7A3A5A1A4CFA88963DA1A375F2E2B317833FA11542D7B364CE",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/edge-owner-1366.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "0db5698451c598d56d73eced8091e8a2ed7b87b5",
+                                           "sha256":  "DB1977225A57A3B3FB59C8FE761672CD76EE7D879713F011E8FCB53F3214921B",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/retest-menu-360.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "57794aefe2da0111bc3051187770a2f1e6b50887",
+                                           "sha256":  "5DEF79E76E53A176D8157223EBDE0625AEBCECB920135FD7422F5D0C7265146B",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/retest-menu-768.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "7339b4d74c6c659d67c0d5cb8d09f78fbce8271f",
+                                           "sha256":  "323D558C757DCFDD3DBD9A6A192A847901B30545AC743DDDAA9CAC268CBC12BC",
+                                           "observedDate":  "2026-11-11"
+                                       },
+                                       {
+                                           "path":  "docs/evidence/WBS-4.6.2/retest-menu-1366.png",
+                                           "sourceCommit":  "fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84",
+                                           "gitBlob":  "2e2741ac16a5b6a0679865e53e99a286fcc8a8f3",
+                                           "sha256":  "46A1D0BCDF85A8DF29175EEDF54E00924276F3BD040DB20EE6E1EC34DC9F246F",
+                                           "observedDate":  "2026-11-11"
+                                       }
+                                   ],
+    "historicalSources":  [
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\Sprint5-UAT-Responsive.md",
+                                  "sha256":  "73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt in tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\Sprint5-Retest-Completion.md",
+                                  "sha256":  "25971FAAFB36363F0B46C56D86B815A2C1D9D830B64C7EB60B158F529C97E91C",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt in tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Retest-Catalog-Sql.txt",
+                                  "sha256":  "18829520E5282E0BEB90FE1A23BE54B1D778834F939B81FE4DFBA7523AB3479F",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt in tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Retest-Completion-Sql.txt",
+                                  "sha256":  "341EE840EACB833188E330718BA2118BBF0E6F43AD1CECC555E26DB61B62D635",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt in tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Retest-DoubleClick-Sql.txt",
+                                  "sha256":  "E6FED0572AAC59C3AB8DE0FCD4CCAE622D6588334F7EAAF20AB0E938E29F118F",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt in tests/sprint5/WBS-4.6.5/Historical-Edge-Write-Excerpt.txt; not claimed as fresh 2026-11-11 run"
+                              }
+                          ]
+}

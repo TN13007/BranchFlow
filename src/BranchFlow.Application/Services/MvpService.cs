@@ -366,10 +366,26 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         return (await repo.IngredientsAsync(ct)).Where(x => x.IsActive || balances.ContainsKey(x.Id)).Select(x =>
         {
             var balance = balances.GetValueOrDefault(x.Id);
-            return new BalanceView { IngredientId = x.Id, Name = x.Name, Unit = x.Unit.Name, Quantity = balance?.Quantity ?? 0,
+            return new BalanceView { IngredientId = x.Id, IsActive = x.IsActive, Name = x.Name, Unit = x.Unit.Name, Quantity = balance?.Quantity ?? 0,
                 WarningThreshold = balance?.WarningThreshold ?? 0, RowVersion = balance is null ? "" : Convert.ToBase64String(balance.RowVersion) };
         }).ToList();
     }
+    public async Task<StockCapabilities> StockCapabilitiesAsync(int actor, int branch, bool employee, bool admin, CancellationToken ct)
+    {
+        await ScopeAsync(actor, branch, ct);
+        if (admin) return new(true, true);
+        return employee ? await EmployeeStockCapabilitiesAsync(actor, branch, ct) : new(false, false);
+    }
+
+    private async Task<StockCapabilities> EmployeeStockCapabilitiesAsync(int actor, int branch, CancellationToken ct)
+    {
+        var profile = (await repo.UserAsync(actor, ct))?.EmployeeProfile;
+        if (profile is null || profile.Deleted) return new(false, false);
+        var permission = (await repo.StockPermissionsAsync(ct))
+            .SingleOrDefault(x => x.EmployeeProfileId == profile.Id && x.BranchId == branch);
+        return new(permission?.CanReceive ?? false, permission?.CanIssue ?? false);
+    }
+
     public async Task<int> ThresholdAsync(int actor, int branch, int ingredient, ThresholdRequest input, CancellationToken ct)
     {
         await ScopeAsync(actor, branch, ct);
@@ -396,9 +412,8 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         var reason = Required(input.Reason, 500);
         if (employee)
         {
-            var profile = (await repo.UserAsync(actor, ct))?.EmployeeProfile;
-            if (profile is null || profile.Deleted || !(await repo.StockPermissionsAsync(ct)).Any(x => x.EmployeeProfileId == profile.Id &&
-                x.BranchId == input.BranchId && (input.Type == "IN" ? x.CanReceive : x.CanIssue)))
+            var permission = await EmployeeStockCapabilitiesAsync(actor, input.BranchId, ct);
+            if (!(input.Type == "IN" ? permission.CanReceive : permission.CanIssue))
                 throw new UnauthorizedAccessException();
         }
         var ingredients = (await repo.IngredientsAsync(ct)).Where(x => x.IsActive).Select(x => x.Id).ToHashSet();

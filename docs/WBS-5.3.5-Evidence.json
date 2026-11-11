@@ -1,0 +1,27 @@
+{
+  "wbs": "5.3.5",
+  "jira": "SCRUM-107",
+  "relatedSubtask": "SCRUM-127",
+  "preparedDate": "2026-11-11",
+  "branch": "docs/SCRUM-107-wbs-5.3.5-demo-slides",
+  "base": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+  "verification": "Verified 8-slide PowerPoint presentation (Sprint5-BranchFlow-Demo.pptx) and 8-minute speaker role script (Sprint5-Demo-Presentation.md) against real UAT/demo fixtures and test results",
+  "notRun": "Full 5-member live rehearsal, confirmation of proposed speaker roles by all team members, and final visual check in desktop Microsoft PowerPoint on the presentation machine",
+  "deliverables": [
+    {
+      "path": "docs/Sprint5-Demo-Presentation.md",
+      "gitBlob": "8d34b1f4e9dfeab645f3922cc3dbb89e5eb3beb1",
+      "receivedFrom": "D:/QLDA/BranchFlow/docs/Sprint5-Demo-Presentation.md",
+      "sha256": "D54780EE17BA3B9058C85A458E0EB59948A64DAB3EBA99A134E053E2940CA35C",
+      "reception": "Existing Sprint5-Demo-Presentation.md from D:/QLDA/BranchFlow copied unchanged"
+    },
+    {
+      "path": "docs/Sprint5-BranchFlow-Demo.pptx",
+      "gitBlob": "447d32f66191053aaebf05b79161c0c4feeeecf6",
+      "receivedFrom": "D:/QLDA/BranchFlow/docs/Sprint5-BranchFlow-Demo.pptx",
+      "sha256": "5D0FD31A6C79FF85F081CDB2676932BEC12528F050BF838EB3F93393D513831A",
+      "bytes": 169055,
+      "reception": "Existing Sprint5-BranchFlow-Demo.pptx from D:/QLDA/BranchFlow copied unchanged"
+    }
+  ]
+}
