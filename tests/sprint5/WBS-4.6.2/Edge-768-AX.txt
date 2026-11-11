@@ -1,0 +1,16 @@
+													610 combo box (settable, string) Device type Description: Device type Value: Responsive
+													611 spin button (settable, float) Width Description: Width Value: 768
+													613 spin button (settable, float) Height (leave empty for full) Description: 741 Value: 741
+													614 combo box (settable, string) Zoom Description: Zoom Value: 100%
+																581 heading Welcome to Microsoft Edge DevTools ID: welcome-title
+																	585 heading Learn ID: help-links-title
+																	597 heading What's New ID: highlights-title
+																				603 heading What's New in DevTools 115 - 125
+																				606 heading Tool icons return to DevTools
+											419 document Tổng quan hôm nay | BranchFlow Value: https://localhost:17532/owner ID: RootWebArea
+													434 text Chỉ xem dữ liệu
+														438 heading Tổng quan hôm nay
+													460 heading Doanh thu theo ngày và chi nhánh
+													472 text Không có đơn hoàn thành trong khoảng ngày đã chọn.
+Device type
+Zoom

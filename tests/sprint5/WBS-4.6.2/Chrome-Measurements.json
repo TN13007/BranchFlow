@@ -1,0 +1,1065 @@
+{
+  "date": "2026-11-11",
+  "browser": "Chrome on Windows; viewport emulation",
+  "note": "Latest DOM measurement per label. employee-menu-360 is baseline defect; final retest labels are post-fix. Local horizontal category/table scrolling is intentional.",
+  "records": [
+    {
+      "label": "login-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1351,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": null,
+      "sidebar": null,
+      "width": 1366
+    },
+    {
+      "label": "login-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 753,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": null,
+      "sidebar": null,
+      "width": 768
+    },
+    {
+      "label": "login-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 360,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": null,
+      "sidebar": null,
+      "width": 360
+    },
+    {
+      "label": "employee-menu-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": {
+        "clientWidth": 400,
+        "height": 2349.775146484375,
+        "right": 399.75,
+        "scrollTop": 0,
+        "scrollWidth": 400,
+        "width": 399.75,
+        "x": 0
+      },
+      "outliers": [
+        {
+          "label": "Mở giỏ hàng, 0 ly",
+          "rect": {
+            "clientWidth": 58,
+            "height": 52,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 64,
+            "width": 58,
+            "x": 325.75
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "",
+          "rect": {
+            "clientWidth": 301,
+            "height": 52,
+            "right": 368.9499950408935,
+            "scrollTop": 0,
+            "scrollWidth": 301,
+            "width": 338.1499938964844,
+            "x": 30.80000114440918
+          },
+          "tag": "INPUT"
+        },
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 550.8374938964844,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 361.7749938964844
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "☕Chưa có ảnhTừ 12,50đ\n                        FE-0d68e065Demo - Cà phê",
+          "rect": {
+            "clientWidth": 176,
+            "height": 301.8000183105469,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 176,
+            "width": 177.875,
+            "x": 205.875
+          },
+          "tag": "ARTICLE"
+        },
+        {
+          "label": "Chọn món＋",
+          "rect": {
+            "clientWidth": 151,
+            "height": 44,
+            "right": 370.9500122070313,
+            "scrollTop": 0,
+            "scrollWidth": 151,
+            "width": 152.27500915527344,
+            "x": 218.6750030517578
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "☕Chưa có ảnhTừ 10,25đ\n                        FE-70bdd1faDemo - Cà phê",
+          "rect": {
+            "clientWidth": 176,
+            "height": 301.8000183105469,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 176,
+            "width": 177.875,
+            "x": 205.875
+          },
+          "tag": "ARTICLE"
+        },
+        {
+          "label": "Chọn món＋",
+          "rect": {
+            "clientWidth": 151,
+            "height": 44,
+            "right": 370.9500122070313,
+            "scrollTop": 0,
+            "scrollWidth": 151,
+            "width": 152.27500915527344,
+            "x": 218.6750030517578
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "Từ 32.000đ\n                        Demo - Trà đàoDemo - Trà · 2 size\n ",
+          "rect": {
+            "clientWidth": 176,
+            "height": 301.8000183105469,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 176,
+            "width": 177.875,
+            "x": 205.875
+          },
+          "tag": "ARTICLE"
+        },
+        {
+          "label": "Chọn món＋",
+          "rect": {
+            "clientWidth": 151,
+            "height": 44,
+            "right": 370.9500122070313,
+            "scrollTop": 0,
+            "scrollWidth": 151,
+            "width": 152.27500915527344,
+            "x": 218.6750030517578
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "Từ 32.000đ\n                        Cà phê sữa đáMenu demo BranchFlow ·",
+          "rect": {
+            "clientWidth": 176,
+            "height": 301.8000183105469,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 176,
+            "width": 177.875,
+            "x": 205.875
+          },
+          "tag": "ARTICLE"
+        },
+        {
+          "label": "Chọn món＋",
+          "rect": {
+            "clientWidth": 151,
+            "height": 44,
+            "right": 370.9500122070313,
+            "scrollTop": 0,
+            "scrollWidth": 151,
+            "width": 152.27500915527344,
+            "x": 218.6750030517578
+          },
+          "tag": "BUTTON"
+        },
+        {
+          "label": "Từ 30.000đ\n                        Trà đào cam sảMenu demo BranchFlow ",
+          "rect": {
+            "clientWidth": 176,
+            "height": 301.8000183105469,
+            "right": 383.75,
+            "scrollTop": 0,
+            "scrollWidth": 176,
+            "width": 177.875,
+            "x": 205.875
+          },
+          "tag": "ARTICLE"
+        },
+        {
+          "label": "Chọn món＋",
+          "rect": {
+            "clientWidth": 151,
+            "height": 44,
+            "right": 370.9500122070313,
+            "scrollTop": 0,
+            "scrollWidth": 151,
+            "width": 152.27500915527344,
+            "x": 218.6750030517578
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 2410.574951171875,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 400,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "employee-menu-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": {
+        "clientWidth": 483,
+        "height": 2544.10009765625,
+        "right": 752.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 482.8000183105469,
+        "x": 270
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 834.8375244140625,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 645.7750244140625
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "employee-menu-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1366,
+      "height": 800,
+      "menu": {
+        "clientWidth": 1081,
+        "height": 2164.362548828125,
+        "right": 1351.2000732421875,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1081.2000732421875,
+        "x": 270
+      },
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1081,
+        "height": 800,
+        "right": 1366.4000244140625,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1096.4000244140625,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    },
+    {
+      "label": "retest-menu-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": {
+        "clientWidth": 345,
+        "height": 2226.175048828125,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 550.8374938964844,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 361.7749938964844
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 2286.97509765625,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "retest-menu-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": {
+        "clientWidth": 483,
+        "height": 2544.10009765625,
+        "right": 752.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 482.8000183105469,
+        "x": 270
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 834.8375244140625,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 645.7750244140625
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "retest-menu-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1366,
+      "height": 800,
+      "menu": {
+        "clientWidth": 1081,
+        "height": 2164.362548828125,
+        "right": 1351.2000732421875,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1081.2000732421875,
+        "x": 270
+      },
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1081,
+        "height": 800,
+        "right": 1366.4000244140625,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1096.4000244140625,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    },
+    {
+      "label": "options-360",
+      "date": "2026-11-11",
+      "dialog": {
+        "clientWidth": 325,
+        "height": 776,
+        "right": 334.9000005722046,
+        "scrollTop": 0,
+        "scrollWidth": 325,
+        "width": 325,
+        "x": 9.90000057220459
+      },
+      "documentWidth": 345,
+      "height": 800,
+      "menu": {
+        "clientWidth": 345,
+        "height": 2226.175048828125,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 550.8374938964844,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 361.7749938964844
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 271.20001220703125,
+      "pane": {
+        "clientWidth": 345,
+        "height": 2286.97509765625,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "cart-360",
+      "date": "2026-11-11",
+      "dialog": {
+        "clientWidth": 307,
+        "height": 522.1625366210938,
+        "right": 325.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 307,
+        "width": 306.8000183105469,
+        "x": 19
+      },
+      "documentWidth": 345,
+      "height": 800,
+      "menu": {
+        "clientWidth": 345,
+        "height": 2226.175048828125,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 550.8374938964844,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 361.7749938964844
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 2286.97509765625,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "cart-768",
+      "date": "2026-11-11",
+      "dialog": {
+        "clientWidth": 715,
+        "height": 449.2625122070313,
+        "right": 733.7999877929688,
+        "scrollTop": 0,
+        "scrollWidth": 715,
+        "width": 714.7999877929688,
+        "x": 19
+      },
+      "documentWidth": 753,
+      "height": 800,
+      "menu": {
+        "clientWidth": 468,
+        "height": 2553.512451171875,
+        "right": 737.6000061035156,
+        "scrollTop": 0,
+        "scrollWidth": 468,
+        "width": 467.6000061035156,
+        "x": 270
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 834.8375244140625,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 645.7750244140625
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 468,
+        "height": 800,
+        "right": 752.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 468,
+        "width": 482.8000183105469,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "cart-1366",
+      "date": "2026-11-11",
+      "dialog": {
+        "clientWidth": 800,
+        "height": 449.2625122070313,
+        "right": 1075.6000061035156,
+        "scrollTop": 0,
+        "scrollWidth": 800,
+        "width": 800,
+        "x": 275.6000061035156
+      },
+      "documentWidth": 1351,
+      "height": 800,
+      "menu": {
+        "clientWidth": 1066,
+        "height": 2148.712646484375,
+        "right": 1336,
+        "scrollTop": 0,
+        "scrollWidth": 1066,
+        "width": 1066,
+        "x": 270
+      },
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1066,
+        "height": 800,
+        "right": 1351.2000732421875,
+        "scrollTop": 0,
+        "scrollWidth": 1066,
+        "width": 1081.2000732421875,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    },
+    {
+      "label": "empty-menu-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": {
+        "clientWidth": 345,
+        "height": 732.9500122070312,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 550.8374938964844,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 361.7749938964844
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 793.75,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "sidebar-scroll-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": {
+        "clientWidth": 483,
+        "height": 2544.10009765625,
+        "right": 752.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 482.8000183105469,
+        "x": 270
+      },
+      "outliers": [
+        {
+          "label": "Menu demo BranchFlow",
+          "rect": {
+            "clientWidth": 187,
+            "height": 44,
+            "right": 834.8375244140625,
+            "scrollTop": 0,
+            "scrollWidth": 187,
+            "width": 189.0625,
+            "x": 645.7750244140625
+          },
+          "tag": "BUTTON"
+        }
+      ],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 1600,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "system-employees-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "system-employees-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 1932.050048828125,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "system-employees-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1366,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1081,
+        "height": 800,
+        "right": 1366.4000244140625,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1096.4000244140625,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    },
+    {
+      "label": "revenue-empty-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1366,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1081,
+        "height": 800,
+        "right": 1366.4000244140625,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1096.4000244140625,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    },
+    {
+      "label": "revenue-error-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "revenue-error-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 345,
+        "height": 752.0499877929688,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "revenue-data-360",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 345,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 28,
+      "pane": {
+        "clientWidth": 345,
+        "height": 1120.1500244140625,
+        "right": 344.8000183105469,
+        "scrollTop": 0,
+        "scrollWidth": 345,
+        "width": 344.8000183105469,
+        "x": 0
+      },
+      "sidebar": {
+        "clientWidth": 0,
+        "height": 0,
+        "right": 0,
+        "scrollTop": 0,
+        "scrollWidth": 0,
+        "width": 0,
+        "x": 0
+      },
+      "width": 360
+    },
+    {
+      "label": "revenue-data-768",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 768,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 483,
+        "height": 800,
+        "right": 768,
+        "scrollTop": 0,
+        "scrollWidth": 483,
+        "width": 498,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 768
+    },
+    {
+      "label": "revenue-data-1366",
+      "date": "2026-11-11",
+      "dialog": null,
+      "documentWidth": 1366,
+      "height": 800,
+      "menu": null,
+      "outliers": [],
+      "pageY": 0,
+      "pane": {
+        "clientWidth": 1081,
+        "height": 800,
+        "right": 1366.4000244140625,
+        "scrollTop": 0,
+        "scrollWidth": 1081,
+        "width": 1096.4000244140625,
+        "x": 270
+      },
+      "sidebar": {
+        "clientWidth": 270,
+        "height": 800,
+        "right": 270,
+        "scrollTop": 0,
+        "scrollWidth": 270,
+        "width": 270,
+        "x": 0
+      },
+      "width": 1366
+    }
+  ]
+}
