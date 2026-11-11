@@ -1,6 +1,6 @@
 # Kế hoạch WBS, lịch và Sprint — phần Công Thành
 
-> **Cập nhật sau retest 10/11:** [Kết quả bổ sung](Sprint5-Retest-Completion.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
+> **Cập nhật sau retest 10/11:** [Trích log retest 10/11](WBS-4.4.1/evidence/records/Source-L02-Excerpt.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
 
 WBS 5.3.3 • Chuẩn bị nội bộ 10/11/2026 • Nguồn: 04_THANH_FE.md trong bộ giao việc tuần 5; báo cáo NHOM6_Tuan4_BF.docx; các handoff mục 1–3 trong repo. Chưa cập nhật ProjectLibre/Jira hoặc nhận đề bài mới từ giảng viên.
 
@@ -55,4 +55,4 @@ Kết quả mới của Thành có build Release 0 lỗi/cảnh báo, 76 unit kh
 
 Ưu tiên chốt Owner đọc hồ sơ, hoàn tất ca gửi lặp, QA độc lập và smoke public khi có deployed SHA/HTTPS. Chuẩn bị tài liệu song song với chờ đầu vào. Chưa có timesheet đáng tin để tính giờ đã làm/remaining effort; estimate 40 giờ không phải actual. Từ 11–13/11 chỉ có tối đa 6 giờ theo trần 2 giờ/ngày, chưa đủ căn cứ khẳng định mọi ca còn lại sẽ kịp. PM cần chốt người hỗ trợ/phạm vi và cập nhật lịch, không tự chuyển toàn bộ sang Done.
 
-Minh chứng: [FE](Sprint5-FE-Section1-handoff.md), [dữ liệu](Sprint5-Demo-Data.md), [UAT](Sprint5-UAT-Responsive.md). BF-NB là mã nội bộ, không phải issue Jira mới; chưa có PR riêng cho working tree này.
+Minh chứng: [bàn giao FE responsive](WBS-4.6.2-Handoff.md), [dữ liệu demo kho và doanh thu](WBS-5.1.3-Handoff.md), [trích kết quả UAT 10/11](WBS-4.4.1/evidence/records/Source-L01-Excerpt.md). BF-NB là mã nội bộ, không phải issue Jira mới; chưa có PR riêng cho working tree này.

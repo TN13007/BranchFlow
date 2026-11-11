@@ -1,6 +1,6 @@
 # Slide demo và phân vai thuyết trình
 
-> **Cập nhật sau retest 10/11:** [Kết quả bổ sung](Sprint5-Retest-Completion.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
+> **Cập nhật sau retest 10/11:** [Trích log retest 10/11](WBS-4.4.1/evidence/records/Source-L02-Excerpt.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
 
 WBS 5.3.5 • Công Thành • 10/11/2026. Bộ slide 8 trang được tạo trong trình xem của cuộc trò chuyện, có nội dung chỉnh sửa được và ảnh UI thật. Bản demo local, chưa có xác nhận người dùng/public. Nền 47541ee và working tree tuần 5.
 
@@ -24,4 +24,4 @@ Bản lưu để bàn giao: [PowerPoint 8 trang](Sprint5-BranchFlow-Demo.pptx). 
 
 Chọn đúng DB Test; ghi candidate SHA/working tree, cổng Web/API và ngày kinh doanh. Kiểm tra trước tài khoản/chi nhánh, nhận mật khẩu riêng. Tạo một đơn mới qua UI; không dùng đơn CANCELLED tĩnh của seed làm bằng chứng vừa hủy. Ghi mã đơn và phiếu phát sinh để đối chiếu. Các con số 98.000→147.000 là cấu hình fixture đã kiểm tra, không cam kết mọi database cùng tổng doanh thu.
 
-Nếu mất kết nối sau xác nhận, kiểm tra lịch sử trước khi gửi lại. Nếu môi trường không sẵn sàng, dùng ảnh ghi rõ local 10/11 thay cho thao tác live; không mô tả ảnh như lượt demo mới. Nguồn: [UAT](Sprint5-UAT-Responsive.md), [dữ liệu](Sprint5-Demo-Data.md), [User Guide](Sprint5-User-Guide.md).
+Nếu mất kết nối sau xác nhận, kiểm tra lịch sử trước khi gửi lại. Nếu môi trường không sẵn sàng, dùng ảnh ghi rõ local 10/11 thay cho thao tác live; không mô tả ảnh như lượt demo mới. Nguồn: [trích kết quả UAT 10/11](WBS-4.4.1/evidence/records/Source-L01-Excerpt.md), [dữ liệu demo kho và doanh thu](WBS-5.1.3-Handoff.md), [User Guide](Sprint5-User-Guide.md).

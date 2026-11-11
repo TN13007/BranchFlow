@@ -1,6 +1,6 @@
 # Hướng dẫn Admin Chi nhánh và Employee
 
-WBS 5.2.3 • Công Thành • 10/11/2026 • Bản local trên nền 47541ee và working tree tuần 5. Thao tác được đối chiếu với các lượt UI trong [UAT](Sprint5-UAT-Responsive.md). Chờ người dùng độc lập làm theo hướng dẫn và PM review. Phần Owner/Admin Tổng do Khang phụ trách chưa có bản hướng dẫn riêng để đối chiếu thống nhất.
+WBS 5.2.3 • Công Thành • 10/11/2026 • Bản local trên nền 47541ee và working tree tuần 5. Thao tác được đối chiếu với các lượt UI trong [trích kết quả UAT 10/11](WBS-4.4.1/evidence/records/Source-L01-Excerpt.md). Chờ người dùng độc lập làm theo hướng dẫn và PM review. Phần Owner/Admin Tổng do Khang phụ trách chưa có bản hướng dẫn riêng để đối chiếu thống nhất.
 
 ## Bắt đầu
 

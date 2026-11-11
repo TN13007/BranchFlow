@@ -1,6 +1,6 @@
 # Mục 4 — danh mục tài liệu bàn giao
 
-> **Cập nhật sau retest 10/11:** [Kết quả bổ sung](Sprint5-Retest-Completion.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
+> **Cập nhật sau retest 10/11:** [Trích log retest 10/11](WBS-4.4.1/evidence/records/Source-L02-Excerpt.md) là trạng thái mới nhất: U25 gửi hai lần chỉ tạo một đơn; đã kiểm POST tạo đơn gặp 401/timeout, các form danh mục còn thiếu và cập nhật giá trên Edge. Full suite SQL-enabled đạt **81/81, không skip** sau sửa clock hai test. Tổng Test sau ba đơn mới là **215.020,50đ**; fixture riêng vẫn 128.000đ. Các số liệu và mục “chưa chạy” bên dưới là ghi nhận trước retest, được thay thế trong đúng phạm vi báo cáo mới. Owner/API, Android, public, QA độc lập và đầu vào báo cáo vẫn còn chờ.
 
 Công Thành • 10/11/2026 • Nền 47541ee, nhánh thanhnc, chưa commit/push. Đây là gói nội bộ theo phân công tuần 5; chưa tự nhận đã hoàn tất toàn bộ nghiệm thu hoặc đã nộp bài giảng viên.
 
@@ -25,12 +25,12 @@ Công Thành • 10/11/2026 • Nền 47541ee, nhánh thanhnc, chưa commit/push
 | Kết quả test | Tách unit, assertion HTTP, ca QA, candidate và thời điểm; giữ tồn đọng full suite79/81 |
 | Minh chứng | Dùng ảnh thật có sẵn; không dùng ảnh chụp sớm/resize chưa ổn định làm chứng cứ đạt |
 | Nguồn tuần2 | Giữ mô tả lịch sử bảy phân hệ; không thay bằng phạm vi hiện hành rồi gọi là bản gốc |
-| Link local | Kiểm tra tồn tại sau khi tạo; log ở tests/sprint5/Section4-Link-Check.txt |
+| Link local | Log gốc ghi lượt kiểm tra trên máy tác giả. Bản tích hợp đã kiểm tra lại các liên kết tương đối trong repo. |
 | Link online/quyền nhóm | Chưa kiểm tra đăng nhập/quyền bằng tài khoản nhóm; cần chủ nguồn xác nhận |
 | Nộp/review | Chưa upload, gửi tin nhắn, ký, cập nhật Jira hoặc commit/push |
 
 ## Nguồn và việc bàn giao tiếp
 
-Phân công gốc: `C:/Users/PC/Documents/qlda tuan 5/04_THANH_FE.md`. Hồ sơ đầu vào: báo cáo tuần4 và danh mục tuần2 trên Desktop; [FE mục1](Sprint5-FE-Section1-handoff.md), [demo mục2](Sprint5-Demo-Data.md), [UAT mục3](Sprint5-UAT-Responsive.md). Bộ tài liệu này không sửa các bản Word gốc hoặc ảnh PM đã chèn.
+Phân công gốc: `C:/Users/PC/Documents/qlda tuan 5/04_THANH_FE.md`. Hồ sơ đầu vào: báo cáo tuần4 và danh mục tuần2 trên Desktop; [bàn giao FE responsive](WBS-4.6.2-Handoff.md), [dữ liệu demo kho và doanh thu](WBS-5.1.3-Handoff.md), [trích kết quả UAT 10/11](WBS-4.4.1/evidence/records/Source-L01-Excerpt.md). Bộ tài liệu này không sửa các bản Word gốc hoặc ảnh PM đã chèn.
 
 Khang cần chốt bản kế hoạch hiện hành, mapping issue và phần tổng hợp QA/rủi ro 5.3.4. Hòa Thuận retest độc lập; mỗi tác giả gửi/xác nhận báo cáo cá nhân. Tài tiếp nhận User Guide sau review để gộp phần 5.2.4. Chỉ chốt Done/nộp bản chính thức khi đủ các đầu vào và người chịu trách nhiệm xác nhận.

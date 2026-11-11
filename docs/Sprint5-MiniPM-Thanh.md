@@ -1,6 +1,6 @@
 # Mini-PM Report — Nguyễn Công Thành
 
-Em đã kiểm tra bổ sung gửi đơn hai lần, mất phiên/timeout sau gửi đơn, các form danh mục còn thiếu và sửa giá trên Edge. Full suite hiện đạt 81/81, không skip sau khi sửa clock hai test. Em ghi chi tiết và giới hạn tại [kết quả retest](Sprint5-Retest-Completion.md); các ghi nhận trước đó bên dưới cần đọc theo thời điểm. Em vẫn chờ các đầu vào/phê duyệt từ nhóm và chưa tự chốt nghiệm thu.
+Em đã kiểm tra bổ sung gửi đơn hai lần, mất phiên/timeout sau gửi đơn, các form danh mục còn thiếu và sửa giá trên Edge. Full suite hiện đạt 81/81, không skip sau khi sửa clock hai test. Em ghi chi tiết và giới hạn tại [trích log retest 10/11](WBS-4.4.1/evidence/records/Source-L02-Excerpt.md); các ghi nhận trước đó bên dưới cần đọc theo thời điểm. Em vẫn chờ các đầu vào/phê duyệt từ nhóm và chưa tự chốt nghiệm thu.
 
 WBS 5.6.3 • Ngày ghi nhận 10/11/2026 • Gửi Khang review • Nhánh thanhnc, nền 47541ee; thay đổi hiện chưa commit/push. Đây là báo cáo phần em thực hiện với công cụ hỗ trợ; em chưa xác nhận giờ thực tế hoặc ký nghiệm thu thay người khác.
 
@@ -29,4 +29,4 @@ Phần em được giao là 20 hoạt động/40 giờ kế hoạch, hạn nội
 
 Qua lượt này, em thấy chỉ kiểm tra document có tràn ngang hay không là chưa đủ: phần tử con vẫn có thể bị cắt. Em cũng cần dùng cùng bộ dữ liệu và cùng thời điểm khi đối chiếu doanh thu. Em giữ rõ phần đã có, phần em sửa và phần em tự kiểm tra để nhóm review được.
 
-Minh chứng: [FE](Sprint5-FE-Section1-handoff.md), [demo](Sprint5-Demo-Data.md), [UAT](Sprint5-UAT-Responsive.md), [kế hoạch](Sprint5-WBS-Sprint-Report.md). Em chờ Khang review trước khi chốt trạng thái và bàn giao bản chính thức.
+Minh chứng: [bàn giao FE responsive](WBS-4.6.2-Handoff.md), [dữ liệu demo kho và doanh thu](WBS-5.1.3-Handoff.md), [trích kết quả UAT 10/11](WBS-4.4.1/evidence/records/Source-L01-Excerpt.md), [kế hoạch](Sprint5-WBS-Sprint-Report.md). Em chờ Khang review trước khi chốt trạng thái và bàn giao bản chính thức.
