@@ -1,0 +1,8 @@
+WBS: 5.3.5
+JiraReference: SCRUM-107 (Subtask FE liên quan: SCRUM-127)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+ReceivedFiles:
+- docs/Sprint5-Demo-Presentation.md (GitBlob: 8d34b1f4e9dfeab645f3922cc3dbb89e5eb3beb1, SHA256: D54780EE17BA3B9058C85A458E0EB59948A64DAB3EBA99A134E053E2940CA35C)
+- docs/Sprint5-BranchFlow-Demo.pptx (GitBlob: 447d32f66191053aaebf05b79161c0c4feeeecf6, SHA256: 5D0FD31A6C79FF85F081CDB2676932BEC12528F050BF838EB3F93393D513831A, 169055 bytes)
+Verification: Verified 8-slide PowerPoint deck and 8-minute speaker role proposal against real UAT/demo fixtures (BF-WBS5-v1, U01-U26, and Retest-Completion).
