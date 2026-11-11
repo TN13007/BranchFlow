@@ -1,0 +1,164 @@
+{
+  "wbs": "3.6.2.4",
+  "preparedDate": "2026-11-11",
+  "preparedBy": "Công Thành, có công cụ hỗ trợ",
+  "sourceCommit": "1488e9e5143147dc5267dd4607a5cb0e6881e38a",
+  "mainAtReception": "dbfa03d6011608f81b07e806c071133a393b0fce",
+  "predecessorMergedToMain": false,
+  "validation": "Git blob equality; no new runtime test",
+  "originalUiDate": "2026-11-10",
+  "originalBuildUnitHttpDate": "2026-11-11",
+  "runtimeRerunForThisWbs": "NotRun; unchanged application, reuse recorded results",
+  "files": [
+    {
+      "path": "docs/WBS-3.6.2.3-Handoff.md",
+      "sourceGitBlob": "18483a8a3451de47aa0af6502696f96111a18017",
+      "currentGitBlob": "18483a8a3451de47aa0af6502696f96111a18017",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/branchadmin-300000.png",
+      "sourceGitBlob": "f2ab2c9ee01afc6c8f928ec0119d20b95a73ab8a",
+      "currentGitBlob": "f2ab2c9ee01afc6c8f928ec0119d20b95a73ab8a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/branchadmin-day02-200000.png",
+      "sourceGitBlob": "2b9a85abb038720441edf0cc16a01dd89c8e7120",
+      "currentGitBlob": "2b9a85abb038720441edf0cc16a01dd89c8e7120",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/branchadmin-loading.png",
+      "sourceGitBlob": "e62f840471754e05534518e4767278aeb09a2d2e",
+      "currentGitBlob": "e62f840471754e05534518e4767278aeb09a2d2e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/owner-all-600000.png",
+      "sourceGitBlob": "0a301fc104e729ba88b4a32b39b3f112b2dab9a2",
+      "currentGitBlob": "0a301fc104e729ba88b4a32b39b3f112b2dab9a2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/owner-branch02-300000.png",
+      "sourceGitBlob": "0f7a8535e6fb803ec285e12afb5de90f22b26b74",
+      "currentGitBlob": "0f7a8535e6fb803ec285e12afb5de90f22b26b74",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/owner-empty.png",
+      "sourceGitBlob": "abc489aa1217a8a8609ea2413a2537fd04874bba",
+      "currentGitBlob": "abc489aa1217a8a8609ea2413a2537fd04874bba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.6.2.3/owner-invalid-range.png",
+      "sourceGitBlob": "012828448910049846138a5753325fe6653669f8",
+      "currentGitBlob": "012828448910049846138a5753325fe6653669f8",
+      "unchanged": true
+    },
+    {
+      "path": "src/BranchFlow.Web/Components/Business/ManagementWorkspace.razor",
+      "sourceGitBlob": "f51232d3781586af6884e495ce02b846d553018e",
+      "currentGitBlob": "f51232d3781586af6884e495ce02b846d553018e",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Api-2026-11-11.txt",
+      "sourceGitBlob": "18a93469dd08f198c91dd0bc32a5b1f2b99a37cd",
+      "currentGitBlob": "18a93469dd08f198c91dd0bc32a5b1f2b99a37cd",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Api.txt",
+      "sourceGitBlob": "9a69f9e2dbde6c1ac82eecc3b27c8abcd9f1a7e0",
+      "currentGitBlob": "9a69f9e2dbde6c1ac82eecc3b27c8abcd9f1a7e0",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Provenance-UI-2026-11-10.txt",
+      "sourceGitBlob": "8b82aa28fdd355d1242a1bb752cd8d57da794959",
+      "currentGitBlob": "8b82aa28fdd355d1242a1bb752cd8d57da794959",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Provenance.txt",
+      "sourceGitBlob": "de366e4ce911e63ade938577aa560401731af00d",
+      "currentGitBlob": "de366e4ce911e63ade938577aa560401731af00d",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Web-2026-11-11.txt",
+      "sourceGitBlob": "edba7e4a3ed6960c19c204a30ebc9c9e9044d503",
+      "currentGitBlob": "edba7e4a3ed6960c19c204a30ebc9c9e9044d503",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Build-Web.txt",
+      "sourceGitBlob": "a32fc17dc8148eac964006e5d8acd7f979e23529",
+      "currentGitBlob": "a32fc17dc8148eac964006e5d8acd7f979e23529",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/HTTP-SQL-2026-11-10.txt",
+      "sourceGitBlob": "ed41d2d6cf1857f4889c9088027b82a8472d0c2b",
+      "currentGitBlob": "ed41d2d6cf1857f4889c9088027b82a8472d0c2b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/HTTP-SQL-2026-11-11.txt",
+      "sourceGitBlob": "ed41d2d6cf1857f4889c9088027b82a8472d0c2b",
+      "currentGitBlob": "ed41d2d6cf1857f4889c9088027b82a8472d0c2b",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Loading-Delay.txt",
+      "sourceGitBlob": "598bbfce037528f1f99b6d4e7cf4b596132884ae",
+      "currentGitBlob": "598bbfce037528f1f99b6d4e7cf4b596132884ae",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/SQL-Totals.txt",
+      "sourceGitBlob": "5e2203b796b603edf6e4aa28076693e2ebac24bd",
+      "currentGitBlob": "5e2203b796b603edf6e4aa28076693e2ebac24bd",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Seed-2026-11-10.txt",
+      "sourceGitBlob": "768283f1437601fa39665823225c9a9bc9d75874",
+      "currentGitBlob": "768283f1437601fa39665823225c9a9bc9d75874",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Seed-Rerun-2026-11-10.txt",
+      "sourceGitBlob": "768283f1437601fa39665823225c9a9bc9d75874",
+      "currentGitBlob": "768283f1437601fa39665823225c9a9bc9d75874",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Seed-RevenueBoundary.sql",
+      "sourceGitBlob": "85c9a21e102b07a34cb350d4635b356e2df8c33c",
+      "currentGitBlob": "85c9a21e102b07a34cb350d4635b356e2df8c33c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Unit-Revenue-2026-11-11.txt",
+      "sourceGitBlob": "2a471d0b39aecebb916d2403a86fa0821de917de",
+      "currentGitBlob": "2a471d0b39aecebb916d2403a86fa0821de917de",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Unit-Revenue.txt",
+      "sourceGitBlob": "f1b38166d67ad924cf0c8eaa3eb990016f2d5473",
+      "currentGitBlob": "f1b38166d67ad924cf0c8eaa3eb990016f2d5473",
+      "unchanged": true
+    },
+    {
+      "path": "tests/sprint5/WBS-3.6.2.3/Verify-Revenue.ps1",
+      "sourceGitBlob": "44c7f13a82eda50eb1f23cbbe2787cacad90147c",
+      "currentGitBlob": "44c7f13a82eda50eb1f23cbbe2787cacad90147c",
+      "unchanged": true
+    }
+  ]
+}
