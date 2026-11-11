@@ -1,0 +1,13 @@
+WBS: 3.4.3.1
+Jira: SCRUM-124 (Story SCRUM-103)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+CoreUIComponents:
+- src/BranchFlow.Web/Components/Pages/Orders/Mine.razor (blob b26fd03b7c010c3fdf550856351bf43bc9a8e377)
+- src/BranchFlow.Web/Components/Pages/Orders/Detail.razor (blob 211926707e2c32da2d23f0b296cd55beb703dcc6)
+CoreBackendFiles:
+- src/BranchFlow.Api/Controllers/OrdersController.cs (blob c0845997ba9467b8ac03c173df9a6972d5dea1bb)
+- src/BranchFlow.Application/Services/OrderService.cs (blob fa322195c4db7ec751a7da4238f3d58d152e2ce9)
+- src/BranchFlow.Infrastructure/Repositories/OrderRepository.cs (blob 76e79fe7578a5eff21bb452f8f5cb6a2769d168d)
+BuildVerification: dotnet build src/BranchFlow.Web -c Release --nologo (0 Warning(s), 0 Error(s) on 2026-11-11)
+UnitVerification: dotnet test tests/BranchFlow.Tests -c Release --nologo --filter "FullyQualifiedName~OrderServiceTests|FullyQualifiedName~SessionTransportTests" (17 Passed, 0 Failed on 2026-11-11)
