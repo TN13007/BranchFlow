@@ -90,12 +90,15 @@ public sealed class IngredientView
 public sealed class BalanceView
 {
     public int IngredientId { get; set; }
+    public bool IsActive { get; set; } = true;
     public string Name { get; set; } = "";
     public string Unit { get; set; } = "";
     public decimal Quantity { get; set; }
     public decimal WarningThreshold { get; set; }
     public string RowVersion { get; set; } = "";
 }
+public sealed record StockCapabilities(bool CanReceive, bool CanIssue);
+
 public sealed class StockLineRequest
 {
     public int IngredientId { get; set; }

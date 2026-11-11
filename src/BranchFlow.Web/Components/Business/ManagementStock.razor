@@ -6,11 +6,12 @@
 {
     <p class="alert alert-warning" role="alert">Chưa xác định được kết quả ghi kho. Hãy tải lại tồn kho và kiểm tra lịch sử trước khi ghi tiếp.</p>
 }
-<button class="btn btn-outline-secondary mb-3" type="button" disabled="@busy" @onclick="ReloadAsync">Tải lại tồn kho và lịch sử</button>
+<button class="btn btn-sm btn-outline-secondary mb-3" type="button" disabled="@busy" @onclick="ReloadAsync">Tải lại tồn kho và lịch sử</button>
 <fieldset disabled="@(busy || !loaded || needsLogin || accessDenied || needsVerification)">
     @if (Role == "SYSTEM_ADMIN")
     {
-        <h2 class="h5">Danh mục nguyên liệu</h2>
+        <details class="mb-3">
+        <summary class="fw-semibold mb-2">Quản lý danh mục nguyên liệu</summary>
         <div class="d-flex flex-wrap gap-2 mb-3">
             <input class="form-control w-auto" aria-label="Tên nguyên liệu" placeholder="Tên nguyên liệu" @bind="ingredient.Name" />
             <select class="form-select w-auto" aria-label="Đơn vị" @bind="ingredient.UnitId" disabled="@(ingredient.Id != 0)"><option value="0">Đơn vị</option>@foreach (var u in units) { <option value="@u.Id">@u.Name</option> }</select>
@@ -27,13 +28,33 @@
                 }
             </ul>
         </details>
+        </details>
     }
     @if (BranchId == 0) { <p>Chọn chi nhánh để xem tồn kho.</p> }
     else
     {
+        <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Thao tác kho">
+            <button type="button" class="@TabClass(StockPanel.Balances)" aria-pressed="@(panel == StockPanel.Balances)" @onclick="() => panel = StockPanel.Balances">Xem tồn kho</button>
+            @if (capabilities.CanReceive)
+            {
+                <button type="button" class="@TabClass(StockPanel.Receive)" aria-pressed="@(panel == StockPanel.Receive)" @onclick="() => panel = StockPanel.Receive">Nhập kho</button>
+            }
+            @if (capabilities.CanIssue)
+            {
+                <button type="button" class="@TabClass(StockPanel.Issue)" aria-pressed="@(panel == StockPanel.Issue)" @onclick="() => panel = StockPanel.Issue">Xuất kho</button>
+            }
+            <button type="button" class="@TabClass(StockPanel.History)" aria-pressed="@(panel == StockPanel.History)" @onclick="() => panel = StockPanel.History">Lịch sử nhập xuất</button>
+        </nav>
+        @if (loaded && Role == "EMPLOYEE" && !capabilities.CanReceive && !capabilities.CanIssue)
+        {
+            <p class="text-secondary" role="status">Bạn có quyền xem kho. Liên hệ quản lý chi nhánh nếu cần quyền nhập hoặc xuất.</p>
+        }
+        @if (panel == StockPanel.Balances)
+        {
         <h2 class="h5">Tồn kho chi nhánh</h2>
+        <label class="form-label">Tìm nguyên liệu <input class="form-control" type="search" @bind="search" @bind:event="oninput" /></label>
         <div class="table-responsive"><table class="table"><thead><tr><th>Nguyên liệu</th><th>Tồn</th><th>Ngưỡng cảnh báo</th>@if (IsAdmin) { <th></th> }</tr></thead><tbody>
-            @foreach (var row in balances)
+            @foreach (var row in FilteredBalances)
             {
                 <tr><td>@row.Name</td><td>@Quantity(row.Quantity) @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
                     <td>@if (IsAdmin && row.RowVersion.Length > 0) { <input class="form-control" type="number" min="0" step=".001" aria-label="Ngưỡng @row.Name" @bind="row.WarningThreshold" /> }
@@ -41,32 +62,46 @@
                     @if (IsAdmin) { <td>@if (row.RowVersion.Length > 0) { <button class="btn btn-outline-secondary" @onclick="() => SaveThresholdAsync(row)">Lưu ngưỡng</button> }</td> }</tr>
             }
         </tbody></table></div>
-        @if (loaded && balances.Count == 0) { <p role="status">Chi nhánh chưa có nguyên liệu tồn kho.</p> }
-        @if (Role != "OWNER")
+        @if (loaded && !FilteredBalances.Any()) { <p role="status">@(balances.Count == 0 ? "Chi nhánh chưa có nguyên liệu tồn kho." : "Không tìm thấy nguyên liệu phù hợp.")</p> }
+        }
+        else if (panel is StockPanel.Receive or StockPanel.Issue)
         {
-            <h2 class="h5">Nhập hoặc xuất kho thủ công</h2>
-            <label class="form-label">Loại giao dịch
-                <select class="form-select" @bind="type"><option value="IN">Nhập kho</option><option value="OUT">Xuất kho</option></select>
-            </label>
-            @foreach (var line in lines)
+            <h2 class="h5">@(panel == StockPanel.Receive ? "Phiếu nhập kho" : "Phiếu xuất kho")</h2>
+            <p>Chọn nguyên liệu, nhập số lượng và lý do, rồi xác nhận.</p>
+            @if (loaded && !ActiveBalances.Any()) { <p role="status">Chi nhánh chưa có nguyên liệu đang hoạt động để ghi giao dịch.</p> }
+            @foreach (var line in DraftLines)
             {
-                <div class="d-flex gap-2 flex-wrap mb-2" @key="line">
-                    <select class="form-select w-auto" aria-label="Nguyên liệu" @bind="line.IngredientId"><option value="0">Chọn nguyên liệu</option>@foreach (var row in balances) { <option value="@row.IngredientId">@row.Name (@row.Unit)</option> }</select>
-                    <input class="form-control w-auto" type="number" aria-label="Số lượng" min=".001" step=".001" @bind="line.Quantity" />
-                    <button class="btn btn-outline-secondary" @onclick="() => lines.Remove(line)">Bỏ dòng</button>
+                var selected = balances.FirstOrDefault(row => row.IngredientId == line.IngredientId);
+                <div class="row g-2 align-items-end mb-3" @key="line">
+                    <label class="col-12 col-md-5">Nguyên liệu
+                        <select class="form-select" @bind="line.IngredientId"><option value="0">Chọn nguyên liệu</option>@foreach (var row in ActiveBalances) { <option value="@row.IngredientId">@row.Name (@row.Unit)</option> }</select>
+                    </label>
+                    <label class="col-8 col-md-3">Số lượng @(selected is null ? "" : $"({selected.Unit})")
+                        <input class="form-control" type="number" min=".001" step=".001" @bind="line.Quantity" @bind:event="oninput" />
+                    </label>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-secondary" type="button" disabled="@(DraftLines.Count == 1)" @onclick="() => DraftLines.Remove(line)">Bỏ dòng</button>
+                    </div>
+                    @if (selected is not null)
+                    {
+                        <small class="col-12 text-secondary">Tồn hiện tại @Quantity(selected.Quantity) @selected.Unit</small>
+                    }
                 </div>
             }
-            <button class="btn btn-outline-secondary mb-2" disabled="@(lines.Count >= 50)" @onclick="() => lines.Add(new())">Thêm nguyên liệu</button>
-            <div><label class="form-label">Lý do <input class="form-control" maxlength="500" @bind="reason" /></label></div>
-            <button class="btn btn-brand mb-3" @onclick="WriteAsync">Ghi giao dịch</button>
+            <button class="btn btn-outline-secondary mb-3" type="button" disabled="@(DraftLines.Count >= 50 || !ActiveBalances.Any())" @onclick="() => DraftLines.Add(new())">+ Thêm nguyên liệu</button>
+            <label class="form-label d-block">Lý do <input class="form-control" maxlength="500" @bind="DraftReason" @bind:event="oninput" /></label>
+            <button class="btn btn-brand" type="button" disabled="@(!ActiveBalances.Any())" @onclick="WriteAsync">@(panel == StockPanel.Receive ? "Xác nhận nhập kho" : "Xác nhận xuất kho")</button>
         }
+        else
+        {
         <h2 class="h5">Lịch sử nhập xuất</h2>
         @if (loaded && !busy && history.Count == 0) { <p>Chưa có giao dịch kho.</p> }
         @foreach (var h in history)
         {
-            <details class="mb-2"><summary>#@h.Id · @h.Type · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
+            <details class="mb-2"><summary>#@h.Id · @(h.Type == "IN" ? "Nhập kho" : h.Type == "OUT" ? "Xuất kho" : h.Type) · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
                 <ul>@foreach (var l in h.Lines) { <li>@l.Name · @Quantity(l.Before) → @Quantity(l.After) (@Quantity(l.Change))</li> }</ul>
             </details>
+        }
         }
     }
 </fieldset>
@@ -85,20 +120,34 @@
     private bool needsLogin;
     private string? error;
     private string? notice;
-    private string type = "IN";
-    private string reason = "";
+    private enum StockPanel { Balances, Receive, Issue, History }
+    private StockPanel panel;
+    private StockCapabilities capabilities = new(false, false);
+    private string search = "";
+    private string receiveReason = "";
+    private string issueReason = "";
+    private readonly List<StockLineRequest> receiveLines = [new()];
+    private readonly List<StockLineRequest> issueLines = [new()];
+    private List<StockLineRequest> DraftLines => panel == StockPanel.Receive ? receiveLines : issueLines;
+    private string DraftReason
+    {
+        get => panel == StockPanel.Receive ? receiveReason : issueReason;
+        set { if (panel == StockPanel.Receive) receiveReason = value; else issueReason = value; }
+    }
     private List<IngredientView> ingredients = [];
     private List<NamedOption> units = [];
     private List<BalanceView> balances = [];
     private List<StockHistoryView> history = [];
-    private List<StockLineRequest> lines = [new()];
+    private IEnumerable<BalanceView> FilteredBalances => balances.Where(row => row.Name.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase));
+    private IEnumerable<BalanceView> ActiveBalances => balances.Where(row => row.IsActive);
+    private string TabClass(StockPanel target) => panel == target ? "btn btn-brand" : "btn btn-outline-secondary";
     private IngredientView ingredient = new();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            type = IssueFirst ? "OUT" : "IN";
             await RunAsync(LoadAsync);
+            if (IssueFirst && capabilities.CanIssue) panel = StockPanel.Issue;
             StateHasChanged();
         }
     }
@@ -112,6 +161,9 @@
         }
         if (BranchId > 0)
         {
+            capabilities = await Api.GetAsync<StockCapabilities>($"branches/{BranchId}/stock/capabilities");
+            if ((panel == StockPanel.Receive && !capabilities.CanReceive) || (panel == StockPanel.Issue && !capabilities.CanIssue))
+                panel = StockPanel.Balances;
             balances = await Api.ListAsync<BalanceView>($"branches/{BranchId}/stock");
             history = await Api.ListAsync<StockHistoryView>($"branches/{BranchId}/stock/history");
         }
@@ -141,10 +193,25 @@
     });
     private Task WriteAsync() => RunAsync(async () =>
     {
+        var receiving = panel == StockPanel.Receive;
+        if (!(receiving ? capabilities.CanReceive : panel == StockPanel.Issue && capabilities.CanIssue)) return;
+        var lines = DraftLines;
+        if (lines.Any(line => line.IngredientId == 0 || line.Quantity <= 0))
+        {
+            error = "Chọn nguyên liệu và nhập số lượng lớn hơn 0 cho từng dòng.";
+            return;
+        }
+        if (lines.Select(line => line.IngredientId).Distinct().Count() != lines.Count || string.IsNullOrWhiteSpace(DraftReason))
+        {
+            error = "Chọn mỗi nguyên liệu một lần và nhập lý do giao dịch.";
+            return;
+        }
         foreach (var line in lines)
             line.RowVersion = balances.FirstOrDefault(x => x.IngredientId == line.IngredientId)?.RowVersion ?? "";
-        var id = await Api.SaveAsync("stock", 0, new StockWriteRequest { BranchId = BranchId, Type = type, Reason = reason, Lines = lines });
-        lines = [new()]; reason = "";
+        var id = await Api.SaveAsync("stock", 0, new StockWriteRequest { BranchId = BranchId, Type = receiving ? "IN" : "OUT", Reason = DraftReason, Lines = lines });
+        lines.Clear();
+        lines.Add(new());
+        DraftReason = "";
         notice = $"Đã lưu giao dịch #{id}.";
         await LoadAsync();
     }, writing: true);
@@ -156,15 +223,14 @@
         try { await action(); }
         catch (ApiException ex)
         {
-            error = ex.Message; notice = null;
+            error = ex.Message;
             needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized;
             accessDenied = ex.StatusCode == System.Net.HttpStatusCode.Forbidden;
-            if (writing && (needsLogin || (int)ex.StatusCode >= 500)) needsVerification = true;
+            if (writing && notice is null && (needsLogin || (int)ex.StatusCode >= 500)) needsVerification = true;
         }
         catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
         {
-            notice = null;
-            if (writing) needsVerification = true;
+            if (writing && notice is null) needsVerification = true;
             error = "Không nhận được phản hồi. Tải lại tồn và lịch sử trước khi thử lại.";
         }
         finally { busy = false; }

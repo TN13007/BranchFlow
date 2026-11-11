@@ -23,7 +23,7 @@ Nếu mất kết nối hoặc không rõ đơn đã được tạo chưa, giữ
 
 ## Employee: tra cứu và xem đơn
 
-Mở **Đơn của tôi**, nhập **Mã đơn hàng**, chọn **Ngày kinh doanh** nếu cần rồi bấm **Tìm đơn**. **Bỏ bộ lọc** để xem lại danh sách. Mở đơn để xem giá và tùy chọn đã lưu. Employee chỉ xem đơn của mình trong phạm vi còn được phép truy cập, không sửa số ly hoặc hủy đơn tại đây.
+Mở **Đơn của tôi**, nhập **Mã đơn hàng**, chọn **Ngày kinh doanh** nếu cần rồi bấm **Tìm đơn**. **Bỏ bộ lọc** để xem lại danh sách. Bấm **Xem chi tiết** để xem giá và tùy chọn đã lưu. Employee chỉ xem đơn của mình trong phạm vi còn được phép truy cập.
 
 Trạng thái hiển thị: **Hoàn tất** (COMPLETED), **Cần xem lại** (NEEDS_REVIEW), **Đã hủy** (CANCELLED). Trạng thái Cần xem lại trong dữ liệu mẫu không có nghĩa đã có quy trình báo sai/phê duyệt nhiều bước. Sau Admin điều chỉnh/hủy, tải lại đơn để thấy dữ liệu mới.
 
@@ -34,21 +34,21 @@ Mở **Menu**, chọn chi nhánh được phép nếu quản lý nhiều nơi. T
 ## Admin Chi nhánh: sửa hoặc hủy đơn
 
 1. Mở **Đơn hàng**, lọc chi nhánh và **Từ ngày / Đến ngày**, bấm **Xem kết quả**.
-2. Chọn **Chi tiết** ở đúng mã. Chỉnh **Số ly**; tổng tính theo giá, size và topping snapshot đã lưu, không lấy giá mới của menu.
+2. Bấm **Xem chi tiết** ngay dưới mã đơn. Chỉnh **Số ly** theo giá, size và topping đã lưu khi tạo đơn.
 3. Nhập **Lý do sửa hoặc hủy**, chọn **Lưu số ly** để lưu điều chỉnh.
 4. Để hủy, nhập lý do, chọn **Hủy đơn**, kiểm tra mã rồi bấm **Xác nhận hủy đơn …**. **Giữ đơn** để bỏ bước xác nhận.
-5. Kiểm tra trạng thái và **Lịch sử chỉnh sửa**. Đơn đã hủy không còn thao tác sửa/hủy và không tính doanh thu.
+5. Kiểm tra trạng thái và **Lịch sử chỉnh sửa**, rồi bấm **Về danh sách đơn** để tiếp tục tra cứu với bộ lọc hiện tại.
 
 ## Kho cho Admin Chi nhánh và Employee được cấp quyền
 
 Mở **Kho** để xem tồn, ngưỡng cảnh báo và **Lịch sử nhập xuất**. Mở từng phiếu để xem trước/sau và lượng thay đổi. **Tải lại tồn kho và lịch sử** để cập nhật dữ liệu.
 
-Nhập/xuất chỉ thực hiện khi tài khoản có quyền tương ứng. Employee có thể thấy màn hình nhưng thao tác vẫn bị từ chối nếu chưa có quyền nhập/xuất; liên hệ quản lý để kiểm tra phân quyền. Không mặc định tài khoản demo Employee A được ghi kho.
+Các nút **Nhập kho** và **Xuất kho** xuất hiện theo quyền của tài khoản tại chi nhánh đã chọn. Liên hệ quản lý nếu cần cấp thêm quyền.
 
-1. Kiểm tra chi nhánh; chọn **Loại giao dịch** Nhập kho hoặc Xuất kho. Mục **Xuất kho** mở luồng xuất.
-2. Chọn nguyên liệu, nhập số lượng dương theo đơn vị đang hiển thị. Số lượng hỗ trợ phần lẻ; không xuất vượt tồn. **Thêm nguyên liệu** để thêm dòng, **Bỏ dòng** để bỏ dòng nhập.
-3. Nhập **Lý do**, chọn **Ghi giao dịch** một lần và chờ mã phiếu.
-4. Đối chiếu tồn và lịch sử. Ví dụ 7 g, nhập 2 → 9 g, xuất 2 → 7 g. Xuất 10 khi còn 9 phải bị chặn.
+1. Kiểm tra chi nhánh rồi bấm **Nhập kho** hoặc **Xuất kho**.
+2. Chọn nguyên liệu, xem tồn hiện tại rồi nhập số lượng theo đơn vị hiển thị. Dùng **Thêm nguyên liệu** hoặc **Bỏ dòng** để chỉnh danh sách.
+3. Nhập **Lý do**, bấm **Xác nhận nhập kho** hoặc **Xác nhận xuất kho** và chờ mã phiếu.
+4. Mở **Xem tồn kho** và **Lịch sử nhập xuất** để đối chiếu số dư và phiếu vừa ghi.
 
 Nếu không rõ kết quả ghi, tải lại và kiểm tra lịch sử trước khi ghi tiếp. Bán hàng không tự trừ nguyên liệu. Bản MVP chưa có kiểm kê hoặc duyệt phiếu. Admin Chi nhánh có thể sửa ngưỡng ở dòng tồn rồi **Lưu ngưỡng**; Employee không quản lý ngưỡng.
 
