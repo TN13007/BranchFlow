@@ -1,0 +1,19 @@
+=== PROVENANCE & TRACEABILITY LOG — WBS 5.6.6 ===
+WBS: 5.6.6 — Gộp 5 báo cáo cá nhân và kiểm tra minh chứng (BF-NB-5.6.6)
+Assignee: Nguyễn Công Thành
+Jira Reference: SCRUM-107 (https://khangba153.atlassian.net/browse/SCRUM-107)
+Branch: docs/SCRUM-107-wbs-5.6.6-five-personal-reports
+Base Commit (origin/main): ae595fd3872167a70aa9e3f537601682c31e2e28
+
+1. Primary Deliverable (Unchanged from 2026-11-10 Working Tree D:\QLDA\BranchFlow):
+- File: docs/Sprint5-Five-Reports-Index.md
+  + Size: 2,494 bytes
+  + SHA256: 2DCB37D1FC065D8D591ADD431D3A3D954FB13CC17393C1CF631E7664D41C198F
+  + Git Blob: 00cb038afc435ecf0785e9047bcacf5f5e678586
+
+2. Upstream Dependency Status (5.6.1 - 5.6.5):
+- 5.6.1 (Bá Thành Chí Khang): Pending author submission & confirmation
+- 5.6.2 (Nguyễn Anh Trường Tài): Pending author submission & confirmation
+- 5.6.3 (Nguyễn Công Thành): Submitted on branch docs/SCRUM-107-wbs-5.6.3-minipm-thanh (commit 39de709b1a7d72cc2e58c0521aeb38acde5d8479)
+- 5.6.4 (Nguyễn Phước Thuần): Pending author submission & confirmation
+- 5.6.5 (Nguyễn Đặng Hòa Thuận): Existing QA report at tests/sprint4/MiniPMReport-2026-11-09.md (tracked in origin/main); pending final 5.6.5 confirmation
