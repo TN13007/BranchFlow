@@ -151,15 +151,18 @@
         case "overview":
         case "analytics":
             <h2 class="h5">Doanh thu theo ngày và chi nhánh</h2>
+            @if (!busy && error is null && revenueLoaded)
+            {
             <p>Tổng @Money(revenue.Sum(x => x.Amount)) · @revenue.Sum(x => x.Orders) đơn hoàn thành</p>
             <div class="table-responsive"><table class="table"><thead><tr><th>Ngày (VN)</th><th>Chi nhánh</th><th>Số đơn</th><th>Doanh thu</th></tr></thead><tbody>
                 @foreach (var r in revenue) { <tr><td>@r.Date.ToString("dd/MM/yyyy")</td><td>@r.BranchName</td><td>@r.Orders</td><td>@Money(r.Amount)</td></tr> }
             </tbody></table></div>
             @if (!busy && revenue.Count == 0) { <p>Không có đơn hoàn thành trong khoảng ngày đã chọn.</p> }
+            }
             break;
     }
     </fieldset>
-    @if (busy) { <p role="status">Đang xử lý…</p> }
+    @if (busy || ((Tab is "overview" or "analytics") && !revenueLoaded && error is null)) { <p role="status">Đang xử lý…</p> }
 </div>
 
 @code {
@@ -173,6 +176,7 @@
     private List<UserView> users = [];
     private List<ManagedOrderView> orders = [];
     private List<RevenueView> revenue = [];
+    private bool revenueLoaded;
     private BranchView branch = new();
     private CreateUserRequest newUser = new();
     private AssignmentRequest assignment = new();
@@ -205,7 +209,10 @@
             case "employees": users = await Api.ListAsync<UserView>("users"); break;
             case "orders": orders = await Api.ListAsync<ManagedOrderView>("orders" + filter); break;
             case "analytics":
-            case "overview": revenue = await Api.ListAsync<RevenueView>("revenue" + filter); break;
+            case "overview":
+                revenue = await Api.ListAsync<RevenueView>("revenue" + filter);
+                revenueLoaded = true;
+                break;
         }
     }
     private async Task ReloadAsync()
@@ -213,6 +220,7 @@
         order = null;
         orders = [];
         revenue = [];
+        revenueLoaded = false;
         await RunAsync(LoadAsync);
     }
     private async Task ChangeBranchAsync(ChangeEventArgs args)

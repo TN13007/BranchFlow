@@ -1,0 +1,26 @@
+PASS owner authenticated with existing password
+PASS systemadmin authenticated with existing password
+PASS branchadmin.01 authenticated with existing password
+PASS employee.a authenticated with existing password
+PASS demo branches found
+PASS owner row count equals SQL
+PASS owner branch 1 day 2026-11-01 equals SQL: 1 orders 100000 VND
+PASS owner branch 1 day 2026-11-02 equals SQL: 1 orders 200000 VND
+PASS owner branch 2 day 2026-11-02 equals SQL: 1 orders 300000 VND
+PASS systemadmin row count equals SQL
+PASS systemadmin branch 1 day 2026-11-01 equals SQL: 1 orders 100000 VND
+PASS systemadmin branch 1 day 2026-11-02 equals SQL: 1 orders 200000 VND
+PASS systemadmin branch 2 day 2026-11-02 equals SQL: 1 orders 300000 VND
+PASS 23:59:59 Vietnam belongs to Nov 1: 100000
+PASS 00:00:00 Vietnam belongs to Nov 2: 200000, cancelled 999000 excluded
+PASS branch B Nov 2 equals 300000
+PASS system total equals 600000 completed revenue
+PASS branch admin implicit scope only A: 300000
+PASS branch admin explicit A matches implicit scope
+PASS branchadmin.01 Get api/management/revenue?from=2026-11-01&to=2026-11-02&branchId=2 returns 403
+PASS employee.a Get api/management/revenue?from=2026-11-01&to=2026-11-02 returns 403
+PASS  Get api/management/revenue?from=2026-11-01&to=2026-11-02 returns 401
+PASS owner Get api/management/revenue?from=2026-11-02&to=2026-11-01 returns 400
+PASS owner Put api/management/branches/1 returns 403
+PASS valid empty date returns empty array
+RESULT: 25 assertions PASS; local HTTP and SQL, UI recorded separately.
