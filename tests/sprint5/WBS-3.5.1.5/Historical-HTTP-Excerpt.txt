@@ -1,0 +1,10 @@
+# Trích log HTTP cũ — 10/11/2026
+# Nguồn: D:/QLDA/BranchFlow/tests/sprint5/FrontendApiResult-2026-11-10.txt
+# Chỉ trích phần kho; 62 là số check của toàn runner, không phải 62 case kho.
+# Không chạy lại runner trong WBS 3.5.1.5.
+
+PASS Order creation does not deduct manual stock
+PASS Stock 10 inbound minus 3 outbound equals 7
+PASS Overdraw and stale RowVersion do not change stock
+Fixture retained in BranchFlow_Test only: product=8 ingredient=3 cancelledOrder=14 completedOrder=15
+62 API status/data checks passed. Browser checks recorded separately.
