@@ -1,0 +1,6 @@
+Main tested: af77b9e516707b15502c1d886cc56c7786ad439a
+Stock component current blob: aab9c5ba7708c446dff88e2b9926af8e642f5066
+Integration test blob: 7384c6822da7039fb32f12644f3b55f812b5f963
+MvpService blob: 049f9de9f909f9927156e0788530940aaf9d1e98
+Focused SQL integration ran before UI-only file reception; backend and integration test unchanged.
+Built Web DLL SHA256: D911906E57516840A82C386FC562082A2CA3DAF56C8BE976451A26346D9D4D99

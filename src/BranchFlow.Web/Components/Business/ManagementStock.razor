@@ -1,8 +1,13 @@
 @inject ManagementApiClient Api
 
-<ApiError Message="@error" NeedsLogin="@needsLogin" />
+<ApiError Message="@error" NeedsLogin="@needsLogin" OnRetry="ReloadAsync" Busy="busy" />
 @if (notice is not null) { <p class="alert alert-success" role="status">@notice</p> }
-<fieldset disabled="@busy">
+@if (needsVerification)
+{
+    <p class="alert alert-warning" role="alert">Chưa xác định được kết quả ghi kho. Hãy tải lại tồn kho và kiểm tra lịch sử trước khi ghi tiếp.</p>
+}
+<button class="btn btn-outline-secondary mb-3" type="button" disabled="@busy" @onclick="ReloadAsync">Tải lại tồn kho và lịch sử</button>
+<fieldset disabled="@(busy || !loaded || needsLogin || accessDenied || needsVerification)">
     @if (Role == "SYSTEM_ADMIN")
     {
         <h2 class="h5">Danh mục nguyên liệu</h2>
@@ -30,12 +35,13 @@
         <div class="table-responsive"><table class="table"><thead><tr><th>Nguyên liệu</th><th>Tồn</th><th>Ngưỡng cảnh báo</th>@if (IsAdmin) { <th></th> }</tr></thead><tbody>
             @foreach (var row in balances)
             {
-                <tr><td>@row.Name</td><td>@row.Quantity @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
+                <tr><td>@row.Name</td><td>@Quantity(row.Quantity) @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
                     <td>@if (IsAdmin && row.RowVersion.Length > 0) { <input class="form-control" type="number" min="0" step=".001" aria-label="Ngưỡng @row.Name" @bind="row.WarningThreshold" /> }
-                    else { @row.WarningThreshold }</td>
+                    else { @Quantity(row.WarningThreshold) }</td>
                     @if (IsAdmin) { <td>@if (row.RowVersion.Length > 0) { <button class="btn btn-outline-secondary" @onclick="() => SaveThresholdAsync(row)">Lưu ngưỡng</button> }</td> }</tr>
             }
         </tbody></table></div>
+        @if (loaded && balances.Count == 0) { <p role="status">Chi nhánh chưa có nguyên liệu tồn kho.</p> }
         @if (Role != "OWNER")
         {
             <h2 class="h5">Nhập hoặc xuất kho thủ công</h2>
@@ -55,24 +61,27 @@
             <button class="btn btn-brand mb-3" @onclick="WriteAsync">Ghi giao dịch</button>
         }
         <h2 class="h5">Lịch sử nhập xuất</h2>
-        @if (!busy && history.Count == 0) { <p>Chưa có giao dịch kho.</p> }
+        @if (loaded && !busy && history.Count == 0) { <p>Chưa có giao dịch kho.</p> }
         @foreach (var h in history)
         {
             <details class="mb-2"><summary>#@h.Id · @h.Type · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
-                <ul>@foreach (var l in h.Lines) { <li>@l.Name · @l.Before → @l.After (@l.Change)</li> }</ul>
+                <ul>@foreach (var l in h.Lines) { <li>@l.Name · @Quantity(l.Before) → @Quantity(l.After) (@Quantity(l.Change))</li> }</ul>
             </details>
         }
-        <button class="btn btn-outline-secondary mt-2" @onclick="() => RunAsync(LoadAsync)">Tải lại tồn kho</button>
     }
 </fieldset>
-@if (busy) { <p role="status">Đang xử lý…</p> }
+@if (busy || !loaded && error is null) { <p role="status">Đang tải hoặc xử lý dữ liệu kho…</p> }
 
 @code {
     [Parameter] public int BranchId { get; set; }
     [Parameter, EditorRequired] public string Role { get; set; } = "";
     [Parameter] public bool IssueFirst { get; set; }
     private bool IsAdmin => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN";
+    private static string Quantity(decimal value) => value.ToString("0.###", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"));
     private bool busy;
+    private bool loaded;
+    private bool accessDenied;
+    private bool needsVerification;
     private bool needsLogin;
     private string? error;
     private string? notice;
@@ -95,6 +104,7 @@
     }
     private async Task LoadAsync()
     {
+        loaded = false;
         if (Role == "SYSTEM_ADMIN")
         {
             units = await Api.ListAsync<NamedOption>("options/units");
@@ -105,7 +115,14 @@
             balances = await Api.ListAsync<BalanceView>($"branches/{BranchId}/stock");
             history = await Api.ListAsync<StockHistoryView>($"branches/{BranchId}/stock/history");
         }
+        loaded = true;
     }
+    private Task ReloadAsync() => RunAsync(async () =>
+    {
+        balances = []; history = [];
+        await LoadAsync();
+        needsVerification = false;
+    });
     private void EditIngredient(IngredientView item) => ingredient = new IngredientView
         { Id = item.Id, Name = item.Name, UnitId = item.UnitId, IsActive = item.IsActive };
     private Task SaveIngredientAsync() => RunAsync(async () =>
@@ -130,15 +147,26 @@
         lines = [new()]; reason = "";
         notice = $"Đã lưu giao dịch #{id}.";
         await LoadAsync();
-    });
-    private async Task RunAsync(Func<Task> action)
+    }, writing: true);
+    private async Task RunAsync(Func<Task> action, bool writing = false)
     {
         if (busy) return;
-        busy = true; error = null; notice = null; needsLogin = false;
+        busy = true; error = null; notice = null; needsLogin = false; accessDenied = false;
         await InvokeAsync(StateHasChanged);
         try { await action(); }
-        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Tải lại tồn và lịch sử trước khi thử lại."; }
+        catch (ApiException ex)
+        {
+            error = ex.Message; notice = null;
+            needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized;
+            accessDenied = ex.StatusCode == System.Net.HttpStatusCode.Forbidden;
+            if (writing && (needsLogin || (int)ex.StatusCode >= 500)) needsVerification = true;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
+        {
+            notice = null;
+            if (writing) needsVerification = true;
+            error = "Không nhận được phản hồi. Tải lại tồn và lịch sử trước khi thử lại.";
+        }
         finally { busy = false; }
     }
 }
