@@ -1,0 +1,13 @@
+﻿Branch: test/SCRUM-127-wbs-4.6.2-responsive
+Initial origin/main tested during responsive session: af77b9e516707b15502c1d886cc56c7786ad439a
+Latest origin/main merged before packaging: ae595fd3872167a70aa9e3f537601682c31e2e28
+Sidebar stationary candidate merged: 3dbd79e9ec63233fbac91927fbfbcfe6a0405a3b
+Pre-commit merge HEAD: c2e7619435e0370c4d3f70d3645df11947c9792e
+workspace-navigation.css blob: 7b27a7c20fbe1f4fa119bf8d676b9b07c501b2b3
+business.css blob: 1d56b6fab34db91723c9ccbda953beef4e163153
+order-menu.css blob: 9c143f81d41e35fd756105a3351a6b5b813cebee
+Create.razor blob: 1d51f6ae6ea718134a22751f585839b248258438
+OrderWorkspace.razor blob: 7d67e9a8d6057d563e3a8c318a29d0fb75753885
+ManagementStock.razor blob: aab9c5ba7708c446dff88e2b9926af8e642f5066
+Built API DLL SHA256: 16B67F090D5FE7F3D80F17B08337A29B27552D7B397E9B66E3BFB85C4292EF73
+Built Web DLL SHA256: FD7DDD5B0E003EADD4B7BAC8C39B0D32CCC966190903E4B9048D4D8A2699723B

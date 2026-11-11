@@ -79,6 +79,30 @@
 .workspace-mobile-logout { border-top: 1px solid #dfe5e2; margin: 6px 0 0; padding-top: 6px; }
 .workspace-mobile-logout > button { width: 100%; min-height: 46px; padding: 12px 14px; text-align: left; font-size: 13px; color: #a32d2d; border: 0; background: transparent; border-radius: 5px; }
 .workspace-mobile-logout > button:hover { background: #fdf0ee; }
+@media (min-width: 768px) {
+    /* Keep navigation in the viewport; only the content pane scrolls. */
+    .employee-shell.workspace-shell {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+    }
+    .workspace-shell .employee-sidebar {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+    }
+    .workspace-shell .employee-sidebar > nav {
+        min-height: 0;
+        overflow-y: auto;
+    }
+    .workspace-shell .workspace-body {
+        height: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        scrollbar-gutter: stable;
+    }
+}
 @media (max-width: 767.98px) {
     .workspace-shell .mobile-workspace-header { border-color: #dfe5e2; }
     .workspace-shell .mobile-brand > span { background: #103f3a; border-radius: 10px; }

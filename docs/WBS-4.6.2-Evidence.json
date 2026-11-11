@@ -1,0 +1,308 @@
+﻿{
+    "wbs":  "4.6.2",
+    "jira":  "SCRUM-127",
+    "story":  "SCRUM-107",
+    "preparedDate":  "2026-11-11",
+    "preparedBy":  "Công Thành, có công cụ hỗ trợ",
+    "branch":  "test/SCRUM-127-wbs-4.6.2-responsive",
+    "initialMainTested":  "af77b9e516707b15502c1d886cc56c7786ad439a",
+    "mergedMainHead":  "ae595fd3872167a70aa9e3f537601682c31e2e28",
+    "sidebarCandidateCommit":  "3dbd79e9ec63233fbac91927fbfbcfe6a0405a3b",
+    "preCommitBase":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+    "newRuntime":  "Chrome Windows viewport emulation at 360/768/1366px (24 DOM measurements, 25 screenshots including baseline defect and post-fix retest); Edge Windows DevTools responsive emulation at 360/768/1366px on Owner screen (3 screenshots, 3 AX trees); API and Web Release builds 0 warnings/0 errors",
+    "reusedRuntime":  "U25 double-click confirm cart (clickCount=2 -\u003e single order ID 25) and loading/fault-inject states from 2026-11-10 on BranchFlow_Test",
+    "notRun":  "Physical Android device or Android emulator, public HTTPS smoke, independent QA retest (WBS 4.2.5)",
+    "modifiedStylesheets":  [
+                                {
+                                    "path":  "src/BranchFlow.Web/wwwroot/css/workspace-navigation.css",
+                                    "gitBlob":  "7b27a7c20fbe1f4fa119bf8d676b9b07c501b2b3",
+                                    "sha256":  "5797EF70E3BE95C720645C47715ED50042417C879B8749184B264D338D132C9F"
+                                },
+                                {
+                                    "path":  "src/BranchFlow.Web/wwwroot/css/business.css",
+                                    "gitBlob":  "1d56b6fab34db91723c9ccbda953beef4e163153",
+                                    "sha256":  "40E7180212E98A224214EB1AE2A596B9F7FF84F6067F1BDF4446C9770038C5A3"
+                                },
+                                {
+                                    "path":  "src/BranchFlow.Web/wwwroot/css/order-menu.css",
+                                    "gitBlob":  "9c143f81d41e35fd756105a3351a6b5b813cebee",
+                                    "sha256":  "27E0406B2DE86695C88C3194CD01EEA5A45849633DD5E476B85DCEFF52D035D2"
+                                }
+                            ],
+    "coreComponentsInspected":  [
+                                    {
+                                        "path":  "src/BranchFlow.Web/Components/Pages/Orders/Create.razor",
+                                        "commit":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+                                        "blob":  "1d51f6ae6ea718134a22751f585839b248258438"
+                                    },
+                                    {
+                                        "path":  "src/BranchFlow.Web/Components/Orders/OrderWorkspace.razor",
+                                        "commit":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+                                        "blob":  "7d67e9a8d6057d563e3a8c318a29d0fb75753885"
+                                    },
+                                    {
+                                        "path":  "src/BranchFlow.Web/Components/Business/ManagementStock.razor",
+                                        "commit":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+                                        "blob":  "aab9c5ba7708c446dff88e2b9926af8e642f5066"
+                                    },
+                                    {
+                                        "path":  "src/BranchFlow.Web/Components/Business/ManagementWorkspace.razor",
+                                        "commit":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+                                        "blob":  "f51232d3781586af6884e495ce02b846d553018e"
+                                    },
+                                    {
+                                        "path":  "src/BranchFlow.Web/Components/Business/ManagementMenu.razor",
+                                        "commit":  "c2e7619435e0370c4d3f70d3645df11947c9792e",
+                                        "blob":  "45c1487d724344b79de090c2e5605c4bb98c8a87"
+                                    }
+                                ],
+    "testArtifacts":  [
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Build-API-2026-11-11.txt",
+                              "sha256":  "EF070CF588869C61CA108FC15F618251D7780B5D4811854869B7ECB81D0B604E",
+                              "length":  1074
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Build-Web-2026-11-11.txt",
+                              "sha256":  "18648D7878FC14B04A315978AA355677C57288CD513EFCF1A4FE99A4102FC94E",
+                              "length":  1074
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Chrome-Measurements.json",
+                              "sha256":  "98260A4CB73E15B59B84E3C5EAD934A636639363AEB095ED6B586EB26471AF60",
+                              "length":  25146
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Edge-1366-AX.txt",
+                              "sha256":  "948DBCA708800DB63A3575DF85112D025A334889C3427785C7EA2C2CCCA7ED64",
+                              "length":  1077
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Edge-360-AX.txt",
+                              "sha256":  "D2BCC3A72A91B11881B2C2EF26ECBAFB8796339FD1F3008A749BF9D5F1CADCAF",
+                              "length":  1077
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Edge-768-AX.txt",
+                              "sha256":  "A9E0CAE7DDE8A9E89F76BB8F925E15EED9AE386D913F38287AA11F692B639FA9",
+                              "length":  1060
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Historical-DoubleClick-Excerpt.txt",
+                              "sha256":  "E96D650A7E540C09C22A813F4B7988F74D09341DD4E3C2D452987ECDE31EEC47",
+                              "length":  1440
+                          },
+                          {
+                              "path":  "tests/sprint5/WBS-4.6.2/Provenance.txt",
+                              "sha256":  "EEDFF73F7DB1D7FEFDA19262B8722020AE3207B76A8BF7C15A5CD102DDE4CE3C",
+                              "length":  947
+                          }
+                      ],
+    "evidenceImages":  [
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/before-employee-menu-360.png",
+                               "sha256":  "04405A803BAA984134DC1C3DCB62611339BD6618C06BCE5BD805F088552153EB",
+                               "length":  33164,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/cart-1366.png",
+                               "sha256":  "0B061660DD01C23634D30A3AEAF1D1F59EDFCE28CE538DE8CB0EB55335F68B56",
+                               "length":  63873,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/cart-360.png",
+                               "sha256":  "078CB07324DF95D074A85FD90CD37E7B94F904FDEB8899C692192FA442D476AC",
+                               "length":  32401,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/cart-768.png",
+                               "sha256":  "0A6AD4370CDEF441B26D41076455465D1C1A3C5791C57EA1FB5BF23C8C592AED",
+                               "length":  47098,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/edge-owner-1366.png",
+                               "sha256":  "DB1977225A57A3B3FB59C8FE761672CD76EE7D879713F011E8FCB53F3214921B",
+                               "length":  101454,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/edge-owner-360.png",
+                               "sha256":  "3FFCDAD1E66BE649584170BEB279629F801ADB44CB50E38D8E22C20DFDB90A0B",
+                               "length":  118515,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/edge-owner-768.png",
+                               "sha256":  "D409335F2B4E7D7A3A5A1A4CFA88963DA1A375F2E2B317833FA11542D7B364CE",
+                               "length":  126711,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/employee-menu-1366.png",
+                               "sha256":  "E125840E3F79299C54A35723C1D602B2A58D8EE2BCBF8EF5ED5A70F143B79DE5",
+                               "length":  73761,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/employee-menu-360.png",
+                               "sha256":  "04405A803BAA984134DC1C3DCB62611339BD6618C06BCE5BD805F088552153EB",
+                               "length":  33164,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/employee-menu-768.png",
+                               "sha256":  "92AA8E3DA8745C6DE62F29F2C7C291737913F3779C38708AB91F3D9E05A773C1",
+                               "length":  51310,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/empty-menu-360.png",
+                               "sha256":  "0B700D820E0BCE3DE17FC802474D60E2D5E43670C5BFBAA932E6AD67FA33F971",
+                               "length":  30813,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/login-1366.png",
+                               "sha256":  "CFB40D88852F7861A6F4C8D208A5C6B6F504D92DC00367EA47BD2A76A76677CB",
+                               "length":  30356,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/login-360.png",
+                               "sha256":  "E376AE5CC716D07FB717DA266B85C831CD41AC5BD9FEB0853F93D5C61120EB9A",
+                               "length":  21550,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/login-768.png",
+                               "sha256":  "1E4B8AE194A2BC894C2D4A4D67C1120E26E472649BDA49D0F6E50630A6D3D638",
+                               "length":  27395,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/options-360.png",
+                               "sha256":  "1F6505E7FD26247409DCD55E7F8DFA3469E66E17BDB55338DF1CB772CFE8D879",
+                               "length":  31206,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/retest-menu-1366.png",
+                               "sha256":  "46A1D0BCDF85A8DF29175EEDF54E00924276F3BD040DB20EE6E1EC34DC9F246F",
+                               "length":  73523,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/retest-menu-360.png",
+                               "sha256":  "5DEF79E76E53A176D8157223EBDE0625AEBCECB920135FD7422F5D0C7265146B",
+                               "length":  34034,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/retest-menu-768.png",
+                               "sha256":  "323D558C757DCFDD3DBD9A6A192A847901B30545AC743DDDAA9CAC268CBC12BC",
+                               "length":  51023,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-data-1366.png",
+                               "sha256":  "F72BD0BED283610AC546A5DA3DE5BD08BBA9DE52D4ED7A4A883CB47E8320C54B",
+                               "length":  62625,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-data-360.png",
+                               "sha256":  "60B86ECB58B6826C8197D1A9E9C8804BEDF96BCFFB9E9D55C0E74749B94439D4",
+                               "length":  35304,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-data-768.png",
+                               "sha256":  "E189EA987606C8E2782AED94D1710A1D79349284ED404A9C9097A2E9CC4F6CFA",
+                               "length":  57413,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-empty-1366.png",
+                               "sha256":  "BFA56EBD2E9123AE7D2A26B5112AF9A9C2F0743491044F3785F775774FE6428E",
+                               "length":  53906,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-error-360.png",
+                               "sha256":  "F6445611B7FA7F5A6C12F166B8392E5E2D0000964D40D9EEC61A90690E963BA0",
+                               "length":  34527,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/revenue-error-768.png",
+                               "sha256":  "7C9F100DCFD78CADE244A63098C5DFD499C19C5064C7F2EFB95CD48877E9E435",
+                               "length":  44862,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/sidebar-scroll-768.png",
+                               "sha256":  "049D9D25AE1CB841E33BD9E0B767635C180408EC9294D73BB275038D0516ABB5",
+                               "length":  57792,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/system-employees-1366.png",
+                               "sha256":  "4E61FBC6807003D0649755A83D9F18180C41FF9A3093EF555F3840858E894937",
+                               "length":  91100,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/system-employees-360.png",
+                               "sha256":  "04F8F9495B3AEEB1745B32359409765F638F14A4BAABBFB3CEE13E0B80B1AE32",
+                               "length":  31410,
+                               "observedDate":  "2026-11-11"
+                           },
+                           {
+                               "path":  "docs/evidence/WBS-4.6.2/system-employees-768.png",
+                               "sha256":  "274B7379B38E75D3347FE71C549B0003A1C1D2113C4FC3A7AF80B25110F0AE6C",
+                               "length":  51391,
+                               "observedDate":  "2026-11-11"
+                           }
+                       ],
+    "historicalSources":  [
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\Sprint5-UAT-Responsive.md",
+                                  "sha256":  "73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt for U25 double-click and loading/fault-injection reference; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\Sprint5-Retest-Completion.md",
+                                  "sha256":  "25971FAAFB36363F0B46C56D86B815A2C1D9D830B64C7EB60B158F529C97E91C",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt for U25 double-click and loading/fault-injection reference; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Retest-BeforeDoubleClick.txt",
+                                  "sha256":  "D4FA5B73CF96D00F1656BF4AD3C2288A348355C7A94599157D000A99B35911FA",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt for U25 double-click and loading/fault-injection reference; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Retest-DoubleClick-Sql.txt",
+                                  "sha256":  "E6FED0572AAC59C3AB8DE0FCD4CCAE622D6588334F7EAAF20AB0E938E29F118F",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt for U25 double-click and loading/fault-injection reference; not claimed as fresh 2026-11-11 run"
+                              },
+                              {
+                                  "originalLocalPath":  "D:\\QLDA\\BranchFlow\\docs\\evidence\\sprint5-uat\\retest-double-click.png",
+                                  "sha256":  "0906656E4B47B046EED0A7D7918FF36D177E41ADDFC017A0A86593FD0CA1EF60",
+                                  "observedDate":  "2026-11-10",
+                                  "version":  "47541ee plus working tree thanhnc",
+                                  "reuse":  "Scoped excerpt for U25 double-click and loading/fault-injection reference; not claimed as fresh 2026-11-11 run"
+                              }
+                          ]
+}

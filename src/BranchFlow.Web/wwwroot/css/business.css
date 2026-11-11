@@ -12,6 +12,8 @@
 .business-shell .page-content { padding: 24px 40px 40px; }
 .business-shell .surface-card, .business-shell .detail-summary, .business-shell .history-filters { background: #FFF; border: 1px solid #DFE3DF; box-shadow: none; border-radius: 10px; }
 .business-shell .surface-card::before, .business-shell .surface-card::after, .business-shell .detail-summary::before, .business-shell .detail-summary::after { display: none; }
+/* Long account/ingredient options must fit their wrapping form row. */
+.business-shell .surface-card :is(.form-control, .form-select) { min-width: 0; max-width: 100%; }
 .business-shell .cart-summary-ribbon, .business-shell .empty-state-figure { display: none; }
 .business-shell .btn-brand { background: #08796B; border: 1px solid #08796B; color: #FFF; box-shadow: none; }
 .business-shell .btn-brand:hover { background: #07564F; }
