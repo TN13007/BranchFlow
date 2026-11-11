@@ -1,0 +1,39 @@
+{
+  "wbs": "5.3.3",
+  "jira": "SCRUM-107",
+  "relatedSubtask": "SCRUM-127",
+  "preparedDate": "2026-11-11",
+  "branch": "docs/SCRUM-107-wbs-5.3.3-wbs-gantt-sprint-report",
+  "base": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+  "verification": "Document and WBS/Gantt/Sprint data reconciliation across all 20 WBS activities assigned to Nguyen Cong Thanh (40 planned hours); verified SHA256 and Git blob of Sprint5-WBS-Sprint-Report.md",
+  "notRun": "Official ProjectLibre (.pod) Gantt export and group-wide Word report merge (owned by PM Khang), public HTTPS deployment smoke, and final PM sign-off",
+  "reportSource": {
+    "path": "docs/Sprint5-WBS-Sprint-Report.md",
+    "gitBlob": "25742d34f65e8bb28f51156ffa63b4ff97f2df1e",
+    "receivedFrom": "D:/QLDA/BranchFlow/docs/Sprint5-WBS-Sprint-Report.md",
+    "sha256": "2A25ECED8C46DEF604A18825F17107FB3FB1C1F516C82CF282562106AFDFBE78",
+    "reception": "Existing Sprint5-WBS-Sprint-Report.md from D:/QLDA/BranchFlow copied unchanged"
+  },
+  "referencedLocalSources": [
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-FE-Section1-handoff.md",
+      "sha256": "BF645008BDD0898F2B4A2A1705EDDC986BC4AE18240263A2DD1BF4F39CF14D65",
+      "observedDate": "2026-11-10"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-Demo-Data.md",
+      "sha256": "EA3996BF17A2DBE1672FB9566076AE7818B6AF893ECC3108AB65C9C895B47A36",
+      "observedDate": "2026-11-10"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-UAT-Responsive.md",
+      "sha256": "73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE",
+      "observedDate": "2026-11-10"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-Retest-Completion.md",
+      "sha256": "25971FAAFB36363F0B46C56D86B815A2C1D9D830B64C7EB60B158F529C97E91C",
+      "observedDate": "2026-11-10"
+    }
+  ]
+}
