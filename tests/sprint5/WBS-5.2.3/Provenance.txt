@@ -1,0 +1,9 @@
+WBS: 5.2.3
+Jira: SCRUM-127 (Story SCRUM-107)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+ReceivedGuideFile: docs/Sprint5-User-Guide.md
+ReceivedFrom: D:\QLDA\BranchFlow\docs\Sprint5-User-Guide.md
+GitBlob: baf2a5b23ed102206bf9926248decf8d1d8f9caf
+SHA256: F02DD8C80E7FF98C729A44D95D9FD8E28A526DD066F954DD07C49967C489167E
+Verification: Cross-checked every UI screen/button/label/error message in Sprint5-User-Guide.md against real Blazor components on origin/main and UAT runs on 2026-11-10. No plaintext passwords or secrets included.
