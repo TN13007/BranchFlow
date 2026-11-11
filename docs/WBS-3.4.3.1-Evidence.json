@@ -1,0 +1,149 @@
+{
+  "wbs": "3.4.3.1",
+  "jira": "SCRUM-124",
+  "story": "SCRUM-103",
+  "preparedDate": "2026-11-11",
+  "branch": "docs/SCRUM-124-wbs-3.4.3.1-employee-history",
+  "base": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+  "newRuntime": "Web Release build (0 warnings, 0 errors); 17/17 unit tests in OrderServiceTests and SessionTransportTests Passed on 2026-11-11",
+  "notRun": "Browser network-fault injection specifically on /orders/mine, physical Android device run, public HTTPS smoke, and independent QA retest",
+  "core": [
+    {
+      "path": "src/BranchFlow.Web/Components/Pages/Orders/Mine.razor",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "b26fd03b7c010c3fdf550856351bf43bc9a8e377"
+    },
+    {
+      "path": "src/BranchFlow.Web/Components/Pages/Orders/Detail.razor",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "211926707e2c32da2d23f0b296cd55beb703dcc6"
+    },
+    {
+      "path": "src/BranchFlow.Api/Controllers/OrdersController.cs",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "c0845997ba9467b8ac03c173df9a6972d5dea1bb"
+    },
+    {
+      "path": "src/BranchFlow.Application/Services/OrderService.cs",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "fa322195c4db7ec751a7da4238f3d58d152e2ce9"
+    },
+    {
+      "path": "src/BranchFlow.Infrastructure/Repositories/OrderRepository.cs",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "76e79fe7578a5eff21bb452f8f5cb6a2769d168d"
+    },
+    {
+      "path": "tests/BranchFlow.Tests/Backend/OrderServiceTests.cs",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "503a0044debbd37c70eebceecc97a2cde4feb176"
+    },
+    {
+      "path": "tests/sprint5/OrderLifecycleSmoke.ps1",
+      "commit": "ae595fd3872167a70aa9e3f537601682c31e2e28",
+      "blob": "0e4eb2ae4e1daabe46389072e16cde9ae89c3848"
+    }
+  ],
+  "historicalSources": [
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\tests\\sprint5\\Verify-FrontendApis.ps1",
+      "sha256": "7ED3DA16C28AD4189BE16DF32D3FBF7EA034F4FE4BAC05545FAD88968CA221D2",
+      "observedDate": "2026-11-10",
+      "version": "47541ee plus working tree; exact runtime SHA not established",
+      "reuse": "Scoped excerpts only in tests/sprint5/WBS-3.4.3.1/Historical-HTTP-UI-Excerpt.txt"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\tests\\sprint5\\FrontendApiResult-2026-11-10.txt",
+      "sha256": "368D2D2FB672D53B020502001E652FBCEF6C88AAA0E28A44812543D0E7B10B55",
+      "observedDate": "2026-11-10",
+      "version": "47541ee plus working tree; exact runtime SHA not established",
+      "reuse": "Scoped excerpts only in tests/sprint5/WBS-3.4.3.1/Historical-HTTP-UI-Excerpt.txt"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\tests\\sprint5\\UatJourneySqlResult-2026-11-10.txt",
+      "sha256": "465D7D6BA1A40ACF54228C8B92889E1B0592E962C6805CCCFC09BDA658C42E78",
+      "observedDate": "2026-11-10",
+      "version": "47541ee plus working tree; exact runtime SHA not established",
+      "reuse": "Scoped excerpts only in tests/sprint5/WBS-3.4.3.1/Historical-HTTP-UI-Excerpt.txt"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-FE-Section1-handoff.md",
+      "sha256": "BF645008BDD0898F2B4A2A1705EDDC986BC4AE18240263A2DD1BF4F39CF14D65",
+      "observedDate": "2026-11-10",
+      "version": "47541ee plus working tree; exact runtime SHA not established",
+      "reuse": "Scoped excerpts only in tests/sprint5/WBS-3.4.3.1/Historical-HTTP-UI-Excerpt.txt"
+    },
+    {
+      "originalLocalPath": "D:\\QLDA\\BranchFlow\\docs\\Sprint5-UAT-Responsive.md",
+      "sha256": "73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE",
+      "observedDate": "2026-11-10",
+      "version": "47541ee plus working tree; exact runtime SHA not established",
+      "reuse": "Scoped excerpts only in tests/sprint5/WBS-3.4.3.1/Historical-HTTP-UI-Excerpt.txt"
+    }
+  ],
+  "images": [
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-history-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-history-1366.png",
+      "sha256": "C84804E25A22FD29CB435AE89A3D31D66AFF1CDA0DAD18B116E4B4037E403908",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-history-768.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-history-768.png",
+      "sha256": "79D58E1F7F6BA067E496903B83702F21E647A55B95F59B9BA8B8D8627D60B9DD",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-history-360.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-history-360.png",
+      "sha256": "4418BBAC20658CEAAC0585DBF063FF86B019C21F57CDE97FEBA412E0CCA9A817",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-history-empty-360.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-history-empty-360.png",
+      "sha256": "B41D7FA11BF2E95471A71E07B36502CD68C0438C2BCD41559422D759B9CA00E7",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-cancelled-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-cancelled-1366.png",
+      "sha256": "80181111A07EE4C9D813873A0442C2B611FD0C2BDB0FB8B1D5D33A983A9A78CD",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-cancelled-768.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-cancelled-768.png",
+      "sha256": "E1ACFD3F6D2011DF4F6BE1DD0445F75042BAD90A7436A0F6305BAC29C0A7619C",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-cancelled-360.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-cancelled-360.png",
+      "sha256": "E2BD82EB7DF77AC37866A58863B3B16F5B111FECD148EF7127363F31362E7A62",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-cancelled-detail.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-fe/employee-cancelled-detail.png",
+      "sha256": "48DA33CC24D251DD28E8A41CC7C1FD2237E8375A0AA8FF2600CFECABF33839EE",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    },
+    {
+      "path": "docs/evidence/WBS-3.4.3.1/employee-cross-branch-denied-1366.png",
+      "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/employee-cross-branch-denied-1366.png",
+      "sha256": "D084CEB25A826C0D78B864C63FF008775D4A1D22A70CCD1C1019A4F7DD1436B9",
+      "date": "2026-11-10",
+      "reusedWithoutEditing": true
+    }
+  ]
+}

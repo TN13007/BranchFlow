@@ -1,0 +1,20 @@
+# Trích lục kiểm chứng HTTP, SQL & UI lịch sử cho WBS 3.4.3.1 (10/11/2026)
+
+Nguồn gốc:
+- `D:\QLDA\BranchFlow\tests\sprint5\Verify-FrontendApis.ps1` (SHA256: `7ED3DA16C28AD4189BE16DF32D3FBF7EA034F4FE4BAC05545FAD88968CA221D2`)
+- `D:\QLDA\BranchFlow\tests\sprint5\FrontendApiResult-2026-11-10.txt` (SHA256: `368D2D2FB672D53B020502001E652FBCEF6C88AAA0E28A44812543D0E7B10B55`)
+- `D:\QLDA\BranchFlow\tests\sprint5\UatJourneySqlResult-2026-11-10.txt` (SHA256: `465D7D6BA1A40ACF54228C8B92889E1B0592E962C6805CCCFC09BDA658C42E78`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-FE-Section1-handoff.md` (SHA256: `BF645008BDD0898F2B4A2A1705EDDC986BC4AE18240263A2DD1BF4F39CF14D65`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-UAT-Responsive.md` (SHA256: `73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE`)
+
+1. Trích đoạn kiểm tra HTTP trong `Verify-FrontendApis.ps1` (dòng 64-77):
+- Admin hủy đơn (`PUT api/management/orders/{order.id}` với `cancel = true`) -> 200 OK
+- Employee đọc lại chi tiết đơn của mình (`GET api/orders/{order.id}`) -> `ownDetail.status == 'CANCELLED'` (`PASS Employee detail reflects admin cancellation`)
+- Employee gọi `PUT api/management/orders/{order.id}` để tự sửa/hủy đơn -> 403 Forbidden
+- Sau khi System Admin sửa giá chung từ 10.25 lên 12.50, Employee đọc lại `GET api/orders/{completed.id}` -> giữ nguyên snapshot `10.25` (`PASS Old order snapshot survives common price update`)
+
+2. Trích đoạn kịch bản UAT / Browser (`Sprint5-UAT-Responsive.md` & `Sprint5-FE-Section1-handoff.md`):
+- Mục 1 (`Sprint5-FE-Section1-handoff.md` dòng 25): Browser Employee lọc mã `0004` và ngày `10/11` ra đúng 1 đơn; mở chi tiết đã hủy, không có nút sửa/hủy. API detail phản ánh trạng thái sau Admin hủy.
+- `U17 / Employee A`: Tra cứu mã không tồn tại (`employee-history-empty-360.png`) -> Hiển thị trạng thái rỗng có hướng dẫn (`Chưa có đơn hàng phù hợp với bộ lọc`); tra cứu mã `0009` -> trả đúng 1 đơn (`employee-history-1366.png`, `employee-history-768.png`, `employee-history-360.png`).
+- `U18 / Employee A`: Mở trực tiếp `/orders/23` (đơn của Employee B / CN02) -> Báo `Không tìm thấy đơn trong phạm vi của bạn` (`404`), không lộ chi tiết đơn người khác (`employee-cross-branch-denied-1366.png`).
+- `U22 / Employee A`: Mở lại `/orders/24` (`BF-DEMO-01-20261110-0009`) sau khi Admin CN01 sửa 2->3 ly và hủy đơn -> Thấy trạng thái `Đã hủy` (`CANCELLED`), 3 ly, `147.000đ`; không có nút/thao tác sửa/hủy hoặc báo sai nhiều bước (`employee-cancelled-1366.png`, `employee-cancelled-768.png`, `employee-cancelled-360.png`).
