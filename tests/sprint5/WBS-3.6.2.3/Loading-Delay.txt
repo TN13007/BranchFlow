@@ -1,0 +1,4 @@
+LockedRows
+-----------
+         18
+PASS temporary Test read delay released without writes

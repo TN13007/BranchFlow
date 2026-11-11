@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  BranchFlow.Infrastructure -> D:\QLDA\BranchFlow-WBS3623\src\BranchFlow.Infrastructure\bin\Release\net10.0\BranchFlow.Infrastructure.dll
+  BranchFlow.Application -> D:\QLDA\BranchFlow-WBS3623\src\BranchFlow.Application\bin\Release\net10.0\BranchFlow.Application.dll
+  BranchFlow.Web -> D:\QLDA\BranchFlow-WBS3623\src\BranchFlow.Web\bin\Release\net10.0\BranchFlow.Web.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.41
