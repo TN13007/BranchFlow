@@ -1,0 +1,39 @@
+=== PROVENANCE & TRACEABILITY LOG — WBS 5.3.6 ===
+WBS: 5.3.6 — Rà soát định dạng, nguồn, đường dẫn và hạn nộp (BF-NB-5.3.6)
+Assignee: Nguyễn Công Thành
+Jira Reference: SCRUM-107 (https://khangba153.atlassian.net/browse/SCRUM-107)
+Branch: docs/SCRUM-107-wbs-5.3.6-final-review-checklist
+Base Commit (origin/main): ae595fd3872167a70aa9e3f537601682c31e2e28
+
+1. Primary Deliverables (Unchanged from 2026-11-10 Working Tree D:\QLDA\BranchFlow):
+- File 1: docs/Sprint5-Section4-Index.md
+  + Size: 4,122 bytes
+  + SHA256: 83C2C69211B3603F9E7103984A6DD55439A47D200A73A7646D05AF6F9DF55049
+  + Git Blob: b001532181b0bba92221047d706d7e89abc4def6
+- File 2: tests/sprint5/Section4-Link-Check.txt
+  + Size: 2,599 bytes
+  + SHA256: DB1C8D1B830C82D9C184B0900CF9000F8225D021DB46F8DEA028767C4920A5C1
+  + Git Blob: 780193d2a8842ccce1960e90a3e0797bb209569d
+  + Summary: 25/25 local relative links PASS (0 missing targets); 9 external URLs marked ONLINE NOT VERIFIED.
+
+2. Complete 20/20 WBS Handoff Traceability for Nguyễn Công Thành (as of 2026-11-11):
+01. WBS 5.1.1   | SCRUM-127 | feat/SCRUM-127-wbs-5.1.1-handoff                  | b7184c7
+02. WBS 3.4.2.1 | SCRUM-124 | feat/SCRUM-124-wbs-3.4.2.1-handoff                | e2db2b5
+03. WBS 4.4.1   | SCRUM-131 | docs/SCRUM-131-wbs-4.4.1-thanh-uat                | 4b04b7f
+04. WBS 5.1.2   | SCRUM-127 | feat/SCRUM-127-wbs-5.1.2-demo-menu                | 6f99364
+05. WBS 3.6.2.3 | SCRUM-126 | feat/SCRUM-126-wbs-3.6.2.3-revenue                | 1488e9e
+06. WBS 3.6.2.4 | SCRUM-126 | docs/SCRUM-126-wbs-3.6.2.4-revenue-states         | cf6ef7b
+07. WBS 5.1.3   | SCRUM-127 | docs/SCRUM-127-wbs-5.1.3-stock-revenue            | 095fdbf
+08. WBS 3.5.1.5 | SCRUM-125 | feat/SCRUM-125-wbs-3.5.1.5-stock-ui               | 1e2a678
+09. WBS 4.6.2   | SCRUM-127 | test/SCRUM-127-wbs-4.6.2-responsive               | fe9a0e4
+10. WBS 4.6.5   | SCRUM-127 | docs/SCRUM-127-wbs-4.6.5-browser-compatibility    | 96d8763
+11. WBS 3.2.2.5 | SCRUM-122 | feat/SCRUM-122-wbs-3.2.2.5-employee-profiles      | 10ba6e0
+12. WBS 3.4.3.1 | SCRUM-124 | docs/SCRUM-124-wbs-3.4.3.1-employee-history       | d4d2696
+13. WBS 3.3.1.5 | SCRUM-123 | feat/SCRUM-123-wbs-3.3.1.5-system-menu-ui         | 7f53486
+14. WBS 5.3.3   | SCRUM-107 | docs/SCRUM-107-wbs-5.3.3-wbs-gantt-sprint-report  | 131ca46
+15. WBS 5.2.3   | SCRUM-127 | docs/SCRUM-127-wbs-5.2.3-user-guide               | 90456ca
+16. WBS 5.6.3   | SCRUM-107 | docs/SCRUM-107-wbs-5.6.3-minipm-thanh             | 39de709
+17. WBS 5.3.5   | SCRUM-107 | docs/SCRUM-107-wbs-5.3.5-demo-slides              | 16ef3ca
+18. WBS 5.3.1   | SCRUM-107 | docs/SCRUM-107-wbs-5.3.1-week2-dossier            | edb2b44
+19. WBS 5.6.6   | SCRUM-107 | docs/SCRUM-107-wbs-5.6.6-five-personal-reports    | 6adf332
+20. WBS 5.3.6   | SCRUM-107 | docs/SCRUM-107-wbs-5.3.6-final-review-checklist   | HEAD
