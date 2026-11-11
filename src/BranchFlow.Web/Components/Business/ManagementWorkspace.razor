@@ -2,9 +2,9 @@
 @using System.Globalization
 
 <div class="surface-card p-3 p-md-4">
-    <ApiError Message="@error" NeedsLogin="@needsLogin" />
+    <ApiError Message="@error" NeedsLogin="@needsLogin" OnRetry="ReloadAsync" Busy="busy" />
     @if (notice is not null) { <p class="alert alert-success" role="status">@notice</p> }
-    <fieldset disabled="@busy">
+    <fieldset disabled="@(busy || needsLogin || accessDenied)">
     @if (NeedsBranch)
     {
         <label class="form-label">Chi nhánh
@@ -64,7 +64,7 @@
                     <button class="btn btn-brand" @onclick='() => SaveAsync("assignments", 0, assignment, () => assignment = new())'>Phân công</button>
                 </div>
             }
-            @if (user is not null)
+            @if (user is not null && CanEditUsers)
             {
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <input class="form-control w-auto" aria-label="Họ tên" @bind="user.FullName" />
@@ -88,7 +88,7 @@
             @foreach (var u in users)
             {
                 <tr><td>@u.Username</td><td>@u.FullName</td><td>@BranchFlow.Web.Models.Appearance.WorkspaceNavigation.RoleLabel(u.Role)</td><td>@u.BranchName</td><td>@(u.IsActive ? "Hoạt động" : "Đã khóa")</td>
-                    <td>@if (u.Role is "BRANCH_ADMIN" or "EMPLOYEE") { <button class="btn btn-outline-secondary" @onclick="() => user = Copy(u)">Sửa hồ sơ</button> }</td></tr>
+                    <td>@if (CanEditUser(u)) { <button class="btn btn-outline-secondary" @onclick="() => user = Copy(u)">Sửa hồ sơ</button> }</td></tr>
             }
             </tbody></table></div>
             break;
@@ -145,30 +145,30 @@
                     <td><button class="btn btn-outline-secondary" @onclick="() => OpenOrderAsync(o.Id)">Chi tiết</button></td></tr>
             }
             </tbody></table></div>
-            @if (!busy && orders.Count == 0) { <p>Không có đơn trong khoảng ngày đã chọn.</p> }
+            @if (loaded && !busy && orders.Count == 0) { <p role="status">Không có đơn trong khoảng ngày đã chọn.</p> }
             @if (orders.Count == 200) { <p>Hiển thị 200 đơn mới nhất. Thu hẹp khoảng ngày để tra cứu.</p> }
             break;
         case "overview":
         case "analytics":
             <h2 class="h5">Doanh thu theo ngày và chi nhánh</h2>
-            @if (!busy && error is null && revenueLoaded)
-            {
-            <p>Tổng @Money(revenue.Sum(x => x.Amount)) · @revenue.Sum(x => x.Orders) đơn hoàn thành</p>
+            @if (loaded) { <p>Tổng @Money(revenue.Sum(x => x.Amount)) · @revenue.Sum(x => x.Orders) đơn hoàn thành</p> }
             <div class="table-responsive"><table class="table"><thead><tr><th>Ngày (VN)</th><th>Chi nhánh</th><th>Số đơn</th><th>Doanh thu</th></tr></thead><tbody>
                 @foreach (var r in revenue) { <tr><td>@r.Date.ToString("dd/MM/yyyy")</td><td>@r.BranchName</td><td>@r.Orders</td><td>@Money(r.Amount)</td></tr> }
             </tbody></table></div>
-            @if (!busy && revenue.Count == 0) { <p>Không có đơn hoàn thành trong khoảng ngày đã chọn.</p> }
-            }
+            @if (loaded && !busy && revenue.Count == 0) { <p role="status">Không có đơn hoàn thành trong khoảng ngày đã chọn.</p> }
             break;
     }
     </fieldset>
-    @if (busy || ((Tab is "overview" or "analytics") && !revenueLoaded && error is null)) { <p role="status">Đang xử lý…</p> }
+    @if (busy) { <p role="status">Đang xử lý…</p> }
 </div>
 
 @code {
     [Parameter, EditorRequired] public string Tab { get; set; } = "";
     [Parameter, EditorRequired] public string Role { get; set; } = "";
     private bool IsSystem => Role == "SYSTEM_ADMIN";
+    private bool CanEditUsers => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN";
+    private bool CanEditUser(UserView account) => IsSystem && account.Role is ("BRANCH_ADMIN" or "EMPLOYEE")
+        || Role == "BRANCH_ADMIN" && account.Role == "EMPLOYEE";
     private bool NeedsBranch => Tab is "branch-menu" or "stock" or "inventory" or "issue" or "orders" or "analytics" or "overview";
     private bool CanReadAll => Tab is "orders" or "analytics" or "overview";
     private bool CanAdjust => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN" && order?.Status != "CANCELLED";
@@ -176,7 +176,6 @@
     private List<UserView> users = [];
     private List<ManagedOrderView> orders = [];
     private List<RevenueView> revenue = [];
-    private bool revenueLoaded;
     private BranchView branch = new();
     private CreateUserRequest newUser = new();
     private AssignmentRequest assignment = new();
@@ -188,6 +187,8 @@
     private DateOnly from = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
     private DateOnly to = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
     private bool busy;
+    private bool loaded;
+    private bool accessDenied;
     private bool needsLogin;
     private string? error;
     private string? notice;
@@ -209,19 +210,24 @@
             case "employees": users = await Api.ListAsync<UserView>("users"); break;
             case "orders": orders = await Api.ListAsync<ManagedOrderView>("orders" + filter); break;
             case "analytics":
-            case "overview":
-                revenue = await Api.ListAsync<RevenueView>("revenue" + filter);
-                revenueLoaded = true;
-                break;
+            case "overview": revenue = await Api.ListAsync<RevenueView>("revenue" + filter); break;
         }
     }
     private async Task ReloadAsync()
     {
+        if (busy) return;
+        loaded = false;
         order = null;
         orders = [];
         revenue = [];
-        revenueLoaded = false;
-        await RunAsync(LoadAsync);
+        users = [];
+        await RunAsync(async () =>
+        {
+            if ((Tab is "orders" or "analytics" or "overview") && from > to)
+                throw new ArgumentException("Ngày bắt đầu không được sau ngày kết thúc.");
+            await LoadAsync();
+            loaded = true;
+        });
     }
     private async Task ChangeBranchAsync(ChangeEventArgs args)
     {
@@ -256,14 +262,15 @@
     private async Task RunAsync(Func<Task> action)
     {
         if (busy) return;
-        busy = true; error = null; notice = null; needsLogin = false;
+        busy = true; error = null; notice = null; needsLogin = false; accessDenied = false;
         await InvokeAsync(StateHasChanged);
         try { await action(); }
-        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Hãy tải lại để kiểm tra trước khi thao tác tiếp."; }
+        catch (ApiException ex) { error = ex.Message; notice = null; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; accessDenied = ex.StatusCode == System.Net.HttpStatusCode.Forbidden; }
+        catch (ArgumentException ex) { error = ex.Message; notice = null; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { notice = null; error = "Không nhận được phản hồi. Hãy tải lại để kiểm tra trước khi thao tác tiếp."; }
         finally { busy = false; }
     }
-    private static string Money(decimal value) => value.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + "đ";
+    private static string Money(decimal value) => BranchFlow.Web.Components.Orders.Display.Money(value);
     private static string VietnamTime(DateTime utc) => utc.AddHours(7).ToString("dd/MM/yyyy HH:mm");
     private static T Copy<T>(T value) => System.Text.Json.JsonSerializer.Deserialize<T>(System.Text.Json.JsonSerializer.Serialize(value))!;
     private static string DescribeAdjustment(string json)

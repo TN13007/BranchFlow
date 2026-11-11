@@ -1,0 +1,24 @@
+# Trích lục kiểm chứng HTTP & UI lịch sử cho WBS 3.2.2.5 (10/11/2026)
+
+Nguồn gốc:
+- `D:\QLDA\BranchFlow\tests\sprint5\Verify-FrontendApis.ps1` (SHA256: `7ED3DA16C28AD4189BE16DF32D3FBF7EA034F4FE4BAC05545FAD88968CA221D2`)
+- `D:\QLDA\BranchFlow\tests\sprint5\FrontendApiResult-2026-11-10.txt` (SHA256: `368D2D2FB672D53B020502001E652FBCEF6C88AAA0E28A44812543D0E7B10B55`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-FE-Section1-handoff.md` (SHA256: `BF645008BDD0898F2B4A2A1705EDDC986BC4AE18240263A2DD1BF4F39CF14D65`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-UAT-Responsive.md` (SHA256: `73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE`)
+
+1. Trích đoạn kiểm tra HTTP trong `Verify-FrontendApis.ps1` (dòng 100-115):
+- `GET api/management/users` bởi `demo.systemadmin` -> 200 OK
+- `PUT api/management/users/{otherEmployee.id}` bởi `demo.branchadmin.01` (sửa nhân viên thuộc CN02) -> 403 Forbidden
+- `POST api/management/users` tạo fixture Employee `fe.<suffix>` bởi `demo.systemadmin` -> 200 OK
+- `PUT api/management/users/{newUserId}` khóa (`isActive = false`) rồi mở lại (`isActive = true`) bởi `demo.systemadmin` -> 200 OK (`PASS System Admin can create and lock fixture employee`)
+- `POST api/management/assignments` phân công lần hai cho `demo.employee.a` sang CN02 khi phân công CN01 còn hiệu lực -> 409 Conflict
+- `PUT api/management/users/{employeeUser.id}` bởi `demo.owner` -> 403 Forbidden
+- `GET api/management/users` bởi `demo.owner` -> 403 Forbidden (`DEPENDENCY Owner read-only employee profiles: current API returns 403.`)
+
+2. Trích đoạn kết quả `FrontendApiResult-2026-11-10.txt`:
+- `PASS System Admin can create and lock fixture employee`
+- `DEPENDENCY Owner read-only employee profiles: current API returns 403.`
+
+3. Trích đoạn UAT / Browser (`Sprint5-UAT-Responsive.md`):
+- `U06 / Admin Tổng`: Mở hồ sơ Employee A -> Hiển thị đúng hồ sơ và nút lưu; ô phân công vừa vùng chứa sau sửa CSS (`Pass cho mở form; không đổi tài khoản`).
+- `U26 / Owner`: Đọc hồ sơ nhân viên chỉ xem -> Đầu vào API/quyền Owner chưa được chốt ở mục 1 (`Blocked; cần Thuần/Khang`).
