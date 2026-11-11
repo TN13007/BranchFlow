@@ -1,0 +1,47 @@
+# Đối chiếu 20 WBS của Nguyễn Công Thành (cập nhật 11/11/2026)
+
+Tổng số hoạt động kế hoạch: 20 WBS | Tổng giờ kế hoạch: 40 giờ (2h/hoạt động, lịch nguồn 06/11 - 25/11/2026; hạn nội bộ Sprint 5: 13/11/2026 23:00).
+
+1. WBS 5.1.1 (06/11, 2h) - Tạo dữ liệu mẫu 3 chi nhánh và 4 vai trò:
+   - Jira: SCRUM-127 (Story SCRUM-107)
+   - Branch/Commit: feat/SCRUM-127-wbs-5.1.1-handoff (`b7184c7`, đã merge vào `main`)
+2. WBS 3.4.2.1 (07/11, 2h) - Hiển thị yêu cầu điều chỉnh theo chi nhánh:
+   - Jira: SCRUM-124 (Story SCRUM-103)
+   - Branch/Commit: feat/SCRUM-124-wbs-3.4.2.1-handoff (`a556bcc` / `4d14af2` / `e2db2b5`)
+3. WBS 4.4.1 (08/11, 2h) - Chuẩn bị kịch bản UAT theo 4 vai trò:
+   - Jira: SCRUM-131 (Story SCRUM-107)
+   - Branch/Commit: docs/SCRUM-131-wbs-4.4.1-thanh-uat (`4b04b7f`)
+4. WBS 5.1.2 (09/11, 2h) - Tạo dữ liệu mẫu menu và đơn hàng:
+   - Jira: SCRUM-127 (Story SCRUM-107)
+   - Branch/Commit: feat/SCRUM-127-wbs-5.1.2-demo-menu (`6f99364`, đã merge vào `main`)
+5. WBS 3.6.2.3 (10/11, 2h) - Lọc ngày/chi nhánh theo quyền:
+   - Jira: SCRUM-126 (Story SCRUM-105)
+   - Branch/Commit: feat/SCRUM-126-wbs-3.6.2.3-revenue (`1488e9e`, đã merge vào `main`)
+6. WBS 3.6.2.4 (11/11, 2h) - Xử lý trạng thái trống/lỗi và số liệu:
+   - Jira: SCRUM-126 (Story SCRUM-105)
+   - Branch/Commit: docs/SCRUM-126-wbs-3.6.2.4-revenue-states (`cf6ef7b`, đã merge vào `main` qua `1061731`)
+7. WBS 5.1.3 (12/11, 2h) - Tạo dữ liệu mẫu tồn kho và doanh thu:
+   - Jira: SCRUM-127 (Story SCRUM-107)
+   - Branch/Commit: docs/SCRUM-127-wbs-5.1.3-stock-revenue (`095fdbf`, đã merge vào `main` qua `ae595fd`)
+8. WBS 3.5.1.5 (13/11, 2h) - Xem tồn kho / phiếu giao dịch:
+   - Jira: SCRUM-125 (Story SCRUM-104)
+   - Branch/Commit: feat/SCRUM-125-wbs-3.5.1.5-stock-ui (`1e2a678`, đã merge vào `main` qua `7fd86e4`)
+9. WBS 4.6.2 (14/11, 2h) - Kiểm thử responsive ở 360/768/1366px:
+   - Jira: SCRUM-127 (Comment ID `10300`)
+   - Branch/Commit: test/SCRUM-127-wbs-4.6.2-responsive (`fe9a0e4f10edee55f88aaa2ca87c3b5b7b1f7d84`)
+10. WBS 4.6.5 (15/11, 2h) - Đánh giá tương thích Chrome/Edge/Android:
+    - Jira: SCRUM-127 (Comment ID `10301`)
+    - Branch/Commit: docs/SCRUM-127-wbs-4.6.5-browser-compatibility (`96d87630b6898071dbd8fde6a8f3a6c461797345`)
+11. WBS 3.2.2.5 (16/11, 2h) - Hiển thị hồ sơ nhân viên và kiểm quyền Owner chỉ đọc:
+    - Jira: SCRUM-122 (Comment ID `10302`)
+    - Branch/Commit: feat/SCRUM-122-wbs-3.2.2.5-employee-profiles (`10ba6e026fa8a9c0aceefa14412243adc39d2636`)
+12. WBS 3.4.3.1 (17/11, 2h) - Tạo màn hình lịch sử đơn do Employee lập:
+    - Jira: SCRUM-124 (Comment ID `10303`)
+    - Branch/Commit: docs/SCRUM-124-wbs-3.4.3.1-employee-history (`d4d26961dc319dc2218f4f167d3a7351ed151034`)
+13. WBS 3.3.1.5 (18/11, 2h) - Tạo giao diện quản lý menu tổng:
+    - Jira: SCRUM-123 (Comment ID `10304`)
+    - Branch/Commit: feat/SCRUM-123-wbs-3.3.1.5-system-menu-ui (`7f53486a8c27ca54e9b76569070dd562a6e55267`)
+14. WBS 5.3.3 (19/11, 2h) - Viết báo cáo kế hoạch WBS, Gantt và Sprint:
+    - Jira: SCRUM-107
+    - File: docs/Sprint5-WBS-Sprint-Report.md & docs/WBS-5.3.3-Handoff.md
+15-20. Các WBS tài liệu tiếp theo trong lịch (5.2.3, 5.6.3, 5.3.5, 5.3.1, 5.6.6, 5.3.6): đang lần lượt đóng gói và bàn giao.
