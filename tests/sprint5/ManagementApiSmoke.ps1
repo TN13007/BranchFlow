@@ -1,3 +1,5 @@
+# Integrated from the team management runner and Thuận's local QA corrections.
+# Keep synthetic-session mode, trusted localhost TLS, SQL-safe cleanup, and a full catalog signature.
 param(
     [string]$BaseUrl = 'https://localhost:7107',
     [string]$Server = 'localhost',
@@ -42,7 +44,6 @@ function Invoke-Api([string]$Method, [string]$Path, [string]$Token = '', [object
     $params = @{
         Uri = "$BaseUrl/$Path"
         Method = $Method
-        SkipCertificateCheck = $true
         ErrorAction = 'Stop'
     }
     if ($Token) { $params.Headers = @{ Authorization = "Bearer $Token" } }
@@ -141,21 +142,7 @@ function Get-BranchProductSignature([int]$BranchId) {
 }
 
 function Get-ProductCatalogSignature {
-    return Sql @"
-SELECT COALESCE(STRING_AGG(CONVERT(nvarchar(max),CONCAT(
- p.Id,N':',p.CategoryId,N':',p.Name,N':',COALESCE(p.ImageUrl,N''),N':',
- CONVERT(varchar(1),p.IsActive),N':',CONVERT(varchar(1),p.Deleted),N':',
- COALESCE(CONVERT(varchar(33),p.UpdatedAt,127),N''),N':',COALESCE(s.Prices,N''))),N';')
- WITHIN GROUP (ORDER BY p.Id),N'')
-FROM dbo.Product p
-OUTER APPLY (
- SELECT STRING_AGG(CONVERT(nvarchar(max),CONCAT(ps.Id,N':',ps.SizeId,N':',
- CONVERT(varchar(40),ps.Price),N':',CONVERT(varchar(1),ps.IsActive),N':',
- CONVERT(varchar(1),ps.Deleted),N':',COALESCE(CONVERT(varchar(33),ps.UpdatedAt,127),N''))),N',')
- WITHIN GROUP (ORDER BY ps.Id) AS Prices
- FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id
-) s;
-"@
+    return Sql "SELECT CONVERT(varchar(64),HASHBYTES('SHA2_256',(SELECT p.Id,p.CategoryId,p.Name,p.ImageUrl,p.IsActive,p.Deleted,p.UpdatedAt,JSON_QUERY((SELECT ps.Id,ps.SizeId,ps.Price,ps.IsActive,ps.Deleted,ps.UpdatedAt FROM dbo.ProductSize ps WHERE ps.ProductId=p.Id ORDER BY ps.Id FOR JSON PATH)) AS Sizes FROM dbo.Product p ORDER BY p.Id FOR JSON PATH)),2);"
 }
 
 function Assert-ApiAndSqlBranch([int]$Id, [string]$Code, [string]$ExpectedName, [string]$ExpectedAddress, [string]$Token) {
