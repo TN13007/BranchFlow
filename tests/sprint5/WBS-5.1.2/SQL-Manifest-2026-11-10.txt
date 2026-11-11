@@ -1,0 +1,43 @@
+PASS five active demo drinks, ten M/L prices, three-branch availability and one stopped demo drink
+PASS four static fixtures, expected states/totals/cups/snapshots; fixture completed revenue128000
+Name Size Price Code IsAvailable
+---- ---- ----- ---- -----------
+Bạc xỉu L 46000.00 BF-DEMO-01 1
+Bạc xỉu L 46000.00 BF-DEMO-02 1
+Bạc xỉu L 46000.00 BF-DEMO-03 1
+Bạc xỉu M 38000.00 BF-DEMO-01 1
+Bạc xỉu M 38000.00 BF-DEMO-02 1
+Bạc xỉu M 38000.00 BF-DEMO-03 1
+Cà phê sữa đá L 40000.00 BF-DEMO-01 1
+Cà phê sữa đá L 40000.00 BF-DEMO-02 1
+Cà phê sữa đá L 40000.00 BF-DEMO-03 1
+Cà phê sữa đá M 32000.00 BF-DEMO-01 1
+Cà phê sữa đá M 32000.00 BF-DEMO-02 1
+Cà phê sữa đá M 32000.00 BF-DEMO-03 1
+Matcha latte L 60000.00 BF-DEMO-01 1
+Matcha latte L 60000.00 BF-DEMO-02 1
+Matcha latte L 60000.00 BF-DEMO-03 1
+Matcha latte M 52000.00 BF-DEMO-01 1
+Matcha latte M 52000.00 BF-DEMO-02 1
+Matcha latte M 52000.00 BF-DEMO-03 1
+Món tạm ngưng (demo) M 25000.00 BF-DEMO-01 0
+Món tạm ngưng (demo) M 25000.00 BF-DEMO-02 0
+Món tạm ngưng (demo) M 25000.00 BF-DEMO-03 0
+Trà đào cam sả L 38000.00 BF-DEMO-01 1
+Trà đào cam sả L 38000.00 BF-DEMO-02 1
+Trà đào cam sả L 38000.00 BF-DEMO-03 1
+Trà đào cam sả M 30000.00 BF-DEMO-01 1
+Trà đào cam sả M 30000.00 BF-DEMO-02 1
+Trà đào cam sả M 30000.00 BF-DEMO-03 1
+Trà vải L 50000.00 BF-DEMO-01 1
+Trà vải L 50000.00 BF-DEMO-02 1
+Trà vải L 50000.00 BF-DEMO-03 1
+Trà vải M 42000.00 BF-DEMO-01 1
+Trà vải M 42000.00 BF-DEMO-02 1
+Trà vải M 42000.00 BF-DEMO-03 1
+DemoCase Id Code Branch Status Quantity TotalAmount BusinessDate
+-------- -- ---- ------ ------ -------- ----------- ------------
+completed-a 20 BF-DEMO-01-20261110-0006 BF-DEMO-01 COMPLETED 2 98000.00 2026-11-10
+cancelled-a 21 BF-DEMO-01-20261110-0007 BF-DEMO-01 CANCELLED 3 147000.00 2026-11-10
+review-a 22 BF-DEMO-01-20261110-0008 BF-DEMO-01 NEEDS_REVIEW 1 49000.00 2026-11-10
+completed-b 23 BF-DEMO-02-20261110-0001 BF-DEMO-02 COMPLETED 1 30000.00 2026-11-10

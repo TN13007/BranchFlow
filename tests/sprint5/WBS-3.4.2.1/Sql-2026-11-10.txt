@@ -1,0 +1,12 @@
+PASS UAT order final state CANCELLED, creator Employee A, total 147000
+PASS item and topping snapshots match three cups at 49000 each
+PASS exactly two history records: adjust then cancel; invalid empty reason did not add history
+PASS recorded order is excluded from completed-only revenue; no order was deleted
+Id Code BranchCode Status TotalAmount
+-- ---- ---------- ------ -----------
+24 BF-DEMO-01-20261110-0009 BF-DEMO-01 CANCELLED 147000.00
+Reason PerformedBy CreatedAt
+------ ----------- ---------
+UAT5-20261110 adjust 2 to 3 demo.branchadmin.01 2026-11-10 03:49:14.8347608
+UAT5-20261110 cancel demo.branchadmin.01 2026-11-10 03:49:46.0074582
+Read-only replay of stored evidence completed; this does not rerun UI, denied HTTP requests, stale update or forced rollback.

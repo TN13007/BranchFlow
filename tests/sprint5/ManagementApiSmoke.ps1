@@ -1,15 +1,17 @@
-# Adapted from origin/test/SCRUM-110-112-management-api (64fde51).
-# Local QA corrections: use the trusted localhost certificate, SQL Server indexed-view
-# SET options during cleanup, and a JSON hash for the complete product/price signature.
+# Integrated from the team management runner and Thuận's local QA corrections.
+# Keep synthetic-session mode, trusted localhost TLS, SQL-safe cleanup, and a full catalog signature.
 param(
     [string]$BaseUrl = 'https://localhost:7107',
-    [string]$Server = 'localhost'
+    [string]$Server = 'localhost',
+    [switch]$UseSyntheticSessions
 )
 
 $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7+ is required.' }
 if ($BaseUrl -notmatch '^https://localhost:\d+$') { throw 'Only a local HTTPS API is allowed.' }
-if (-not $env:BRANCHFLOW_DEMO_PASSWORD) { throw 'Set BRANCHFLOW_DEMO_PASSWORD in the process environment; never put it in this script or a log.' }
+if (-not $UseSyntheticSessions -and -not $env:BRANCHFLOW_DEMO_PASSWORD) { throw 'Set BRANCHFLOW_DEMO_PASSWORD in the process environment; never put it in this script or a log.' }
+if ($UseSyntheticSessions -and -not $env:BRANCHFLOW_MANAGEMENT_SESSION_TOKENS) { throw 'Run synthetic mode through tests/ManagementSmoke; no tokens were supplied.' }
+$SyntheticTokens = if ($UseSyntheticSessions) { ConvertFrom-Json $env:BRANCHFLOW_MANAGEMENT_SESSION_TOKENS -AsHashtable } else { @{} }
 if ($Server -notmatch '^(localhost|\.|127\.0\.0\.1)(\\[A-Za-z0-9_]+)?$') { throw 'Only a local SQL Server is allowed.' }
 
 $Database = 'BranchFlow_Test'
@@ -78,6 +80,14 @@ function Assert-Status($Response, [int]$Expected, [string]$Name) {
 }
 
 function Login([string]$Username, [string]$Role, [string]$Password = $env:BRANCHFLOW_DEMO_PASSWORD) {
+    if ($UseSyntheticSessions -and $SyntheticTokens.ContainsKey($Role)) {
+        $token = [string]$SyntheticTokens[$Role]
+        $identity = Invoke-Api 'GET' 'api/auth/me' $token
+        Assert-Status $identity 200 "Synthetic session identity $Role (not password login)"
+        if ($identity.Body.username -ne $Username) { throw "Synthetic identity does not match $Role." }
+        $Tokens[$Role] = $token
+        return
+    }
     $response = Invoke-Api 'POST' 'api/auth/login' '' @{ username = $Username; password = $Password }
     if ($response.Status -eq 429) {
         Write-Output "Login rate limit reached for $Role; waiting for the configured one-minute window."
@@ -90,10 +100,11 @@ function Login([string]$Username, [string]$Role, [string]$Password = $env:BRANCH
 }
 
 function Sql([string]$Query) {
-    $output = & sqlcmd -S $Server -E -C -b -f 65001 -d $Database -y 0 -w 65535 -Q "SET NOCOUNT ON; $Query"
+    $setOptions = 'SET NOCOUNT ON; SET QUOTED_IDENTIFIER ON; SET ANSI_NULLS ON; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; SET ARITHABORT ON; SET CONCAT_NULL_YIELDS_NULL ON; SET NUMERIC_ROUNDABORT OFF;'
+    $output = & sqlcmd -S $Server -E -C -I -b -f 65001 -d $Database -y 0 -w 65535 -Q "$setOptions $Query" 2>&1
     $sqlExitCode = $LASTEXITCODE
     if ($sqlExitCode -ne 0) {
-        throw "sqlcmd failed with exit code $sqlExitCode while querying $Database. Output: $output"
+        throw "sqlcmd failed with exit code $sqlExitCode while querying ${Database}: $($output -join ' ')"
     }
 
     # -h -1 and -W conflict with -y 0. Keep unlimited text output and remove
@@ -146,7 +157,7 @@ function Assert-ApiAndSqlBranch([int]$Id, [string]$Code, [string]$ExpectedName, 
 }
 
 $cleanupSql = @"
-SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; SET ANSI_PADDING ON; SET ANSI_WARNINGS ON; SET ARITHABORT ON; SET CONCAT_NULL_YIELDS_NULL ON; SET NUMERIC_ROUNDABORT OFF; SET XACT_ABORT ON;
+SET XACT_ABORT ON;
 BEGIN TRANSACTION;
 DECLARE @branchIds TABLE (Id int PRIMARY KEY);
 INSERT @branchIds SELECT Id FROM dbo.Branch WHERE Code IN (N'$BranchA',N'$BranchB',N'$DeniedBranchCode');
@@ -407,7 +418,7 @@ finally {
         }
         catch {
             $cleanupFailure = $_.Exception.Message
-            Write-Warning 'Automatic cleanup failed. Inspect BranchFlow_Test for QA110A/QA110B and qa110.* records before any rerun.'
+            Write-Warning "Automatic cleanup failed: $cleanupFailure. Inspect only this run's QA110A/QA110B and qa110.* records before any rerun."
         }
     }
     else {
@@ -420,8 +431,5 @@ finally {
     $TempPasswords.Clear()
     $Tokens.Clear()
 }
-if ($testFailure) { throw $testFailure }
 if ($cleanupFailure) { throw "Test cleanup failed. QA fixture records may remain in BranchFlow_Test: $cleanupFailure" }
-
-
-
+if ($testFailure) { throw $testFailure }
