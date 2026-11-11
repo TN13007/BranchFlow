@@ -1,11 +1,11 @@
 @inject ManagementApiClient Api
 
-<ApiError Message="@error" NeedsLogin="@needsLogin" />
+<ApiError Message="@error" NeedsLogin="@needsLogin" OnRetry="ReloadAsync" Busy="busy" />
 @if (notice is not null) { <p class="alert alert-success">@notice</p> }
 @if (!SystemMenu && BranchId == 0) { <p>Chọn chi nhánh để quản lý trạng thái bán.</p> }
 else
 {
-    <fieldset disabled="@busy">
+    <fieldset disabled="@(busy || !loaded || needsLogin || accessDenied)">
         <label class="form-label">Danh mục quản trị
             <select class="form-select" value="@mode" @onchange="ChangeModeAsync">
                 <option value="products">Món và giá theo size</option>
@@ -49,12 +49,14 @@ else
             <div class="table-responsive"><table class="table"><thead><tr><th>Món</th><th>Danh mục</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
             @foreach (var p in products.Where(x => x.Name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase)))
             {
-                <tr><td>@p.Name</td><td>@p.CategoryName</td><td>@string.Join(" · ", p.Prices.Where(x => x.IsActive).Select(x => $"{x.SizeName} {x.Price:N0}đ"))</td>
+                <tr><td>@p.Name</td><td>@p.CategoryName</td><td>@string.Join(" · ", p.Prices.Where(x => x.IsActive).Select(x => $"{x.SizeName} {BranchFlow.Web.Components.Orders.Display.Money(x.Price)}"))</td>
                     <td>@State(p.IsActive, p.IsAvailable)</td>
                     <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => product = Copy(p)">Sửa</button> }
                     else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(p.Id, !p.IsAvailable)">@(p.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
             }
             </tbody></table></div>
+            @if (loaded && !products.Any(x => x.Name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase)))
+            { <p role="status">@(products.Count == 0 ? "Chưa có món trong danh mục." : "Không có món phù hợp với từ khóa.")</p> }
         }
         else if (mode == "toppings")
         {
@@ -72,7 +74,7 @@ else
             <div class="table-responsive"><table class="table"><thead><tr><th>Topping</th><th>Nhóm</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
             @foreach (var t in toppings)
             {
-                <tr><td>@t.Name</td><td>@t.GroupName</td><td>@t.Price.ToString("N0")đ</td><td>@State(t.IsActive, t.IsAvailable)</td>
+                <tr><td>@t.Name</td><td>@t.GroupName</td><td>@BranchFlow.Web.Components.Orders.Display.Money(t.Price)</td><td>@State(t.IsActive, t.IsAvailable)</td>
                     <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => topping = Copy(t)">Sửa</button> }
                     else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(t.Id, !t.IsAvailable)">@(t.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
             }
@@ -106,7 +108,10 @@ else
             </ul>
         }
     </fieldset>
-    @if (busy) { <p role="status">Đang xử lý…</p> }
+    @if (busy || !loaded && error is null) { <p role="status">Đang tải hoặc xử lý danh mục…</p> }
+    @if (loaded && mode == "toppings" && toppings.Count == 0) { <p role="status">Chưa có topping.</p> }
+    @if (loaded && mode == "notes" && notes.Count == 0) { <p role="status">Chưa có lựa chọn ghi chú.</p> }
+    @if (loaded && mode is not ("products" or "toppings" or "notes") && options.Count == 0) { <p role="status">Danh mục chưa có dữ liệu.</p> }
 }
 @code {
     [Parameter] public bool SystemMenu { get; set; }
@@ -114,6 +119,8 @@ else
     private string mode = "products";
     private string keyword = "";
     private bool busy;
+    private bool loaded;
+    private bool accessDenied;
     private bool needsLogin;
     private string? error;
     private string? notice;
@@ -133,6 +140,7 @@ else
     private void Reset() { product = new(); topping = new(); note = new(); option = new(); }
     private async Task LoadAsync()
     {
+        loaded = false;
         var branch = SystemMenu ? "" : $"?branchId={BranchId}";
         switch (mode)
         {
@@ -150,7 +158,9 @@ else
                 break;
             default: options = await Api.ListAsync<NamedOption>("options/" + mode); break;
         }
+        loaded = true;
     }
+    private Task ReloadAsync() => RunAsync(LoadAsync);
     private Task ChangeModeAsync(ChangeEventArgs args)
     {
         mode = args.Value?.ToString() ?? "products";
@@ -174,11 +184,11 @@ else
     private async Task RunAsync(Func<Task> action)
     {
         if (busy) return;
-        busy = true; error = null; notice = null; needsLogin = false;
+        busy = true; error = null; notice = null; needsLogin = false; accessDenied = false;
         await InvokeAsync(StateHasChanged);
         try { await action(); }
-        catch (ApiException ex) { error = ex.Message; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; }
-        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { error = "Không nhận được phản hồi. Tải lại trước khi thao tác tiếp."; }
+        catch (ApiException ex) { error = ex.Message; notice = null; needsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized; accessDenied = ex.StatusCode == System.Net.HttpStatusCode.Forbidden; }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException) { notice = null; error = "Không nhận được phản hồi. Tải lại trước khi thao tác tiếp."; }
         finally { busy = false; }
     }
     private static T Copy<T>(T value) => System.Text.Json.JsonSerializer.Deserialize<T>(System.Text.Json.JsonSerializer.Serialize(value))!;

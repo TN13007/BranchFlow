@@ -1,0 +1,10 @@
+WBS: 3.3.1.5
+Jira: SCRUM-123 (Story SCRUM-102)
+PreparedDate: 2026-11-11
+BaseCommit: ae595fd3872167a70aa9e3f537601682c31e2e28 (origin/main)
+ReceivedUIFile: src/BranchFlow.Web/Components/Business/ManagementMenu.razor
+ReceivedFrom: D:\QLDA\BranchFlow\src\BranchFlow.Web\Components\Business\ManagementMenu.razor
+GitBlob: 58c9e8fc4db9ea33cd67d881d753950ee4305629
+SHA256: 2DCAD4900AC00764CC138031651100CDD54AB94416334F9DAA4AF25963DF8F1E
+BuildVerification: dotnet build src/BranchFlow.Web -c Release --nologo (0 Warning(s), 0 Error(s) on 2026-11-11)
+UnitVerification: dotnet test tests/BranchFlow.Tests -c Release --nologo --filter "FullyQualifiedName~OrderMenuServiceTests|FullyQualifiedName~OrderPricingTests|FullyQualifiedName~CartTests" (21 Passed, 0 Failed on 2026-11-11)

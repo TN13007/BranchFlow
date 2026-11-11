@@ -1,0 +1,27 @@
+# Trích lục kiểm chứng HTTP, SQL & UI lịch sử cho WBS 3.3.1.5 (10/11/2026)
+
+Nguồn gốc:
+- `D:\QLDA\BranchFlow\tests\sprint5\Verify-FrontendApis.ps1` (SHA256: `7ED3DA16C28AD4189BE16DF32D3FBF7EA034F4FE4BAC05545FAD88968CA221D2`)
+- `D:\QLDA\BranchFlow\tests\sprint5\FrontendApiResult-2026-11-10.txt` (SHA256: `368D2D2FB672D53B020502001E652FBCEF6C88AAA0E28A44812543D0E7B10B55`)
+- `D:\QLDA\BranchFlow\tests\sprint5\Retest-Catalog-Sql.txt` (SHA256: `18829520E5282E0BEB90FE1A23BE54B1D778834F939B81FE4DFBA7523AB3479F`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-FE-Section1-handoff.md` (SHA256: `BF645008BDD0898F2B4A2A1705EDDC986BC4AE18240263A2DD1BF4F39CF14D65`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-Retest-Completion.md` (SHA256: `25971FAAFB36363F0B46C56D86B815A2C1D9D830B64C7EB60B158F529C97E91C`)
+- `D:\QLDA\BranchFlow\docs\Sprint5-UAT-Responsive.md` (SHA256: `73E4D6B188D3FC2A544A500B0C6B60A790137E73B00E03364D49BD495A061DFE`)
+
+1. Trích đoạn kiểm tra HTTP trong `Verify-FrontendApis.ps1` (dòng 45-80):
+- `POST api/management/products` tạo món `FE-<suffix>` kèm `ProductSize` giá lẻ `10.25` bởi `demo.systemadmin` -> 200 OK
+- `PUT api/management/branches/{a}/availability/products/{product}` mở bán tại CN01 -> 200 OK
+- `GET api/order-menu?branchId={a}` bởi `demo.employee.a` -> thấy món mới với giá `10.25` (`PASS New product available through employee API with decimal price`)
+- `PUT api/management/products/{product}` bởi `demo.systemadmin` cập nhật giá chung từ `10.25` lên `12.50` -> 200 OK; đọc lại đơn cũ `GET api/orders/{completed.id}` -> giữ nguyên snapshot `10.25` (`PASS Old order snapshot survives common price update`)
+- `PUT api/management/products/{product}` bởi `demo.branchadmin.01` -> 403 Forbidden (Admin Chi nhánh không được sửa giá chung)
+- `PUT api/management/products/{product}` với giá âm (`-1`) bởi `demo.systemadmin` -> 400 Bad Request
+
+2. Trích đoạn kết quả tạo danh mục / món / size / topping / ghi chú qua UI (`Sprint5-Retest-Completion.md` & `Retest-Catalog-Sql.txt`):
+- Chrome tạo `Category` (`RETEST5 Category`), `Size` (`RETEST5 Size`), `ToppingGroup` (`RETEST5 ToppingGroup`), `NoteGroup` (`RETEST5 NoteGroup`), `Topping` (`RETEST5 Topping` giá `4,25đ`), `NoteOption` (`RETEST5 Note`) và `Product`/`ProductSize` (`RETEST5 Product` giá `15,75đ` cập nhật trên Edge) bằng UI; đối chiếu SQL khớp quan hệ:
+  - `RETEST5 Topping | Price = 4.25 | GroupName = RETEST5 ToppingGroup`
+  - `RETEST5 Product | CategoryName = RETEST5 Category | SizeName = RETEST5 Size | Price = 15.75`
+
+3. Trích đoạn UAT (`Sprint5-UAT-Responsive.md`):
+- `U05 / Admin Tổng`: Mở danh mục và form sửa món (`system-catalog-1366/768/360.png`).
+- `U08 / Admin CN01`: Bật/tắt món tại chi nhánh (`FE-027436a6` mở bán có thông báo, ngừng bán lại thành công), không có form sửa giá chung (`branch-menu-1366/768.png`).
+- `U12 / Employee A`: Món bị tắt không nằm trong menu bán của Employee.
