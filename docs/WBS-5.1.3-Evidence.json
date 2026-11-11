@@ -1,0 +1,181 @@
+{
+  "wbs": "5.1.3",
+  "preparedDate": "2026-11-11",
+  "preparedBy": "Công Thành, có công cụ hỗ trợ",
+  "branchBase": "dbfa03d6011608f81b07e806c071133a393b0fce",
+  "newRuntimeTests": "NotRun; reuse existing records",
+  "scriptsUnchangedSinceTestedCandidate": "bf69ad0",
+  "scopeComparison": "Seed scripts, verifier, stock/revenue repository, ManagementStock, ManagementApiClient unchanged; MvpService only unrelated SaveUser guard",
+  "historicalStockPhoto": {
+    "originalLocalPath": "D:/QLDA/BranchFlow/docs/evidence/sprint5-uat/owner-stock-1366.png",
+    "packagedPath": "docs/evidence/WBS-5.1.3/owner-stock-1366-reused-2026-11-10.png",
+    "sha256": "B0B90FA2FA7647C70EDCF42C7A9238AC6D38C49C40BFFB5591E4765292C734BB",
+    "observedDate": "2026-11-10",
+    "sourceReport": "D:/QLDA/BranchFlow/docs/Sprint5-UAT-Responsive.md",
+    "knownVersion": "47541ee plus working tree; exact runtime SHA not established",
+    "unchangedCopy": true
+  },
+  "files": [
+    {
+      "path": "database/003-demo-menu.sql",
+      "sourceCommit": "70f229a80dc386f760f621f50ba3d824e46d0e62",
+      "gitBlob": "099d9fb47cfc929ab19c4ffa87af5f4db2352365",
+      "runtimeRunDate": "See source file; not a new runtime run",
+      "reused": true
+    },
+    {
+      "path": "database/005-wbs-demo-data.sql",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "9c83de04039c47ce959c8da9910df73ecee01af8",
+      "runtimeRunDate": "See source file; not a new runtime run",
+      "reused": true
+    },
+    {
+      "path": "tools/Seed-WbsDemo.ps1",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "577b4af87773c84dfac43e04b3d345c243aa99a9",
+      "runtimeRunDate": "See source file; not a new runtime run",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/Verify-WbsDemoData.ps1",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "d37b2db58c08510de92fab40efdb4aab2c6bb9df",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/DemoSeed-Test-2026-11-10.txt",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "70259c2be71a10ef5de041ade1539b59a0ae6255",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/DemoSeed-Test-Rerun-2026-11-10.txt",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "70259c2be71a10ef5de041ade1539b59a0ae6255",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/DemoSeed-Dev-2026-11-10.txt",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "948a7decbcead06c66c55e54d3e5126116a6b511",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/DemoSeed-Dev-Rerun-2026-11-10.txt",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "948a7decbcead06c66c55e54d3e5126116a6b511",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/DemoApiResult-2026-11-10.txt",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "29ee47deaecb96690307ac8918ba1cdefa2685e5",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "docs/WBS-5.1.1-Handoff.md",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "5a04782fb37c08220ad6f40ed23e95956cfbe4cb",
+      "runtimeRunDate": "See source file; not a new runtime run",
+      "reused": true
+    },
+    {
+      "path": "docs/WBS-5.1.2-Handoff.md",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "ac924534c011003f43e8611f98604e26e9b87b20",
+      "runtimeRunDate": "See source file; not a new runtime run",
+      "reused": true
+    },
+    {
+      "path": "docs/evidence/sprint5-uat/owner-revenue-1366.png",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "3caeadf394e08b4cbbaa3bb523d1a8632f8173c8",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "docs/evidence/sprint5-uat/branch-revenue-1366.png",
+      "sourceCommit": "b7184c7e8a2aaceb32487a0c86bc2406206ce0de",
+      "gitBlob": "f7641493a2e5d0f79cb63411c8ce2b730762f8e2",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.1.2/completed-a-98000.png",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "e34c18821021b909caad81d63f0fdf0d91a4cdc8",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.1.2/completed-b-30000.png",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "7bd8bd4949455f500132b4f7ed2e9fa5d2e18c8e",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "docs/evidence/WBS-5.1.2/cancelled-a-147000.png",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "16c636a3674a5a98582024c272a9f6f1502a06b9",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/API-SQL-2026-11-10.txt",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "29ee47deaecb96690307ac8918ba1cdefa2685e5",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/Build-2026-11-10.txt",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "bc284a47498cbfc0b93f4d589196feeb7f6b4c2c",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/Rehearsal-2026-11-10.md",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "6598d7be37fd6e6e5d722938172b6e64f4353d79",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/SQL-Manifest-2026-11-10.txt",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "bbbc56850355caa7e78c7309876e7bd16493bcfd",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/Seed-Test-2026-11-10.txt",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "70259c2be71a10ef5de041ade1539b59a0ae6255",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/Seed-Test-Rerun-2026-11-10.txt",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "70259c2be71a10ef5de041ade1539b59a0ae6255",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    },
+    {
+      "path": "tests/sprint5/WBS-5.1.2/Verify-MenuOrders.sql",
+      "sourceCommit": "6f99364aba8876b4e01c28371929da250ba30973",
+      "gitBlob": "28b071c5fe448ffa878a5df9cf5c0c60b71fbbce",
+      "runtimeRunDate": "2026-11-10 (see original provenance)",
+      "reused": true
+    }
+  ]
+}
