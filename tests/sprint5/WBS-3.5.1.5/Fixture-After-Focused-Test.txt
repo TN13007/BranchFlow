@@ -1,0 +1,8 @@
+RemainingStockTestIngredients
+-----------------------------
+0
+Code Quantity WarningThreshold
+---- -------- ----------------
+BF-DEMO-01 7.000 8.000
+BF-DEMO-02 15.000 8.000
+BF-DEMO-03 4.000 8.000
