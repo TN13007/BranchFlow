@@ -9,7 +9,7 @@ Runner: Nguyễn Đặng Hòa Thuận assisted by Codex. Existing branch `Thuana
 | QA-S4-041 | Orders at 16:59:59Z and 17:00:00Z have distinct Vietnam BusinessDates and UTC CreatedAt | OrderSmoke directly labelled three QA-S4-041 assertions for SQL date, UTC and HTTP; all Pass | Pass, 1 ID |
 | Other order API/SQL cases 027–040 and 042 | Price, validation, snapshot, rollback, concurrency, counter and own history | OrderSmoke 106/106 HTTP/SQL assertions Pass; fixture cleaned. The checks overlap these cases but do not prove every listed subcondition one-to-one. | Partial catalog mapping; **not** counted as 15 full case Pass |
 
-Thus **19 of 44 catalog IDs have an explicit same-source Pass** in this run. The remaining 25 are not promoted to Pass from broader runner totals or older browser sessions. The earlier formal ledger's 5 Pass/39 Not Run was a prior candidate snapshot; this run does not overwrite its historical result. Browser cases 017, 018, 023–026, 043 and 044 still need a complete same-source execution and recording; individual HTTP/SQL cases 015–016, 027–040 and 042 need per-criterion mapping before catalog sign-off.
+This first catalog pass established 19/44 explicitly labelled cases. A later [per-condition order mapping](QA-Catalog-Order-Mapping-2026-11-12.md) expanded the same-application-source result to **36/44 Pass, 8 browser cases pending** after strengthening and rerunning OrderSmoke. Neither count is inferred solely from a runner's total assertion count. The earlier formal ledger's 5 Pass/39 Not Run was a prior candidate snapshot and remains part of history.
 
 ## Real System Admin browser check, local Test DB
 
