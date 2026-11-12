@@ -11,7 +11,7 @@ Runner: Nguyễn Đặng Hòa Thuận assisted by Codex. Existing branch `Thuana
 
 This first catalog pass established 19/44 explicitly labelled cases. A later [per-condition order mapping](QA-Catalog-Order-Mapping-2026-11-12.md) expanded the same-application-source result to **36/44 Pass, 8 browser cases pending** after strengthening and rerunning OrderSmoke. Neither count is inferred solely from a runner's total assertion count. The earlier formal ledger's 5 Pass/39 Not Run was a prior candidate snapshot and remains part of history.
 
-The subsequent [same-source browser/SQL retest](QA-Browser-2026-11-12.md) raised the catalog result to **43/44 Pass**. QA-S4-018 remains Partial pending a direct old Web-session API access-token 401 check.
+The subsequent [same-source browser/SQL retest](QA-Browser-2026-11-12.md) raised the catalog result to **44/44 Pass**, including the direct old Web-session API access-token 401 check for QA-S4-018.
 
 ## Real System Admin browser check, local Test DB
 
