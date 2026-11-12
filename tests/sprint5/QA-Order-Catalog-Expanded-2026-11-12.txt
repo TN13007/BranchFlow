@@ -1,0 +1,154 @@
+PASS 1: POST /api/orders expected=401 actual=401
+PASS 2: Safe ProblemDetails + traceId
+PASS 3: POST /api/orders expected=403 actual=403
+PASS 4: Safe ProblemDetails + traceId
+PASS 5: GET /api/order-menu?branchId=98 expected=403 actual=403
+PASS 6: Safe ProblemDetails + traceId
+PASS 7: GET /api/order-menu?branchId=98 expected=200 actual=200
+PASS 8: QA-S4-015 Owner denied create/menu; Employee menu permitted without write
+PASS 9: POST /api/orders expected=403 actual=403
+PASS 10: Safe ProblemDetails + traceId
+PASS 11: QA-S4-016 foreign Employee denied without order/counter write
+PASS 12: POST /api/orders expected=403 actual=403
+PASS 13: Safe ProblemDetails + traceId
+PASS 14: QA-S4-016 Employee A cannot create at branch B; B order/counter unchanged
+PASS 15: POST /api/orders expected=400 actual=400
+PASS 16: Safe ProblemDetails + traceId
+PASS 17: POST /api/orders expected=400 actual=400
+PASS 18: Safe ProblemDetails + traceId
+PASS 19: POST /api/orders expected=400 actual=400
+PASS 20: Safe ProblemDetails + traceId
+PASS 21: POST /api/orders expected=400 actual=400
+PASS 22: Safe ProblemDetails + traceId
+PASS 23: POST /api/orders expected=400 actual=400
+PASS 24: Safe ProblemDetails + traceId
+PASS 25: POST /api/orders expected=400 actual=400
+PASS 26: Safe ProblemDetails + traceId
+PASS 27: POST /api/orders expected=400 actual=400
+PASS 28: Safe ProblemDetails + traceId
+PASS 29: POST /api/orders expected=400 actual=400
+PASS 30: Safe ProblemDetails + traceId
+PASS 31: POST /api/orders expected=400 actual=400
+PASS 32: Safe ProblemDetails + traceId
+PASS 33: POST /api/orders expected=400 actual=400
+PASS 34: Safe ProblemDetails + traceId
+PASS 35: POST /api/orders expected=400 actual=400
+PASS 36: Safe ProblemDetails + traceId
+PASS 37: POST /api/orders expected=400 actual=400
+PASS 38: Safe ProblemDetails + traceId
+PASS 39: POST /api/orders expected=400 actual=400
+PASS 40: Safe ProblemDetails + traceId
+PASS 41: POST /api/orders expected=400 actual=400
+PASS 42: Safe ProblemDetails + traceId
+PASS 43: POST /api/orders expected=400 actual=400
+PASS 44: Safe ProblemDetails + traceId
+PASS 45: POST /api/orders expected=400 actual=400
+PASS 46: Safe ProblemDetails + traceId
+PASS 47: POST /api/orders expected=400 actual=400
+PASS 48: Safe ProblemDetails + traceId
+PASS 49: POST /api/orders expected=400 actual=400
+PASS 50: Safe ProblemDetails + traceId
+PASS 51: POST /api/orders expected=400 actual=400
+PASS 52: Safe ProblemDetails + traceId
+PASS 53: POST /api/orders expected=400 actual=400
+PASS 54: Safe ProblemDetails + traceId
+PASS 55: POST /api/orders expected=400 actual=400
+PASS 56: Safe ProblemDetails + traceId
+PASS 57: POST /api/orders expected=400 actual=400
+PASS 58: Safe ProblemDetails + traceId
+PASS 59: POST /api/orders expected=400 actual=400
+PASS 60: Safe ProblemDetails + traceId
+PASS 61: QA-S4-029–035 invalid requests leave no header or counter
+PASS 62: POST /api/orders expected=201 actual=201
+PASS 63: QA-S4-027 Location points to persisted order detail
+PASS 64: SQL price: (30000 + 3*5000 + 4000)*2 = 98000
+PASS 65: QA-S4-027 completed total, header/details/topping/note persisted in SQL
+PASS 66: Vietnam business date + first daily sequence
+PASS 67: GET /api/orders/280 expected=200 actual=200
+PASS 68: GET /api/orders/280 expected=404 actual=404
+PASS 69: Safe ProblemDetails + traceId
+PASS 70: GET /api/orders/mine?keyword=OSA209C80016-20261112-0001&businessDate=2026-11-12 expected=200 actual=200
+PASS 71: Own history filters match SQL order
+PASS 72: GET /api/orders/2147483647 expected=404 actual=404
+PASS 73: Safe ProblemDetails + traceId
+PASS 74: POST /api/orders expected=201 actual=201
+PASS 75: QA-S4-027 Location points to persisted order detail
+PASS 76: GET /api/orders/281 expected=200 actual=200
+PASS 77: QA-S4-033 empty notes accepted and persisted empty
+PASS 78: GET /api/orders/280 expected=200 actual=200
+PASS 79: QA-S4-037 historical product/note snapshots unchanged
+PASS 80: POST /api/orders expected=201 actual=201
+PASS 81: QA-S4-027 Location points to persisted order detail
+PASS 82: New order uses changed SQL price
+PASS 83: QA-S4-036 current SQL size price persisted as new snapshot
+PASS 84: POST /api/orders expected=400 actual=400
+PASS 85: Safe ProblemDetails + traceId
+PASS 86: Unavailable product rolls back allocated counter
+PASS 87: POST /api/orders expected=500 actual=500
+PASS 88: Safe ProblemDetails + traceId
+PASS 89: SQL detail failure rolls back header/details/counter
+PASS 90: POST /api/orders expected=201 actual=201
+PASS 91: QA-S4-027 Location points to persisted order detail
+PASS 92: POST /api/orders expected=201 actual=201
+PASS 93: QA-S4-027 Location points to persisted order detail
+PASS 94: POST /api/orders expected=201 actual=201
+PASS 95: QA-S4-027 Location points to persisted order detail
+PASS 96: POST /api/orders expected=201 actual=201
+PASS 97: QA-S4-027 Location points to persisted order detail
+PASS 98: POST /api/orders expected=201 actual=201
+PASS 99: QA-S4-027 Location points to persisted order detail
+PASS 100: POST /api/orders expected=201 actual=201
+PASS 101: QA-S4-027 Location points to persisted order detail
+PASS 102: POST /api/orders expected=201 actual=201
+PASS 103: QA-S4-027 Location points to persisted order detail
+PASS 104: POST /api/orders expected=201 actual=201
+PASS 105: QA-S4-027 Location points to persisted order detail
+PASS 106: POST /api/orders expected=201 actual=201
+PASS 107: QA-S4-027 Location points to persisted order detail
+PASS 108: POST /api/orders expected=201 actual=201
+PASS 109: QA-S4-027 Location points to persisted order detail
+PASS 110: POST /api/orders expected=201 actual=201
+PASS 111: QA-S4-027 Location points to persisted order detail
+PASS 112: POST /api/orders expected=201 actual=201
+PASS 113: QA-S4-027 Location points to persisted order detail
+PASS 114: QA-S4-039 twelve concurrent unique codes match SQL counter and complete rows
+PASS 115: GET /api/orders/mine expected=200 actual=200
+PASS 116: QA-S4-042 own history sorts by CreatedAt then Id descending
+PASS 117: POST /api/orders expected=201 actual=201
+PASS 118: QA-S4-027 Location points to persisted order detail
+PASS 119: GET /api/orders/296 expected=200 actual=200
+PASS 120: QA-S4-028 two lines preserve distinct configs, quantity3 and total131000
+PASS 121: POST /api/orders expected=201 actual=201
+PASS 122: QA-S4-027 Location points to persisted order detail
+PASS 123: Topping quantity price 1
+PASS 124: POST /api/orders expected=201 actual=201
+PASS 125: QA-S4-027 Location points to persisted order detail
+PASS 126: Topping quantity price 2
+PASS 127: POST /api/orders expected=201 actual=201
+PASS 128: QA-S4-027 Location points to persisted order detail
+PASS 129: Topping quantity price 3
+PASS 130: POST /api/orders expected=400 actual=400
+PASS 131: Safe ProblemDetails + traceId
+PASS 132: POST /api/orders expected=400 actual=400
+PASS 133: Safe ProblemDetails + traceId
+PASS 134: QA-S4-032–033 rejected topping/note options do not allocate order counter
+PASS 135: POST /api/orders expected=201 actual=201
+PASS 136: QA-S4-027 Location points to persisted order detail
+PASS 137: QA-S4-040 API code retains unique sequence 10000
+PASS 138: POST /api/orders expected=201 actual=201
+PASS 139: QA-S4-027 Location points to persisted order detail
+PASS 140: GET /api/orders/301 expected=200 actual=200
+PASS 141: QA-S4-036 current topping SQL price applied and persisted as snapshot
+PASS 142: GET /api/orders/280 expected=200 actual=200
+PASS 143: Old topping name/price snapshot preserved
+PASS 144: POST /api/orders expected=201 actual=201
+PASS 145: QA-S4-027 Location points to persisted order detail
+PASS 146: POST /api/orders expected=201 actual=201
+PASS 147: QA-S4-027 Location points to persisted order detail
+PASS 148: QA-S4-041 Vietnam business date changes at 17:00:00Z
+PASS 149: QA-S4-041 SQL CreatedAt remains exact UTC
+PASS 150: QA-S4-041 HTTP business dates match SQL
+PASS 151: POST /api/orders expected=404 actual=404
+PASS 152: Safe ProblemDetails + traceId
+RESULT: 152 checks PASS. API/SQL transaction, scope, price, snapshots and concurrency verified.
+Fixture cleanup completed; no Dev/cloud changes.

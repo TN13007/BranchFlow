@@ -76,18 +76,33 @@ try
   Require((int)res.StatusCode==status,$"{method} {path} expected={status} actual={(int)res.StatusCode}");
   using var json=JsonDocument.Parse(text);
   if(status>=400)Require(res.Content.Headers.ContentType?.MediaType=="application/problem+json" && json.RootElement.TryGetProperty("traceId",out _),"Safe ProblemDetails + traceId");
+  if(status==201)Require(res.Headers.Location?.OriginalString=="/api/orders/"+json.RootElement.GetProperty("id").GetInt32(),
+   "QA-S4-027 Location points to persisted order detail");
   return json.RootElement.Clone();
  }
  async Task<int> Counter()=>await db.OrderDailyCounters.AsNoTracking().Where(c=>c.BranchId==branch.Id).Select(c=>c.LastNumber).SingleOrDefaultAsync();
  await Send("POST","/api/orders",401,Body(),"none");
  await Send("POST","/api/orders",403,Body(),Token(owner,ownerSession,"OWNER"));
+ await Send("GET","/api/order-menu?branchId="+branch.Id,403,bearer:Token(owner,ownerSession,"OWNER"));
+ await Send("GET","/api/order-menu?branchId="+branch.Id,200);
+ Require(await Counter()==0 && !await db.SalesOrders.AnyAsync(o=>o.BranchId==branch.Id),"QA-S4-015 Owner denied create/menu; Employee menu permitted without write");
  await Send("POST","/api/orders",403,Body(),Token(other,otherSession,"EMPLOYEE"));
+ Require(await Counter()==0 && !await db.SalesOrders.AnyAsync(o=>o.BranchId==branch.Id),"QA-S4-016 foreign Employee denied without order/counter write");
+ var demoBranchB=await db.Branches.AsNoTracking().SingleAsync(b=>b.Code=="BF-DEMO-02" && b.IsActive && !b.Deleted);
+ int branchBOrders=await db.SalesOrders.CountAsync(o=>o.BranchId==demoBranchB.Id);
+ int branchBCounter=await db.OrderDailyCounters.AsNoTracking().Where(c=>c.BranchId==demoBranchB.Id).SumAsync(c=>(int?)c.LastNumber)??0;
+ await Send("POST","/api/orders",403,Body(b:demoBranchB.Id));
+ Require(await db.SalesOrders.CountAsync(o=>o.BranchId==demoBranchB.Id)==branchBOrders &&
+  (await db.OrderDailyCounters.AsNoTracking().Where(c=>c.BranchId==demoBranchB.Id).SumAsync(c=>(int?)c.LastNumber)??0)==branchBCounter,
+  "QA-S4-016 Employee A cannot create at branch B; B order/counter unchanged");
  await Send("POST","/api/orders",400,Body(Item(0)));
+ await Send("POST","/api/orders",400,Body(Item(-1)));
  await Send("POST","/api/orders",400,new{branchId=branch.Id,items=Array.Empty<object>()});
  await Send("POST","/api/orders",400,Body(Item(toppings:[new{toppingId=t1.Id,quantity=4}])));
  await Send("POST","/api/orders",400,Body(Item(toppings:[new{toppingId=t1.Id,quantity=1},new{toppingId=t1.Id,quantity=2}])));
  await Send("POST","/api/orders",400,Body(Item(notes:[n1.Id,n2.Id])));
  await Send("POST","/api/orders",400,Body(Item(productSize:-1)));
+ await Send("POST","/api/orders",400,Body(Item(productSize:int.MaxValue)));
  foreach(var field in new[]{"price","totalAmount","createdByUserId","status"})
  {
   var payload=new Dictionary<string,object>{{"branchId",branch.Id},{"items",new[]{Item()}},{field,1}};
@@ -104,21 +119,31 @@ try
  await Send("POST","/api/orders",400,Body(new{productSizeId=ps.Id,quantity=1.5,toppings=Array.Empty<object>(),noteOptionIds=Array.Empty<int>()}));
  await Send("POST","/api/orders",400,Body(new{productSizeId=ps.Id,quantity="abc",toppings=Array.Empty<object>(),noteOptionIds=Array.Empty<int>()}));
  await Send("POST","/api/orders",400,Body(new{productId=product.Id,sizeId=size.Id,quantity=1,toppings=Array.Empty<object>(),noteOptionIds=Array.Empty<int>()}));
- Require(await Counter()==0,"Invalid requests leave no counter/order");
+ Require(await Counter()==0 && !await db.SalesOrders.AnyAsync(o=>o.BranchId==branch.Id),"QA-S4-029–035 invalid requests leave no header or counter");
  var result=await Send("POST","/api/orders",201,Body()); int id=result.GetProperty("id").GetInt32(); string code=result.GetProperty("code").GetString()!;
  Require(result.GetProperty("totalAmount").GetDecimal()==98000m,"SQL price: (30000 + 3*5000 + 4000)*2 = 98000");
  var saved=await db.SalesOrders.AsNoTracking().Include(o=>o.OrderItems).ThenInclude(i=>i.OrderItemToppings).Include(o=>o.OrderItems).ThenInclude(i=>i.OrderItemNotes).SingleAsync(o=>o.Id==id);
- Require(saved.TotalAmount==98000m && saved.OrderItems.Single().OrderItemToppings.Count==2 && saved.OrderItems.Single().OrderItemNotes.Count==1,"Header/details/topping/note persisted in SQL");
+ Require(result.GetProperty("status").GetString()=="COMPLETED" && saved.Status=="COMPLETED" &&
+  saved.TotalAmount==98000m && saved.OrderItems.Single().OrderItemToppings.Count==2 && saved.OrderItems.Single().OrderItemNotes.Count==1,
+  "QA-S4-027 completed total, header/details/topping/note persisted in SQL");
  Require(code.EndsWith("-0001") && saved.BusinessDate==DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7)),"Vietnam business date + first daily sequence");
  await Send("GET","/api/orders/"+id,200);
  await Send("GET","/api/orders/"+id,404,bearer:Token(other,otherSession,"EMPLOYEE"));
  var list=await Send("GET","/api/orders/mine?keyword="+code+"&businessDate="+saved.BusinessDate.ToString("yyyy-MM-dd"),200);
  Require(list.GetArrayLength()==1 && list[0].GetProperty("id").GetInt32()==id,"Own history filters match SQL order");
+ await Send("GET","/api/orders/2147483647",404);
+ var emptyNotes=await Send("POST","/api/orders",201,Body(Item(1,notes:[])));
+ var emptyNotesDetail=await Send("GET","/api/orders/"+emptyNotes.GetProperty("id").GetInt32(),200);
+ Require(emptyNotesDetail.GetProperty("items")[0].GetProperty("notes").GetArrayLength()==0,"QA-S4-033 empty notes accepted and persisted empty");
  // Đổi menu sau bán: chi tiết cũ phải giữ snapshot, đơn mới phải lấy giá mới từ DB.
- product.Name="Updated "+suffix;ps.Price=31000;await db.SaveChangesAsync();
+ product.Name="Updated "+suffix;n1.Name="Updated note "+suffix;ps.Price=31000;await db.SaveChangesAsync();
  var detail=await Send("GET","/api/orders/"+id,200);
- Require(detail.GetProperty("items")[0].GetProperty("productName").GetString()==saved.OrderItems.Single().ProductNameSnapshot,"Historical product snapshot unchanged");
+ Require(detail.GetProperty("items")[0].GetProperty("productName").GetString()==saved.OrderItems.Single().ProductNameSnapshot &&
+  detail.GetProperty("items")[0].GetProperty("notes")[0].GetProperty("name").GetString()=="Less "+suffix,
+  "QA-S4-037 historical product/note snapshots unchanged");
  var updated=await Send("POST","/api/orders",201,Body());Require(updated.GetProperty("totalAmount").GetDecimal()==100000m,"New order uses changed SQL price");
+ var repricedOrder=await db.SalesOrders.AsNoTracking().Include(o=>o.OrderItems).SingleAsync(o=>o.Id==updated.GetProperty("id").GetInt32());
+ Require(repricedOrder.OrderItems.Single().UnitPriceSnapshot==31000m,"QA-S4-036 current SQL size price persisted as new snapshot");
  var bp=await db.BranchProducts.SingleAsync(x=>x.BranchId==branch.Id && x.ProductId==product.Id);bp.IsAvailable=false;await db.SaveChangesAsync();
  int before=await Counter(); await Send("POST","/api/orders",400,Body());Require(await Counter()==before,"Unavailable product rolls back allocated counter");bp.IsAvailable=true;await db.SaveChangesAsync();
  // Inject lỗi chi tiết sau khi header đã insert. Trigger chỉ áp dụng branch fixture.
@@ -127,19 +152,46 @@ try
  await Send("POST","/api/orders",500,Body());
  Require(await db.SalesOrders.CountAsync(o=>o.BranchId==branch.Id)==count && await Counter()==before,"SQL detail failure rolls back header/details/counter");
  await db.Database.ExecuteSqlRawAsync($"DROP TRIGGER dbo.[{trigger}]");
+ int beforeConcurrent=await Counter();
+ int beforeConcurrentOrders=await db.SalesOrders.CountAsync(o=>o.BranchId==branch.Id);
  var simultaneous=await Task.WhenAll(Enumerable.Range(0,12).Select(_=>Send("POST","/api/orders",201,Body())));
- Require(simultaneous.Select(x=>x.GetProperty("code").GetString()).Distinct().Count()==12,"Twelve concurrent orders have distinct codes");
+ Require(simultaneous.Select(x=>x.GetProperty("code").GetString()).Distinct().Count()==12 &&
+  await Counter()==beforeConcurrent+12 && await db.SalesOrders.CountAsync(o=>o.BranchId==branch.Id)==beforeConcurrentOrders+12,
+  "QA-S4-039 twelve concurrent unique codes match SQL counter and complete rows");
+ var ownHistory=await Send("GET","/api/orders/mine",200);
+ var ownRows=ownHistory.EnumerateArray().ToArray();
+ Require(ownRows.Length>=12 && ownRows.Zip(ownRows.Skip(1)).All(pair=>
+  pair.First.GetProperty("createdAt").GetDateTimeOffset()>pair.Second.GetProperty("createdAt").GetDateTimeOffset() ||
+  (pair.First.GetProperty("createdAt").GetDateTimeOffset()==pair.Second.GetProperty("createdAt").GetDateTimeOffset() &&
+   pair.First.GetProperty("id").GetInt32()>pair.Second.GetProperty("id").GetInt32())),
+  "QA-S4-042 own history sorts by CreatedAt then Id descending");
  var multiline=await Send("POST","/api/orders",201,new{branchId=branch.Id,items=new[]{Item(),Item(1,toppings:[],notes:[])}});
- Require(multiline.GetProperty("totalAmount").GetDecimal()==131000m,"Multiple rows total from SQL 100000 + 31000 = 131000");
+ var multilineDetail=await Send("GET","/api/orders/"+multiline.GetProperty("id").GetInt32(),200);
+ var multilineItems=multilineDetail.GetProperty("items").EnumerateArray().ToArray();
+ Require(multiline.GetProperty("totalAmount").GetDecimal()==131000m && multilineItems.Length==2 &&
+  multilineItems.Sum(x=>x.GetProperty("quantity").GetInt32())==3 &&
+  multilineItems.Any(x=>x.GetProperty("quantity").GetInt32()==2 && x.GetProperty("unitPrice").GetDecimal()==31000m &&
+   x.GetProperty("toppings").GetArrayLength()==2 && x.GetProperty("notes").GetArrayLength()==1) &&
+  multilineItems.Any(x=>x.GetProperty("quantity").GetInt32()==1 && x.GetProperty("unitPrice").GetDecimal()==31000m &&
+   x.GetProperty("toppings").GetArrayLength()==0 && x.GetProperty("notes").GetArrayLength()==0),
+  "QA-S4-028 two lines preserve distinct configs, quantity3 and total131000");
  foreach(int quantity in new[]{1,2,3}) { var r=await Send("POST","/api/orders",201,Body(Item(1,toppings:[new{toppingId=t1.Id,quantity}])));Require(r.GetProperty("totalAmount").GetDecimal()==31000+5000*quantity,"Topping quantity price "+quantity); }
+ int beforeInvalidOptions=await Counter();
  await Send("POST","/api/orders",400,Body(Item(toppings:[new{toppingId=t1.Id,quantity=0}])));
  await Send("POST","/api/orders",400,Body(Item(notes:[n1.Id,n1.Id])));
+ Require(await Counter()==beforeInvalidOptions,"QA-S4-032–033 rejected topping/note options do not allocate order counter");
  // Counter API đi qua 9999: không được cắt mất chữ số thứ năm.
  await db.OrderDailyCounters.Where(c=>c.BranchId==branch.Id).ExecuteUpdateAsync(s=>s.SetProperty(c=>c.LastNumber,9999));
  var tenThousand=await Send("POST","/api/orders",201,Body());
- Require(tenThousand.GetProperty("code").GetString()!.EndsWith("-10000"),"API code retains sequence 10000");
+ Require(tenThousand.GetProperty("code").GetString()!.EndsWith("-10000") &&
+  await db.SalesOrders.CountAsync(o=>o.Code==tenThousand.GetProperty("code").GetString())==1,
+  "QA-S4-040 API code retains unique sequence 10000");
  t2.Price=4500;t2.Name="Changed topping "+suffix;await db.SaveChangesAsync();
- var changed=await Send("POST","/api/orders",201,Body());Require(changed.GetProperty("totalAmount").GetDecimal()==101000,"Current topping SQL price is applied");
+ var changed=await Send("POST","/api/orders",201,Body());
+ var changedDetail=await Send("GET","/api/orders/"+changed.GetProperty("id").GetInt32(),200);
+ Require(changed.GetProperty("totalAmount").GetDecimal()==101000 &&
+  changedDetail.GetProperty("items")[0].GetProperty("toppings").EnumerateArray().Any(t=>t.GetProperty("unitPrice").GetDecimal()==4500m),
+  "QA-S4-036 current topping SQL price applied and persisted as snapshot");
  var oldDetail=await Send("GET","/api/orders/"+id,200);
  Require(oldDetail.GetProperty("totalAmount").GetDecimal()==98000 && oldDetail.GetProperty("items")[0].GetProperty("toppings").EnumerateArray().Any(t=>t.GetProperty("name").GetString()=="Jelly "+suffix && t.GetProperty("unitPrice").GetDecimal()==4000),"Old topping name/price snapshot preserved");
  // QA-S4-041: two real HTTP inserts against a controlled API clock, then SQL assertions.
