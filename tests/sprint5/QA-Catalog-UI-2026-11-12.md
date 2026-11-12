@@ -11,6 +11,8 @@ Runner: Nguyễn Đặng Hòa Thuận assisted by Codex. Existing branch `Thuana
 
 This first catalog pass established 19/44 explicitly labelled cases. A later [per-condition order mapping](QA-Catalog-Order-Mapping-2026-11-12.md) expanded the same-application-source result to **36/44 Pass, 8 browser cases pending** after strengthening and rerunning OrderSmoke. Neither count is inferred solely from a runner's total assertion count. The earlier formal ledger's 5 Pass/39 Not Run was a prior candidate snapshot and remains part of history.
 
+The subsequent [same-source browser/SQL retest](QA-Browser-2026-11-12.md) raised the catalog result to **43/44 Pass**. QA-S4-018 remains Partial pending a direct old Web-session API access-token 401 check.
+
 ## Real System Admin browser check, local Test DB
 
 A dedicated temporary System Admin account was created only in `BranchFlow_Test` because the nine demo accounts store Identity V3 password hashes, not recoverable plaintext. A first local hash-generation command selected the wrong .NET overload and made an unusable temporary hash; it was replaced with a valid Identity V3 hash before login. API login was checked, then the actual Edge Web UI signed in and opened **Danh mục**. No demo password was read or changed.

@@ -1,5 +1,9 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
+## New run 2026-11-12-R: same-source browser/SQL retest
+
+The [real Web/API and Test DB browser retest](../sprint5/QA-Browser-2026-11-12.md) passed QA-S4-017, 023–026, 043 and 044. Two isolated Employee contexts, cart/SQL comparison, live price and availability changes, and local proxy 401/timeout after upstream commit were checked. The 401 and timeout branches each created exactly one order despite a double-click; Web retained the uncertain cart and directed the user to own orders. Temporary users and orders were cleaned, and product price/availability restored. Combined with run Q, the current application source has **43/44 formal cases Pass**. QA-S4-018 is **Partial**: Web logout and SQL revocation passed, but a direct old access-token `/api/auth/me` 401 from that same Web session was not observed. Public smoke, three real participants and PM acceptance remain open.
+
 ## New run 2026-11-12-Q: order cases mapped per acceptance condition
 
 The existing OrderSmoke runner was strengthened and rerun against the same integrated application tree `0e0c514`, covering owner/foreign branch denial, missing fields and invalid quantities/IDs, multi-line snapshots, current SQL prices, rollback, twelve concurrent codes/counter, sequence 10000, VN midnight and own-history sorting. Its final output was **152/152 HTTP/SQL assertions Pass**, with fixture cleanup. The [18-case order mapping](../sprint5/QA-Catalog-Order-Mapping-2026-11-12.md) records expected/actual for QA-S4-015, 016 and 027–042 individually. Combined with the 14 Auth and 4 Menu cases below, the **current same-application-source catalog result is 36 Pass / 8 browser cases pending**. This is still not 44/44 or a final public/UAT sign-off.
