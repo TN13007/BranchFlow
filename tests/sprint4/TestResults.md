@@ -1,5 +1,9 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
+## New run 2026-11-12-P: current source catalog subset and System Admin UI
+
+On `Thuanaj` `520a7ef` (application tree from integrated main `0e0c514`), AuthSmoke passed all 14 explicitly labelled QA-S4-001–014 cases and MenuSmoke passed the four explicitly labelled QA-S4-019–022 cases. OrderSmoke passed 106 HTTP/SQL assertions and explicitly identified all three QA-S4-041 date-boundary assertions; its broader assertion count is not promoted into 15 further catalog cases without mapping every expected condition. The current same-source **explicit catalog subset is 19 Pass / 25 not yet signed off**. Focused real-browser System Admin product/size/price/topping creation, invalid/duplicate rejection and deactivation also passed on this source; its temporary Test DB fixture was removed. See [12/11 catalog and UI evidence](../sprint5/QA-Catalog-UI-2026-11-12.md). This new run does not alter older candidate snapshots below. Full 44/44 on one candidate and public/UAT acceptance remain open.
+
 Owner: Nguyễn Đặng Hòa Thuận. Updated: 10/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Tested product core: `Thuanaj` at `19baf09` after merging `main` `bf69ad0` and applying the BE1 fix; QA runners committed separately. Later `main` docs-only `ae8c7f2` was merged as `cd25528`, with clean build and 83/83 SQL-enabled tests. The 06/11 catalog snapshot was 43 Pass / 1 Fail. QA-S4-017, 026 and 044 passed focused browser retests on 10/11. A same-build 44/44 claim still requires a full catalog rerun on the final candidate.
 
 ## Run 2026-11-10-N: merged main, management and MVP local retest
