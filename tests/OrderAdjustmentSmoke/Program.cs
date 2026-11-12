@@ -27,7 +27,10 @@ if (!string.Equals(sql.InitialCatalog, "BranchFlow_Test", StringComparison.Ordin
     !System.Text.RegularExpressions.Regex.IsMatch(sql.DataSource, @"^(localhost|127\.0\.0\.1|\.)(\\[A-Za-z0-9_]+)?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase) ||
     sql.MultipleActiveResultSets)
     throw new InvalidOperationException("Only a local BranchFlow_Test without MARS is allowed.");
-if (args.Length != 1 || !File.Exists(args[0])) throw new ArgumentException("Pass the built BranchFlow.Api.dll path.");
+if ((args.Length != 1 && args.Length != 2) || !File.Exists(args[0]) ||
+    (args.Length == 2 && args[1] != "--cross-day"))
+    throw new ArgumentException("Pass the built BranchFlow.Api.dll path, optionally followed by --cross-day.");
+bool crossDay = args.Length == 2;
 var options = new DbContextOptionsBuilder<BranchFlowDbContext>().UseSqlServer(connection).Options;
 BranchFlowDbContext Db() => new(options);
 int checks = 0;
@@ -57,7 +60,8 @@ try
                 DateTime.UtcNow.AddSeconds(-5), DateTime.UtcNow.AddMinutes(25), new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256));
             tokens[name] = new JwtSecurityTokenHandler().WriteToken(jwt);
         }
-        var day = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
+        var createdAt = DateTime.UtcNow.AddDays(crossDay ? -1 : 0);
+        var day = DateOnly.FromDateTime(createdAt.AddHours(7));
         int sequence = (await db.SalesOrders.Where(x => x.BranchId == branch.Id && x.BusinessDate == day).MaxAsync(x => (int?)x.DailySequence) ?? 0) + 1000000;
         var category = new Category { Name = code, IsActive = true };
         var product = new Product { Name = code, Category = category, IsActive = true };
@@ -76,7 +80,7 @@ try
                 new OrderItemTopping { Topping = jelly, ToppingNameSnapshot = jelly.Name, Quantity = 1, UnitPriceSnapshot = 4000 }],
             OrderItemNotes = [new OrderItemNote { NoteOption = note, NoteNameSnapshot = note.Name }] };
         var order = new SalesOrder { Code = code, BranchId = branch.Id, CreatedByUserId = actors["demo.employee.a"],
-            BusinessDate = day, DailySequence = sequence, CreatedAt = DateTime.UtcNow, Status = "COMPLETED", TotalAmount = 98000, OrderItems = [line] };
+            BusinessDate = day, DailySequence = sequence, CreatedAt = createdAt, Status = "COMPLETED", TotalAmount = 98000, OrderItems = [line] };
         db.SalesOrders.Add(order); await db.SaveChangesAsync(); orderId = order.Id;
         productId = product.Id; categoryId = category.Id; toppingGroupId = group.Id; noteGroupId = notes.Id;
         Console.WriteLine($"FIXTURE {code} ID={orderId}; isolated menu/order fixture; direct test fixture, not order-code allocator output.");
@@ -164,18 +168,30 @@ try
         Check(sqlFailure && fault.Triggered, $"actual SQL FK547 injected in {(historyFault ? "history" : "detail")} save");
         Check(before == await Snapshot(), $"rollback restores header/detail/topping/note/history/version after {(historyFault ? "history" : "detail")} SQL failure");
     }
-    async Task<decimal> Revenue()
+    async Task<decimal> Revenue(DateOnly? queryDay = null)
     {
         await using var db = Db(); var order = await db.SalesOrders.AsNoTracking().SingleAsync(x => x.Id == orderId);
-        var day = order.CreatedAt.AddHours(7).ToString("yyyy-MM-dd");
+        var day = (queryDay ?? DateOnly.FromDateTime(order.CreatedAt.AddHours(7))).ToString("yyyy-MM-dd");
         var rows = await Request("demo.systemadmin", "GET", $"api/management/revenue?branchId={order.BranchId}&from={day}&to={day}", null, 200);
         return rows.EnumerateArray().Sum(x => x.GetProperty("amount").GetDecimal());
     }
     decimal beforeCancel = await Revenue();
+    DateOnly todayVietnam = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
+    decimal todayBeforeCancel = crossDay ? await Revenue(todayVietnam) : 0;
     await Request("demo.branchadmin.01", "PUT", path, Change(current, 0, "WBS3421 cancel", true), 200);
     current = await Read();
     Check(current.GetProperty("status").GetString() == "CANCELLED" && current.GetProperty("history").GetArrayLength() == 3, "cancel retains order and adds third history");
     Check(beforeCancel - await Revenue() == 196000, "cancelled order196000 removed from actual HTTP revenue");
+    if (crossDay)
+    {
+        await using var db = Db();
+        var order = await db.SalesOrders.AsNoTracking().SingleAsync(x => x.Id == orderId);
+        Check(DateOnly.FromDateTime(order.CreatedAt.AddHours(7)) < todayVietnam &&
+            order.UpdatedAt.HasValue && DateOnly.FromDateTime(order.UpdatedAt.Value.AddHours(7)) == todayVietnam,
+            "prior-day order was cancelled today through real API and persisted in SQL");
+        Check(await Revenue(todayVietnam) == todayBeforeCancel,
+            "cancel of prior-day order does not alter today's HTTP revenue");
+    }
     await Rejected("demo.systemadmin", Change(current, 5), 409);
     await Rejected("demo.branchadmin.01", Change(current, 0, "WBS3421 cancel twice", true), 409);
     var own = await Request("demo.employee.a", "GET", $"api/orders/{orderId}", null, 200);
