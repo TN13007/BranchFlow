@@ -17,4 +17,5 @@ public sealed class ManagementApiClient(AuthenticationStateProvider state, Sessi
         ? SendAsync<int>(HttpMethod.Post, path, input)
         : PutAsync(path + "/" + id, input);
     public Task<int> PutAsync(string path, object input) => SendAsync<int>(HttpMethod.Put, path, input);
+    public Task<int> PostAsync(string path, object input) => SendAsync<int>(HttpMethod.Post, path, input);
 }
