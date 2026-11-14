@@ -321,12 +321,45 @@
     private Task AdjustAsync(bool cancel) => RunAsync(async () =>
     {
         var current = order!;
+
         if (cancel && !confirmCancel) return;
-        await Api.PutAsync($"orders/{current.Id}", new AdjustOrderRequest { Cancel = cancel, Reason = reason,
-            RowVersion = current.RowVersion, Items = cancel ? [] : current.Items.Select(x => new QuantityChange { ItemId = x.Id, Quantity = x.Quantity }).ToList() });
-        notice = cancel ? "Đã hủy đơn." : "Đã cập nhật số ly.";
+
+        if (cancel)
+        {
+            await Api.PostAsync(
+                $"orders/{current.Id}/cancel",
+                new CancelOrderRequest
+                {
+                    Reason = reason,
+                    RowVersion = current.RowVersion
+                });
+
+            notice = "Đã hủy đơn.";
+        }
+        else
+        {
+            await Api.PutAsync(
+                $"orders/{current.Id}",
+                new AdjustOrderRequest
+                {
+                    Reason = reason,
+                    RowVersion = current.RowVersion,
+                    Items = current.Items
+                        .Select(x => new QuantityChange
+                        {
+                            ItemId = x.Id,
+                            Quantity = x.Quantity
+                        })
+                        .ToList()
+                });
+
+            notice = "Đã cập nhật số ly.";
+        }
+
         confirmCancel = false;
         reason = "";
+
+        // Refresh order detail and order list
         order = await Api.GetAsync<ManagedOrderView>($"orders/{current.Id}");
         await LoadAsync();
     });
