@@ -28,7 +28,7 @@ public static class WorkspaceNavigation
                 new("orders", "Đơn hàng", "/owner?tab=orders", icons + "icon-orders.svg", true),
                 new("branches", "Chi nhánh", "/owner?tab=branches", icons + "icon-admin.svg", true),
                 new("inventory", "Kho", "/owner?tab=inventory", icons + "icon-box.svg", true),
-
+                new("employee-directory", "Nhân viên", "/owner?tab=employee-directory", icons + "icon-user.svg", true),
                 account],
             "SYSTEM_ADMIN" => [
                 new("overview", "Tổng quan", "/admin", "/images/icons/house.svg", true),

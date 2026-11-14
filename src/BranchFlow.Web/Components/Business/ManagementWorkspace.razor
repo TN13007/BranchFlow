@@ -46,6 +46,25 @@
             }
             </tbody></table></div>
             break;
+        case "employee-directory":
+            <h2 class="h5">Danh sách nhân viên theo chi nhánh</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th scope="col">Mã nhân viên</th><th scope="col">Họ tên</th><th scope="col">Chức vụ</th><th scope="col">Chi nhánh</th><th scope="col">Trạng thái</th></tr></thead>
+                    <tbody>
+                        @foreach (var employee in directory)
+                        {
+                            <tr><td>@employee.EmployeeCode</td><td>@employee.FullName</td><td>@(employee.Position ?? "—")</td>
+                                <td>@employee.BranchName</td><td>@(employee.IsActive ? "Hoạt động" : "Đã khóa")</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (loaded && !busy && directory.Count == 0)
+            {
+                <p role="status">Không có nhân viên được phân công trong phạm vi đã chọn.</p>
+            }
+            break;
         case "employees":
             <h2 class="h5">Nhân viên và tài khoản</h2>
             @if (IsSystem)
@@ -188,11 +207,12 @@
     private bool CanEditUsers => Role is "SYSTEM_ADMIN" or "BRANCH_ADMIN";
     private bool CanEditUser(UserView account) => IsSystem && account.Role is ("BRANCH_ADMIN" or "EMPLOYEE")
         || Role == "BRANCH_ADMIN" && account.Role == "EMPLOYEE";
-    private bool NeedsBranch => Tab is "branch-menu" or "stock" or "inventory" or "issue" or "orders" or "analytics" or "overview";
-    private bool CanReadAll => Tab is "orders" or "analytics" or "overview";
+    private bool NeedsBranch => Tab is "branch-menu" or "stock" or "inventory" or "issue" or "orders" or "analytics" or "overview" or "employee-directory";
+    private bool CanReadAll => Tab is "orders" or "analytics" or "overview" or "employee-directory";
     private bool CanAdjust => !needsLogin && !accessDenied && Role is ("SYSTEM_ADMIN" or "BRANCH_ADMIN") && order?.Status != "CANCELLED";
     private List<BranchView> branches = [];
     private List<UserView> users = [];
+    private List<EmployeeDirectoryEntry> directory = [];
     private List<ManagedOrderView> orders = [];
     private List<RevenueView> revenue = [];
     private BranchView branch = new();
@@ -240,6 +260,10 @@
         switch (Tab)
         {
             case "employees": users = await Api.ListAsync<UserView>("users"); break;
+            case "employee-directory":
+                var path = branchId == 0 ? "employee-directory" : $"employee-directory?branchId={branchId}";
+                directory = await Api.ListAsync<EmployeeDirectoryEntry>(path);
+                break;
             case "orders": orders = await Api.ListAsync<ManagedOrderView>("orders" + filter); break;
             case "analytics":
             case "overview": revenue = await Api.ListAsync<RevenueView>("revenue" + filter); break;
@@ -254,6 +278,7 @@
         orders = [];
         revenue = [];
         users = [];
+        directory = [];
         await RunAsync(async () =>
         {
             if ((Tab is "orders" or "analytics" or "overview") && from > to)

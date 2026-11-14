@@ -1,0 +1,178 @@
+{
+  "checkedAtUtc": "2026-11-14T04:36:33.6379986Z",
+  "expectedReleaseSha": "28441013318ffee1a6b8541f1318dab9ca124201",
+  "sourceCommitFromReleaseManifest": "28441013318ffee1a6b8541f1318dab9ca124201",
+  "deployedShaProvidedByReleaseOwner": "28441013318ffee1a6b8541f1318dab9ca124201",
+  "apiBaseUrl": "https://branchflow-team-api-khang153.azurewebsites.net",
+  "webBaseUrl": "https://branchflow-team-web-khang153.azurewebsites.net",
+  "results": [
+    {
+      "case": "Public Web root responds over HTTPS",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Web root is HTML",
+      "expected": "text/html",
+      "actual": "text/html; charset=utf-8",
+      "result": "PASS"
+    },
+    {
+      "case": "Public API rejects request without bearer token",
+      "expected": "401",
+      "actual": "401",
+      "result": "PASS"
+    },
+    {
+      "case": "Public login SYSTEM_ADMIN",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public identity endpoint SYSTEM_ADMIN",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public login OWNER",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public identity endpoint OWNER",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public login BRANCH_ADMIN_01",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public identity endpoint BRANCH_ADMIN_01",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public login EMPLOYEE_A",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public identity endpoint EMPLOYEE_A",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Public SystemAdmin branch list",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "SystemAdmin sees BF-DEMO-01",
+      "expected": "BF-DEMO-01",
+      "actual": "BF-DEMO-01,BF-DEMO-02,BF-DEMO-03",
+      "result": "PASS"
+    },
+    {
+      "case": "SystemAdmin sees BF-DEMO-02",
+      "expected": "BF-DEMO-02",
+      "actual": "BF-DEMO-01,BF-DEMO-02,BF-DEMO-03",
+      "result": "PASS"
+    },
+    {
+      "case": "SystemAdmin sees BF-DEMO-03",
+      "expected": "BF-DEMO-03",
+      "actual": "BF-DEMO-01,BF-DEMO-02,BF-DEMO-03",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Owner branch list",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Owner can read demo branch data",
+      "expected": "3 demo branches",
+      "actual": "3",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Owner cannot read management user directory",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Owner cannot create a branch",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    },
+    {
+      "case": "Public BranchAdmin branch list",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "BranchAdmin 01 is restricted to Demo 01",
+      "expected": "BF-DEMO-01 only",
+      "actual": "BF-DEMO-01",
+      "result": "PASS"
+    },
+    {
+      "case": "Public BranchAdmin cannot read Demo 02 stock",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    },
+    {
+      "case": "Public BranchAdmin cannot create assignments",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Employee branch list",
+      "expected": "200",
+      "actual": "200",
+      "result": "PASS"
+    },
+    {
+      "case": "Employee A is restricted to Demo 01",
+      "expected": "BF-DEMO-01 only",
+      "actual": "BF-DEMO-01",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Employee cannot read Demo 02 stock",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    },
+    {
+      "case": "Public Employee cannot create an account",
+      "expected": "403",
+      "actual": "403",
+      "result": "PASS"
+    }
+  ],
+  "overall": "Completed",
+  "limitations": [
+    "The deployed SHA is supplied by the deployment owner; this script does not perform remote source attestation.",
+    "This is HTTP smoke only, not browser E2E, stakeholder UAT, or SQL verification."
+  ],
+  "failure": null
+}

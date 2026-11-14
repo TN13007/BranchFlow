@@ -70,6 +70,23 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         await work.SaveChangesAsync(ct);
         return branch.Id;
     }
+    public async Task<List<EmployeeDirectoryEntry>> EmployeeDirectoryAsync(int user, int? branch, CancellationToken ct)
+    {
+        var branchIds = await BranchIdsAsync(user, branch, ct);
+        var now = Now;
+        var assignments = (await repo.EmployeeAssignmentsAsync(ct))
+            .Where(a => branchIds.Contains(a.BranchId) && Effective(a.EffectiveFrom, a.EffectiveTo, now))
+            .ToLookup(a => a.EmployeeProfileId);
+        var accounts = await repo.UsersAsync(ct);
+        return (from account in accounts
+                where account.Role.Code == "EMPLOYEE" && !account.Role.Deleted
+                let profile = account.EmployeeProfile
+                where profile is { Deleted: false }
+                from assignment in assignments[profile!.Id]
+                select new EmployeeDirectoryEntry(profile.EmployeeCode, account.FullName, profile.Position,
+                    assignment.BranchId, assignment.Branch.Name, account.IsActive)).ToList();
+    }
+
     public async Task<List<UserView>> UsersAsync(int user, bool all, CancellationToken ct)
     {
         var ids = all ? null : await BranchIdsAsync(user, null, ct);

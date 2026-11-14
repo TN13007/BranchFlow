@@ -16,6 +16,9 @@ public sealed class BranchView
     public int? AdminUserId { get; set; }
     public string AdminName { get; set; } = "";
 }
+public sealed record EmployeeDirectoryEntry(string EmployeeCode, string FullName, string? Position,
+    int BranchId, string BranchName, bool IsActive);
+
 public sealed class UserView
 {
     public int Id { get; set; }

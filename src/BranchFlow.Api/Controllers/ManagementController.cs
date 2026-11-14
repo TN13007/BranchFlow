@@ -33,6 +33,11 @@ public sealed class ManagementController(MvpService service) : ControllerBase
     public Task<IActionResult> UpdateBranch(int id, BranchView input, CancellationToken ct) =>
         RunAsync(() => service.SaveBranchAsync(id, input, ct));
 
+    [HttpGet("employee-directory")]
+    [Authorize(Roles = "OWNER")]
+    public Task<IActionResult> EmployeeDirectory(int? branchId, CancellationToken ct) =>
+        RunAsync(() => service.EmployeeDirectoryAsync(UserId, branchId, ct));
+
     [HttpGet("users")]
     [Authorize(Roles = Admins)]
     public Task<IActionResult> Users(CancellationToken ct) =>
