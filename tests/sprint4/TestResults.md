@@ -1,5 +1,17 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
+## New run 2026-11-12-R: same-source browser/SQL retest
+
+The [real Web/API and Test DB browser retest](../sprint5/QA-Browser-2026-11-12.md) passed QA-S4-017, 023–026, 043 and 044. Two isolated Employee contexts, cart/SQL comparison, live price and availability changes, and local proxy 401/timeout after upstream commit were checked. The 401 and timeout branches each created exactly one order despite a double-click; Web retained the uncertain cart and directed the user to own orders. A separate QA-S4-018 proxy captured the actual Web-session access token in memory: Web logout forwarded API 204 and direct old-token `/api/auth/me` returned 401. Temporary users and orders were cleaned, and product price/availability restored. Combined with run Q, the current application source has **44/44 formal local catalog cases Pass**. Public smoke, three real participants and PM acceptance remain open.
+
+## New run 2026-11-12-Q: order cases mapped per acceptance condition
+
+The existing OrderSmoke runner was strengthened and rerun against the same integrated application tree `0e0c514`, covering owner/foreign branch denial, missing fields and invalid quantities/IDs, multi-line snapshots, current SQL prices, rollback, twelve concurrent codes/counter, sequence 10000, VN midnight and own-history sorting. Its final output was **152/152 HTTP/SQL assertions Pass**, with fixture cleanup. The [18-case order mapping](../sprint5/QA-Catalog-Order-Mapping-2026-11-12.md) records expected/actual for QA-S4-015, 016 and 027–042 individually. Combined with the 14 Auth and 4 Menu cases below, the **current same-application-source catalog result is 36 Pass / 8 browser cases pending**. This is still not 44/44 or a final public/UAT sign-off.
+
+## New run 2026-11-12-P: current source catalog subset and System Admin UI
+
+On `Thuanaj` `520a7ef` (application tree from integrated main `0e0c514`), AuthSmoke passed all 14 explicitly labelled QA-S4-001–014 cases and MenuSmoke passed the four explicitly labelled QA-S4-019–022 cases. OrderSmoke passed 106 HTTP/SQL assertions and explicitly identified all three QA-S4-041 date-boundary assertions; its broader assertion count is not promoted into 15 further catalog cases without mapping every expected condition. The current same-source **explicit catalog subset is 19 Pass / 25 not yet signed off**. Focused real-browser System Admin product/size/price/topping creation, invalid/duplicate rejection and deactivation also passed on this source; its temporary Test DB fixture was removed. See [12/11 catalog and UI evidence](../sprint5/QA-Catalog-UI-2026-11-12.md). This new run does not alter older candidate snapshots below. Full 44/44 on one candidate and public/UAT acceptance remain open.
+
 Owner: Nguyễn Đặng Hòa Thuận. Updated: 10/11/2026 (Asia/Ho_Chi_Minh). Case source: [TestCases.md](TestCases.md). Tested product core: `Thuanaj` at `19baf09` after merging `main` `bf69ad0` and applying the BE1 fix; QA runners committed separately. Later `main` docs-only `ae8c7f2` was merged as `cd25528`, with clean build and 83/83 SQL-enabled tests. The 06/11 catalog snapshot was 43 Pass / 1 Fail. QA-S4-017, 026 and 044 passed focused browser retests on 10/11. A same-build 44/44 claim still requires a full catalog rerun on the final candidate.
 
 ## Run 2026-11-10-N: merged main, management and MVP local retest

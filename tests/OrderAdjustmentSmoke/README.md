@@ -7,6 +7,10 @@ dotnet build src/BranchFlow.Api -c Release
 dotnet build tests/OrderAdjustmentSmoke -c Release
 $env:BRANCHFLOW_TEST_CONNECTION_STRING = 'Server=localhost\SQLEXPRESS;Database=BranchFlow_Test;Trusted_Connection=True;TrustServerCertificate=True'
 dotnet run --project tests/OrderAdjustmentSmoke -c Release --no-build -- src/BranchFlow.Api/bin/Release/net10.0/BranchFlow.Api.dll
+
+# Optional historical-date fixture: create the order with yesterday's Vietnam business date,
+# then change/cancel it through today's real API and compare both revenue dates.
+dotnet run --project tests/OrderAdjustmentSmoke -c Release --no-build -- src/BranchFlow.Api/bin/Release/net10.0/BranchFlow.Api.dll --cross-day
 ```
 
 Port17207 must be free. The harness starts only its own loopback API process, with Testing environment, normal signature/session/role validation and a random ephemeral signing key. It creates synthetic sessions for existing demo users, so it tests HTTP authorization and business behavior, **not password login**. It does not use the running Dev/Test host's signing key. No key/token/password is printed or committed. Its sessions are revoked and its process is stopped in finally.
