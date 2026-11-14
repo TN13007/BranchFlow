@@ -51,12 +51,23 @@ Runner kiểm tra:
 
 Runner đọc `sourceCommit` từ manifest được bàn giao và so với ExpectedSha/DeployedSha trước khi gửi request. DeployedSha vẫn do Khang cung cấp từ nhật ký triển khai; đây không phải chứng thực mã nguồn từ máy chủ. Payload thử Owner tạo chi nhánh cố ý không hợp lệ để không tạo dữ liệu nếu kiểm tra quyền bị hồi quy.
 
-## Trạng thái hiện tại
+## Triển khai ngày 14 tháng 11 năm 2026
 
-- URL API public: Chưa được cung cấp / Chưa xác minh.
-- URL Web public: Chưa được cung cấp / Chưa xác minh.
-- SHA đã triển khai: Chưa được cung cấp / Chưa xác minh.
-- Kiểm thử public: Chưa chạy.
-- Người triển khai thực tế: Khang, không phải Thuần.
+- Khang triển khai Web tại https://branchflow-team-web-khang153.azurewebsites.net/login và API tại https://branchflow-team-api-khang153.azurewebsites.net.
+- Candidate ứng dụng là `28441013318ffee1a6b8541f1318dab9ca124201`. Release manifest và hai ZIP được tạo bằng `tools/Publish-Release.ps1`.
+- Azure SQL `BranchFlow_GroupDemo` nằm trên logical server riêng của nhóm, dùng Free với AutoPause khi hết hạn mức. Web/API dùng plan B1 hiện có.
+- Bộ seed có 72 món, 14 topping và 180 đơn giả lập bổ sung. `tools/Seed-AzureGroupDemo.ps1 -Mode Verify` kiểm tổng tiền, ngày UTC+7, lịch sử và số dư kho.
+- Bản trước `eb71097` đã có browser tạo đơn. Candidate mới đã qua public HTTP smoke 27 kiểm tra tại `artifacts/public-smoke/public-smoke-20261114-043633.json`.
+- Browser của candidate mới đăng nhập Employee, chọn món và tạo đơn `BF-DEMO-01-20261114-0007`, mở chi tiết `/orders/364`.
+- Owner đọc nhân viên qua `GET /api/management/employee-directory?branchId=...`. Dữ liệu gồm mã nhân viên, họ tên, chức vụ, chi nhánh và trạng thái. API quản trị tài khoản tiếp tục áp dụng quyền admin.
+- UAT ba người nội bộ và xác nhận stakeholder đang chờ kết quả từ người thực sự tham gia.
 
-Giữ SCRUM-115 mở cho đến khi nhận được thông tin triển khai từ Khang, chạy public smoke trên đúng SHA đó, liên kết và kiểm thử lại các lỗi (nếu có), đồng thời ghi rõ ranh giới giữa công việc chuẩn bị, triển khai và kiểm thử QA.
+Gói rollback trước candidate được lưu ở máy triển khai trong thư mục dữ liệu ứng dụng Windows `BranchFlow-TeamDemo-Deploy`. Redeploy hai ZIP API/Web của bản trước khi cần rollback ứng dụng. Backup/PITR Azure SQL được quản lý trên database riêng. Việc dọn môi trường nhóm thực hiện ở resource group `rg-branchflow-team-demo` sau báo cáo.
+
+## Kiểm chứng local của candidate
+
+Release build có 0 cảnh báo và 0 lỗi. Bộ SQL-enabled xUnit đạt 95/95 với 0 skipped. ManagementSmoke đạt 72 kiểm tra, OrderAdjustmentSmoke cross-day đạt 49 kiểm tra và RevenueSmoke đạt 11 kiểm tra. Các runner đã dọn fixture của từng lượt.
+
+Ca U26 API local kiểm giới hạn trường trả về, lọc chi nhánh, chặn ID chi nhánh ngoài phạm vi và chặn Owner gọi API quản trị tài khoản. Browser public đã mở danh sách nhân viên và lọc một chi nhánh, có ảnh `artifacts/public-smoke/u26-owner-directory.png`.
+
+Lượt triển khai ban đầu gặp HTTP 500 trong thời gian cập nhật file và khởi động container. Hai ứng dụng nhóm được cấu hình chạy từ ZIP package. Public smoke chỉ được ghi nhận đạt sau khi cả hai endpoint khởi động thành công.
