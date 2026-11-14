@@ -523,6 +523,20 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         })
     });
 
+    public Task<int> CancelOrderAsync(int actor, int id, CancelOrderRequest input, CancellationToken ct)
+    {
+        if (input is null)
+            throw new ArgumentException("Thông tin hủy đơn không hợp lệ.");
+
+        return AdjustOrderAsync(actor, id, new AdjustOrderRequest
+        {
+            Reason = input.Reason,
+            RowVersion = input.RowVersion,
+            Cancel = true,
+            Items = []
+        }, ct);
+    }
+
     public async Task<int> AdjustOrderAsync(int actor, int id, AdjustOrderRequest input, CancellationToken ct)
     {
         if (input is null) throw new ArgumentException("Thông tin điều chỉnh không hợp lệ.");

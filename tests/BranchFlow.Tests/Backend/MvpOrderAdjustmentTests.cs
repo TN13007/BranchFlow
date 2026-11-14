@@ -241,6 +241,45 @@ public sealed class MvpOrderAdjustmentTests
     }
 
     [Fact]
+    public async Task CancelOrderAsync_ValidRequest_ChangesStatusAndRecordsReason()
+    {
+        var order = CreateOrder();
+        SetupOrder(order);
+
+        var request = new CancelOrderRequest
+        {
+            Reason = "Khách hàng yêu cầu hủy đơn",
+            RowVersion = Convert.ToBase64String(ValidVersion)
+        };
+
+        var service = CreateService();
+
+        var result = await service.CancelOrderAsync(
+            ActorId, OrderId, request, CancellationToken.None);
+
+        Assert.Equal(OrderId, result);
+        Assert.Equal("CANCELLED", order.Status);
+        Assert.Equal(70000m, order.TotalAmount);
+
+        Assert.NotNull(capturedAdjustment);
+        Assert.Equal(OrderId, capturedAdjustment.SalesOrderId);
+        Assert.Equal(ActorId, capturedAdjustment.AdjustedByUserId);
+        Assert.Equal("Khách hàng yêu cầu hủy đơn", capturedAdjustment.Reason);
+
+        using var after = System.Text.Json.JsonDocument.Parse(
+            capturedAdjustment.AfterData);
+
+        Assert.Equal(
+            "CANCELLED",
+            after.RootElement.GetProperty("Status").GetString());
+
+        work.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        work.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        work.Verify(x => x.CommitTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        work.Verify(x => x.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task AdjustOrderAsync_CancelledOrder_ThrowsInvalidOperationException()
     {
         var order = CreateOrder("CANCELLED");

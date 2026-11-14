@@ -135,6 +135,13 @@ try
         var before = await Snapshot(); await Request(actor, "PUT", path, input, status);
         Check(before == await Snapshot(), $"SQL unchanged header/detail/topping/note/history/version after rejected {actor} {status}");
     }
+    async Task CancelRejected(string actor, object input, int status)
+    {
+        var before = await Snapshot();
+        await Request(actor, "POST", $"{path}/cancel", input, status);
+        Check(before == await Snapshot(),
+            $"SQL unchanged header/detail/topping/note/history/version after rejected cancel {actor} {status}");
+    }
     var initial = await Read();
     await Request("demo.systemadmin", "GET", path, null, 200);
     await Request("demo.branchadmin.02", "GET", path, null, 403);
@@ -178,7 +185,28 @@ try
     decimal beforeCancel = await Revenue();
     DateOnly todayVietnam = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
     decimal todayBeforeCancel = crossDay ? await Revenue(todayVietnam) : 0;
-    await Request("demo.branchadmin.01", "PUT", path, Change(current, 0, "WBS3421 cancel", true), 200);
+    var cancelRequest = new
+    {
+        reason = "WBS3421 authorization check",
+        rowVersion = current.GetProperty("rowVersion").GetString()
+    };
+
+    await CancelRejected("anonymous", cancelRequest, 401);
+
+    foreach (var denied in new[]
+    {
+        "demo.employee.a",
+        "demo.owner",
+        "demo.branchadmin.02"
+    })
+    {
+        await CancelRejected(denied, cancelRequest, 403);
+    }
+    await Request("demo.branchadmin.01", "POST", $"{path}/cancel", new
+    {
+        reason = "WBS3421 cancel",
+        rowVersion = current.GetProperty("rowVersion").GetString()
+    }, 200);
     current = await Read();
     Check(current.GetProperty("status").GetString() == "CANCELLED" && current.GetProperty("history").GetArrayLength() == 3, "cancel retains order and adds third history");
     Check(beforeCancel - await Revenue() == 196000, "cancelled order196000 removed from actual HTTP revenue");
