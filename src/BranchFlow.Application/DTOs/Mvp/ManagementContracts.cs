@@ -162,11 +162,13 @@ public sealed class AdjustmentView
     public string BeforeData { get; set; } = "";
     public string AfterData { get; set; } = "";
 }
+
 public sealed class CancelOrderRequest
 {
     public string Reason { get; set; } = "";
     public string RowVersion { get; set; } = "";
 }
+
 public sealed class AdjustOrderRequest
 {
     public string Reason { get; set; } = "";

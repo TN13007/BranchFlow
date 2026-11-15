@@ -1,7 +1,9 @@
 # WBS-5.4.3 — Risk and Handover
 
-> **Nguồn dữ liệu:** Báo cáo Sprint 5, WBS_Jira_Sprint5.csv, SoSanh_KeHoach_ThucTe.csv, PhanBo_NguonLuc_Sprint5.csv và PM_Review.md.  
-> **Mốc trạng thái:** 12/11/2026.  
+> **Nguồn dữ liệu:** Báo cáo Sprint 5, WBS_Jira_Sprint5.csv, SoSanh_KeHoach_ThucTe.csv, PhanBo_NguonLuc_Sprint5.csv và PM_Review.md.
+>
+> **Mốc trạng thái của bảng:** 12/11/2026.
+>
 > **Lưu ý:** Đây là bản tổng hợp rủi ro và bàn giao tại mốc rà soát, không phải kết quả retrospective cuối Sprint.
 
 ## 1. Mục tiêu
@@ -126,4 +128,10 @@ Không chuyển trạng thái Done chỉ dựa trên việc code đã được m
 - PR tích hợp: https://github.com/TN13007/BranchFlow/pull/65
 - Commit tích hợp: https://github.com/TN13007/BranchFlow/commit/0e0c51431ded1ce77e292536f506755a0e6c258a
 - User Guide: https://github.com/TN13007/BranchFlow/blob/0e0c514/docs/Sprint5-User-Guide.md
-- QA Retest: https://github.com/TN13007/BranchFlow/blob/0e0c514/tests/sprint5/QA-Retest-2026-11-11.md
+- QA Retest 12/11: [Kết quả retest trên 0e0c514](../tests/sprint5/QA-Retest-2026-11-12.md)
+
+## 9. Tình trạng khi đóng Sprint 5
+
+- Mốc kế hoạch là 13/11/2026 lúc 23:00 (giờ Việt Nam). Bản release Azure được triển khai ngày 14/11 từ SHA `28441013318ffee1a6b8541f1318dab9ca124201`. R-07 và R-08 đã có minh chứng phát hành và 27 kiểm tra HTTP public; kết quả và phạm vi được ghi trong [hồ sơ triển khai](sprint5/Public-Smoke-Handoff.md).
+- Tại thời điểm đóng Sprint 5 ngày 15/11, Jira có 20/30 subtask Done. Số này phản ánh lúc đóng sprint. Các thay đổi ghi nhận sau ngày 13/11 cần được đối chiếu riêng khi báo cáo tiến độ.
+- Sprint 6 tiếp nhận phần việc còn lại của SCRUM-101, SCRUM-102, SCRUM-103, SCRUM-105 và SCRUM-107. UAT ba người và xác nhận bàn giao theo dõi ở SCRUM-131 và SCRUM-139.
