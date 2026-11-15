@@ -310,6 +310,7 @@
     });
     private void CloseOrder()
     {
+        if (busy) return;
         selectedOrderId = null;
         order = null;
         error = null;
@@ -320,9 +321,7 @@
     }
     private Task AdjustAsync(bool cancel) => RunAsync(async () =>
     {
-        var current = order!;
-
-        if (cancel && !confirmCancel) return;
+        if (order is not { } current || !CanAdjust || (cancel && !confirmCancel)) return;
 
         if (cancel)
         {
@@ -359,7 +358,8 @@
         confirmCancel = false;
         reason = "";
 
-        // Refresh order detail and order list
+        // Drop the old row version even if refreshing the saved order fails.
+        order = null;
         order = await Api.GetAsync<ManagedOrderView>($"orders/{current.Id}");
         await LoadAsync();
     });
