@@ -310,6 +310,7 @@
     });
     private void CloseOrder()
     {
+        if (busy) return;
         selectedOrderId = null;
         order = null;
         error = null;
@@ -320,13 +321,45 @@
     }
     private Task AdjustAsync(bool cancel) => RunAsync(async () =>
     {
-        var current = order!;
-        if (cancel && !confirmCancel) return;
-        await Api.PutAsync($"orders/{current.Id}", new AdjustOrderRequest { Cancel = cancel, Reason = reason,
-            RowVersion = current.RowVersion, Items = cancel ? [] : current.Items.Select(x => new QuantityChange { ItemId = x.Id, Quantity = x.Quantity }).ToList() });
-        notice = cancel ? "Đã hủy đơn." : "Đã cập nhật số ly.";
+        if (order is not { } current || !CanAdjust || (cancel && !confirmCancel)) return;
+
+        if (cancel)
+        {
+            await Api.PostAsync(
+                $"orders/{current.Id}/cancel",
+                new CancelOrderRequest
+                {
+                    Reason = reason,
+                    RowVersion = current.RowVersion
+                });
+
+            notice = "Đã hủy đơn.";
+        }
+        else
+        {
+            await Api.PutAsync(
+                $"orders/{current.Id}",
+                new AdjustOrderRequest
+                {
+                    Reason = reason,
+                    RowVersion = current.RowVersion,
+                    Items = current.Items
+                        .Select(x => new QuantityChange
+                        {
+                            ItemId = x.Id,
+                            Quantity = x.Quantity
+                        })
+                        .ToList()
+                });
+
+            notice = "Đã cập nhật số ly.";
+        }
+
         confirmCancel = false;
         reason = "";
+
+        // Drop the old row version even if refreshing the saved order fails.
+        order = null;
         order = await Api.GetAsync<ManagedOrderView>($"orders/{current.Id}");
         await LoadAsync();
     });

@@ -177,6 +177,11 @@ public sealed class ManagementController(MvpService service) : ControllerBase
     public Task<IActionResult> AdjustOrder(int id, AdjustOrderRequest input, CancellationToken ct) =>
         RunAsync(() => service.AdjustOrderAsync(UserId, id, input, ct));
 
+    [HttpPost("orders/{id:int}/cancel")]
+    [Authorize(Roles = Admins)]
+    public Task<IActionResult> CancelOrder(int id, CancelOrderRequest input, CancellationToken ct) =>
+        RunAsync(() => service.CancelOrderAsync(UserId, id, input, ct));
+
     [HttpGet("revenue")]
     [Authorize(Roles = Readers)]
     public Task<IActionResult> Revenue(int? branchId, DateOnly from, DateOnly to, CancellationToken ct) =>
