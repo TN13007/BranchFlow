@@ -231,4 +231,121 @@ public sealed class MvpProductTests
             x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task SaveProductAsync_UpdateExistingSizePrice_ChangesPrice()
+    {
+        var service = CreateService();
+
+        var existingProduct = new Product
+        {
+            Id = 10,
+            CategoryId = 1,
+            Name = "Milk Coffee",
+            IsActive = true,
+            ProductSizes =
+            [
+                new ProductSize
+                {
+                    Id = 100,
+                    ProductId = 10,
+                    SizeId = 1,
+                    Price = 29000,
+                    IsActive = true
+                }
+            ]
+        };
+
+        _repo.Setup(x => x.ProductsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { existingProduct });
+
+        var input = new ProductView
+        {
+            CategoryId = 1,
+            Name = "Milk Coffee",
+            IsActive = true,
+            Prices =
+            [
+                new PriceView
+                {
+                    SizeId = 1,
+                    Price = 35000,
+                    IsActive = true
+                }
+            ]
+        };
+
+        var result = await service.SaveProductAsync(
+            10, input, CancellationToken.None);
+
+        Assert.Equal(10, result);
+
+        var size = Assert.Single(existingProduct.ProductSizes);
+        Assert.Equal(1, size.SizeId);
+        Assert.Equal(35000, size.Price);
+        Assert.True(size.IsActive);
+
+        _work.Verify(
+            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SaveProductAsync_DeactivateProductSize_PreservesRow()
+    {
+        var service = CreateService();
+
+        var existingProduct = new Product
+        {
+            Id = 10,
+            CategoryId = 1,
+            Name = "Milk Coffee",
+            IsActive = true,
+            ProductSizes =
+            [
+                new ProductSize
+                {
+                    Id = 100,
+                    ProductId = 10,
+                    SizeId = 1,
+                    Price = 29000,
+                    IsActive = true
+                }
+            ]
+        };
+
+        _repo.Setup(x => x.ProductsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Product> { existingProduct });
+
+        var input = new ProductView
+        {
+            CategoryId = 1,
+            Name = "Milk Coffee",
+            IsActive = true,
+            Prices =
+            [
+                new PriceView
+                {
+                    SizeId = 1,
+                    Price = 29000,
+                    IsActive = false
+                }
+            ]
+        };
+
+        await service.SaveProductAsync(
+            10, input, CancellationToken.None);
+
+        var size = Assert.Single(existingProduct.ProductSizes);
+
+        Assert.Equal(100, size.Id);
+        Assert.Equal(1, size.SizeId);
+        Assert.Equal(29000, size.Price);
+        Assert.False(size.IsActive);
+
+        _work.Verify(
+            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
 }
