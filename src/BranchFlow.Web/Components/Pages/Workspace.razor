@@ -87,7 +87,13 @@ else
         var area = Navigation.ToBaseRelativePath(Navigation.Uri).Split('?')[0].Trim('/');
         allowed = area switch { "employee" => role == "EMPLOYEE", "owner" => role == "OWNER", "admin" => role is "SYSTEM_ADMIN" or "BRANCH_ADMIN", _ => false };
         tab = string.IsNullOrEmpty(RequestedTab) ? role == "EMPLOYEE" ? "home" : "overview" : RequestedTab;
-        section = WorkspaceNavigation.Links(role).FirstOrDefault(link => link.Key == tab);
+        var sectionKey = tab == "issue" ? role switch
+        {
+            "EMPLOYEE" => "stock",
+            "BRANCH_ADMIN" => "inventory",
+            _ => tab
+        } : tab;
+        section = WorkspaceNavigation.Links(role).FirstOrDefault(link => link.Key == sectionKey);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
