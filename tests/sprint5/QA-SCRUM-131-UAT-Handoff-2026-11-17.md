@@ -1,28 +1,28 @@
-# SCRUM-131 — three-participant UAT handoff
+# SCRUM-131 — Biên bản UAT cho ba người tham gia
 
-Prepared by Nguyễn Thuận assisted by Codex, 17/11/2026. This is an **unfilled participant record**, not a stakeholder sign-off. Technical four-role browser smoke is [recorded separately](QA-Public-Retest-2026-11-17.md); the QA-operated demo order does not count as a participant-created order.
+Ngày lập: 17/11/2026. Đây là **biên bản chờ người tham gia điền kết quả**, chưa phải xác nhận nghiệm thu. Kết quả kiểm tra kỹ thuật trên trình duyệt cho bốn vai trò được [ghi riêng](QA-Public-Retest-2026-11-17.md); đơn do QA tạo để kiểm tra không được tính là đơn của người tham gia UAT.
 
-PCG participant instructions and case-by-case expected results: [PCG UAT guide](../../docs/PCG-UAT-Guide-2026-11-17.md).
+Các bước thao tác và kết quả cần kiểm tra: [Hướng dẫn UAT cho PCG](../../docs/PCG-UAT-Guide-2026-11-17.md).
 
-## Session setup
+## Chuẩn bị buổi kiểm thử
 
-- Coordinator: confirm the deployed Web URL and candidate SHA with Khang before the session. The last user-supplied Web URL was `https://branchflow-team-web-khang153.azurewebsites.net/login`; the last owner-reported deployed candidate was `2844101`, which has not been independently attested as the running binary.
-- Invite **three distinct internal people**. Each person operates their own browser session and creates one order. A shared demo login alone does not identify the participant; each person should confirm their result from their own Jira account or another attributable record.
-- Do not put passwords, bearer tokens or cookies in the record. Note actual session time, account role, branch, order code, expected/actual and feedback. QA can observe and help, but cannot sign for the participant.
+- Trước buổi kiểm thử, người điều phối xác nhận với Khang URL Web đang chạy và SHA của bản triển khai. URL Web nhóm cung cấp gần nhất là `https://branchflow-team-web-khang153.azurewebsites.net/login`; mã bản triển khai Khang báo gần nhất là `2844101`, chưa được đối chiếu độc lập với chương trình đang chạy.
+- Mời **ba người nội bộ khác nhau**. Mỗi người dùng một phiên trình duyệt riêng và tự tạo một đơn. Tài khoản demo dùng chung không xác định được người thao tác; mỗi người cần xác nhận kết quả bằng tài khoản Jira của mình hoặc một bản ghi có thể quy thuộc.
+- Không đưa mật khẩu, token hoặc cookie vào biên bản. Ghi thời gian thực tế, vai trò, chi nhánh, mã đơn, kết quả mong đợi/thực tế và nhận xét. QA có thể quan sát và hỗ trợ, nhưng không xác nhận thay người tham gia.
 
-| Participant | Actual session time (VN) | Role / branch | Order code created by participant | Expected / actual, result | Participant's own confirmation link |
+| Người tham gia | Thời gian thực tế (VN) | Vai trò / chi nhánh | Mã đơn tự tạo | Mong đợi / thực tế, kết quả | Liên kết xác nhận của người tham gia |
 |---|---|---|---|---|---|
-| 1 — pending | Not Run | Pending | Pending | Pending | Pending |
-| 2 — pending | Not Run | Pending | Pending | Pending | Pending |
-| 3 — pending | Not Run | Pending | Pending | Pending | Pending |
+| 1 — chờ xác nhận | Chưa chạy | Chưa có | Chưa có | Chưa có | Chưa có |
+| 2 — chờ xác nhận | Chưa chạy | Chưa có | Chưa có | Chưa có | Chưa có |
+| 3 — chờ xác nhận | Chưa chạy | Chưa có | Chưa có | Chưa có | Chưa có |
 
-## Script for each participant
+## Các bước cho từng người tham gia
 
-1. Open the confirmed release URL, sign in with the assigned account and verify the displayed role/branch.
-2. Create one low-value demo order: record selected product, size, quantity and expected total before confirmation. Confirm once and record the server's order code, total and status.
-3. Open **Đơn của tôi** and verify that the same code appears once with the expected total. If a timeout or 401 occurs, check own orders before attempting any retry.
-4. Have the participant state Pass/Fail and one sentence of feedback in their own attributable confirmation. If Fail, QA captures reproducible steps, SHA, environment, expected/actual and severity, then links a Jira defect.
+1. Mở URL bản triển khai đã xác nhận, đăng nhập bằng tài khoản được cấp và kiểm tra vai trò/chi nhánh hiển thị.
+2. Tạo một đơn demo giá trị thấp. Trước khi xác nhận, ghi món, size, số lượng và tổng tiền dự kiến. Chỉ bấm xác nhận một lần; ghi mã đơn, tổng tiền và trạng thái do hệ thống trả về.
+3. Mở **Đơn của tôi**, tìm mã vừa nhận và kiểm tra đơn xuất hiện một lần với tổng tiền đúng. Nếu hết thời gian chờ hoặc gặp lỗi 401, kiểm tra danh sách đơn trước khi thử gửi lại.
+4. Người tham gia tự ghi `Pass`/`Fail` và một câu nhận xét trong xác nhận có thể quy thuộc. Nếu `Fail`, QA ghi bước tái hiện, SHA, môi trường, mong đợi/thực tế, mức ảnh hưởng và liên kết issue lỗi Jira.
 
-For four-role MVP acceptance, coordinator/QA additionally records Owner and Branch Admin scope, System Admin catalog, employee order flow, stock and revenue views with the confirmed release SHA. [Local technical checks](QA-SCRUM-130-2026-11-17.md) and [fault retest](QA-SCRUM-132-Fault-2026-11-17.md) support this review but do not replace participant confirmation. Open local observation [SCRUM-140](https://khangba153.atlassian.net/browse/SCRUM-140) requires FE triage.
+Để đánh giá MVP theo bốn vai trò, người điều phối/QA ghi thêm phạm vi Owner và Admin Chi nhánh, danh mục của Admin Tổng, luồng đặt món của Employee, kho và doanh thu theo SHA đã xác nhận. [Kiểm tra kỹ thuật local](QA-SCRUM-130-2026-11-17.md) và [kiểm tra lỗi](QA-SCRUM-132-Fault-2026-11-17.md) hỗ trợ đối chiếu nhưng không thay xác nhận của PCG. Hiện tượng ở [SCRUM-140](https://khangba153.atlassian.net/browse/SCRUM-140) cần FE phân tích.
 
-Acceptance remains **Not Run for three participants** until all three rows contain genuine outcomes and Khang reviews the UAT record. Do not convert this template into a Pass count or backdate it.
+Kết quả nghiệm thu của ba người vẫn là **Chưa chạy** cho đến khi cả ba hàng có kết quả thực tế và Khang xem lại biên bản. Không tính mẫu này là số ca Pass hoặc ghi lùi ngày.
