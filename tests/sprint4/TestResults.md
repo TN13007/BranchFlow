@@ -1,5 +1,9 @@
 # Sprint 4 QA Test Results — SCRUM-89/90/91
 
+## Public follow-up 2026-11-17
+
+The [17/11 independent public retest](../sprint5/QA-Public-Retest-2026-11-17.md) ran 27/27 HTTP smoke checks and real four-role browser paths on the Azure demo, including one Employee order visible in Owner/Branch Admin revenue and order history. After fast-forwarding current main into `Thuanaj`, local Release build was clean and SQL-enabled xUnit passed 127/127. The deployed SHA remains owner-supplied (`2844101`); current main is `8f56909`. The 44/44 local catalog below is historical evidence on the earlier source and does not attest the deployed candidate. Three real participants and PM/stakeholder sign-off remain open.
+
 ## New run 2026-11-12-R: same-source browser/SQL retest
 
 The [real Web/API and Test DB browser retest](../sprint5/QA-Browser-2026-11-12.md) passed QA-S4-017, 023–026, 043 and 044. Two isolated Employee contexts, cart/SQL comparison, live price and availability changes, and local proxy 401/timeout after upstream commit were checked. The 401 and timeout branches each created exactly one order despite a double-click; Web retained the uncertain cart and directed the user to own orders. A separate QA-S4-018 proxy captured the actual Web-session access token in memory: Web logout forwarded API 204 and direct old-token `/api/auth/me` returned 401. Temporary users and orders were cleaned, and product price/availability restored. Combined with run Q, the current application source has **44/44 formal local catalog cases Pass**. Public smoke, three real participants and PM acceptance remain open.
