@@ -1,0 +1,154 @@
+PASS Synthetic session identity SYSTEM_ADMIN (not password login) (200)
+PASS Synthetic session identity OWNER (not password login) (200)
+PASS Synthetic session identity BRANCH_ADMIN_01 (not password login) (200)
+PASS Synthetic session identity EMPLOYEE_A (not password login) (200)
+PASS Missing bearer token is rejected (401)
+PASS SystemAdmin reads all branches (200)
+PASS Owner reads permitted branch data (200)
+PASS Owner receives all accessible demo branches (3)
+PASS Owner cannot read management user directory (403)
+PASS Owner cannot create branch (403)
+PASS Owner create request leaves no branch in SQL (0)
+PASS SystemAdmin creates branch A (200)
+PASS SystemAdmin creates branch B (200)
+PASS SystemAdmin cannot create a duplicate branch code (409)
+PASS Duplicate branch code leaves exactly one SQL row (1)
+PASS SystemAdmin updates branch A (200)
+PASS Read branch list QA110A-48E048337D (200)
+PASS API branch name QA110A-48E048337D (QA Temporary Branch A Updated)
+PASS SQL branch matches API QA110A-48E048337D (QA Temporary Branch A Updated|Local test A Updated|1)
+PASS Owner cannot update branch (403)
+PASS Owner denied branch update leaves SQL unchanged (QA110A-48E048337D|QA Temporary Branch A Updated|Local test A Updated|1)
+PASS SystemAdmin creates assigned BranchAdmin (200)
+PASS One BranchAdmin can be assigned to multiple branches (200)
+PASS SystemAdmin creates unassigned second BranchAdmin (200)
+PASS Second effective BranchAdmin for the same branch is rejected (409)
+PASS SQL keeps exactly one open Admin assignment (1)
+PASS SystemAdmin creates Employee with initial assignment (200)
+PASS Second effective Employee assignment is rejected (409)
+PASS SQL keeps exactly one open Employee assignment (1)
+PASS Login TEMP_BRANCH_ADMIN (200)
+PASS Temporary BranchAdmin reads branch list (200)
+PASS BranchAdmin with two assignments sees exactly those two branches (QA110A-48E048337D,QA110B-48E048337D)
+PASS SystemAdmin cannot deactivate a BranchAdmin who still has assignments (400)
+PASS Rejected BranchAdmin deactivation leaves account and assignments unchanged (qa110.admin.48e048337d|QA Temporary Branch Admin|||1|35:101:2026-11-17T15:34:47.3234739:NULL,36:102:2026-11-17T15:34:47.5506423:NULL)
+PASS SystemAdmin deactivates temporary branch B (200)
+PASS BranchAdmin reads branches after branch B is deactivated (200)
+PASS Inactive branch is removed from BranchAdmin scope (QA110A-48E048337D)
+PASS BranchAdmin cannot access an inactive assigned branch (403)
+PASS SystemAdmin reactivates temporary branch B (200)
+PASS Reactivated branch returns to BranchAdmin scope (QA110A-48E048337D,QA110B-48E048337D)
+PASS BranchAdmin reads Employee directory in assigned branches (200)
+PASS BranchAdmin updates Employee profile in own scope (200)
+PASS BranchAdmin cannot change Employee role or active state (EMPLOYEE / True)
+PASS BranchAdmin cannot reassign Employee through profile update (101)
+PASS BranchAdmin profile update preserves protected SQL fields (EMPLOYEE|1|QA Profile|101|0|0)
+PASS BranchAdmin 01 reads Employee list in scope (200)
+PASS BranchAdmin 01 cannot see Employee B from Demo 02 (False)
+PASS Existing BranchAdmin reads own branch list (200)
+PASS Existing BranchAdmin sees only Demo 01 (BF-DEMO-01)
+PASS BranchAdmin cannot read stock from another branch (403)
+PASS BranchAdmin cannot write stock in another branch (403)
+PASS BranchAdmin denied stock write leaves SQL unchanged (0|0|0|0.000)
+PASS BranchAdmin cannot change availability outside assigned branch (403)
+PASS Denied cross-branch availability update leaves SQL unchanged (14:1:2026-11-17T15:34:50.0364310)
+PASS BranchAdmin cannot update Employee profile outside assigned branch (403)
+PASS Denied cross-branch Employee update leaves SQL unchanged (qa110.employee.48e048337d|QA Employee Profile Updated|||EMPLOYEE|1|QA Profile|58:101:2026-11-17T15:34:47.9712303:NULL|102:1:1)
+PASS BranchAdmin cannot create branch (403)
+PASS BranchAdmin cannot create accounts (403)
+PASS Product catalog fixture is present for denied-write verification (10)
+PASS BranchAdmin cannot create or change product prices (403)
+PASS BranchAdmin cannot update a product or its prices (403)
+PASS BranchAdmin denied product/price changes leave entire SQL catalog unchanged (438476CA02289C07459A4A282C042E10DDA505F01B7614E27350846018C345C9)
+PASS BranchAdmin cannot create assignments (403)
+PASS BranchAdmin create-user denial leaves no SQL row (0)
+PASS Employee cannot read stock from another branch (403)
+PASS Employee cannot write stock in another branch (403)
+PASS Employee denied stock write leaves SQL unchanged (0|0|0|0.000)
+PASS Employee can read stock within assigned branch (200)
+PASS Employee cannot create accounts (403)
+PASS Employee cannot create assignments (403)
+PASS Employee create-user denial leaves no SQL row (0)
+PASS Management response omits password and hash fields (not present)
+Local API/SQL role, assignment, and branch verification completed.
+Temporary test branches, users, profiles and assignments were cleaned.
+
+Case                                                                        Expected
+----                                                                        --------
+Synthetic session identity SYSTEM_ADMIN (not password login)                200
+Synthetic session identity OWNER (not password login)                       200
+Synthetic session identity BRANCH_ADMIN_01 (not password login)             200
+Synthetic session identity EMPLOYEE_A (not password login)                  200
+Missing bearer token is rejected                                            401
+SystemAdmin reads all branches                                              200
+Owner reads permitted branch data                                           200
+Owner receives all accessible demo branches                                 at least 3
+Owner cannot read management user directory                                 403
+Owner cannot create branch                                                  403
+Owner create request leaves no branch in SQL                                0
+SystemAdmin creates branch A                                                200
+SystemAdmin creates branch B                                                200
+SystemAdmin cannot create a duplicate branch code                           409
+Duplicate branch code leaves exactly one SQL row                            1
+SystemAdmin updates branch A                                                200
+Read branch list QA110A-48E048337D                                          200
+API branch name QA110A-48E048337D                                           QA Temporary Branch A Updated
+SQL branch matches API QA110A-48E048337D                                    QA Temporary Branch A Updated|Local test A .
+Owner cannot update branch                                                  403
+Owner denied branch update leaves SQL unchanged                             QA110A-48E048337D|QA Temporary Branch A Upd.
+SystemAdmin creates assigned BranchAdmin                                    200
+One BranchAdmin can be assigned to multiple branches                        200
+SystemAdmin creates unassigned second BranchAdmin                           200
+Second effective BranchAdmin for the same branch is rejected                409
+SQL keeps exactly one open Admin assignment                                 1
+SystemAdmin creates Employee with initial assignment                        200
+Second effective Employee assignment is rejected                            409
+SQL keeps exactly one open Employee assignment                              1
+Login TEMP_BRANCH_ADMIN                                                     200
+Temporary BranchAdmin reads branch list                                     200
+BranchAdmin with two assignments sees exactly those two branches            QA110A-48E048337D,QA110B-48E048337D
+SystemAdmin cannot deactivate a BranchAdmin who still has assignments       400
+Rejected BranchAdmin deactivation leaves account and assignments unchanged  qa110.admin.48e048337d|QA Temporary Branch .
+SystemAdmin deactivates temporary branch B                                  200
+BranchAdmin reads branches after branch B is deactivated                    200
+Inactive branch is removed from BranchAdmin scope                           QA110A-48E048337D
+BranchAdmin cannot access an inactive assigned branch                       403
+SystemAdmin reactivates temporary branch B                                  200
+Reactivated branch returns to BranchAdmin scope                             QA110A-48E048337D,QA110B-48E048337D
+BranchAdmin reads Employee directory in assigned branches                   200
+BranchAdmin updates Employee profile in own scope                           200
+BranchAdmin cannot change Employee role or active state                     EMPLOYEE / active
+BranchAdmin cannot reassign Employee through profile update                 101
+BranchAdmin profile update preserves protected SQL fields                   EMPLOYEE|1|QA Profile|101|0|0
+BranchAdmin 01 reads Employee list in scope                                 200
+BranchAdmin 01 cannot see Employee B from Demo 02                           not visible
+Existing BranchAdmin reads own branch list                                  200
+Existing BranchAdmin sees only Demo 01                                      BF-DEMO-01
+BranchAdmin cannot read stock from another branch                           403
+BranchAdmin cannot write stock in another branch                            403
+BranchAdmin denied stock write leaves SQL unchanged                         0|0|0|0.000
+BranchAdmin cannot change availability outside assigned branch              403
+Denied cross-branch availability update leaves SQL unchanged                14:1:2026-11-17T15:34:50.0364310
+BranchAdmin cannot update Employee profile outside assigned branch          403
+Denied cross-branch Employee update leaves SQL unchanged                    qa110.employee.48e048337d|QA Employee Profi.
+BranchAdmin cannot create branch                                            403
+BranchAdmin cannot create accounts                                          403
+Product catalog fixture is present for denied-write verification            greater than 0
+BranchAdmin cannot create or change product prices                          403
+BranchAdmin cannot update a product or its prices                           403
+BranchAdmin denied product/price changes leave entire SQL catalog unchanged 438476CA02289C07459A4A282C042E10DDA505F01B7.
+BranchAdmin cannot create assignments                                       403
+BranchAdmin create-user denial leaves no SQL row                            0
+Employee cannot read stock from another branch                              403
+Employee cannot write stock in another branch                               403
+Employee denied stock write leaves SQL unchanged                            0|0|0|0.000
+Employee can read stock within assigned branch                              200
+Employee cannot create accounts                                             403
+Employee cannot create assignments                                          403
+Employee create-user denial leaves no SQL row                               0
+Management response omits password and hash fields                          no password/hash field
+
+
+Management API cases recorded: 72; failures: 0.
+PASS local management authorization/SQL; synthetic initial sessions, not shared-password login. Temporary-user password login is real.
+CLEANUP owned bootstrap sessions removed; shared users/passwords unchanged.

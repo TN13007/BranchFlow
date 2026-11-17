@@ -1,0 +1,37 @@
+Fixture creation completed.
+PASS HTTP 401 case 1
+PASS HTTP 401 case 2
+PASS HTTP 401 case 3
+PASS HTTP 403 case 4
+PASS HTTP 200 case 5
+PASS HTTP 200 case 6
+PASS HTTP 200 case 7
+PASS HTTP 200 case 8
+PASS HTTP 403 case 9
+PASS HTTP 400 case 10
+PASS HTTP 200 case 11
+PASS HTTP 200 case 12
+PASS: OWNER and SYSTEM_ADMIN can read system revenue.
+PASS: BRANCH_ADMIN is restricted to assigned branch.
+PASS: EMPLOYEE cannot access management revenue.
+PASS: COMPLETED included, CANCELLED excluded.
+PASS: Vietnam midnight boundary and date grouping.
+PASS: System revenue equals sum of branch revenue.
+Revenue SQL/HTTP smoke: 12 cases passed.
+System total: 5 orders, 58,601.50.
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP PASS: SalesOrder
+CLEANUP AuthSession: 6fb3df35-4c68-47e4-a3b8-c05d7fc3502d, deleted=1
+CLEANUP AuthSession: 6a743445-25a9-4588-b821-742ecf175577, deleted=1
+CLEANUP AuthSession: 835e85a1-0ee1-4a44-ba9e-836274088f30, deleted=1
+CLEANUP AuthSession: 5560c63a-fe44-4425-aac7-a10f7196979b, deleted=1
+CLEANUP PASS: AdminBranchAssignment
+CLEANUP PASS: Branch
+CLEANUP PASS: Branch
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+CLEANUP PASS: AppUser
+Cleaned this run's SQL fixtures.
