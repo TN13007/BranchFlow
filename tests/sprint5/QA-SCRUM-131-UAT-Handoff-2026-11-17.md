@@ -2,6 +2,8 @@
 
 Prepared by Nguyễn Thuận assisted by Codex, 17/11/2026. This is an **unfilled participant record**, not a stakeholder sign-off. Technical four-role browser smoke is [recorded separately](QA-Public-Retest-2026-11-17.md); the QA-operated demo order does not count as a participant-created order.
 
+PCG participant instructions and case-by-case expected results: [PCG UAT guide](../../docs/PCG-UAT-Guide-2026-11-17.md).
+
 ## Session setup
 
 - Coordinator: confirm the deployed Web URL and candidate SHA with Khang before the session. The last user-supplied Web URL was `https://branchflow-team-web-khang153.azurewebsites.net/login`; the last owner-reported deployed candidate was `2844101`, which has not been independently attested as the running binary.
