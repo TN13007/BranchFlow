@@ -1,3 +1,4 @@
+@inject NavigationManager Navigation
 @if (Message is not null)
 {
     <div class="alert @(Unavailable ? "alert-warning" : "alert-danger") d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
@@ -8,7 +9,7 @@
         }
         @if (NeedsLogin)
         {
-            <a href="/login" class="btn btn-sm btn-outline-danger fw-semibold" style="min-height:44px;padding:8px 14px;display:inline-flex;align-items:center;" data-enhance-nav="false">Đăng nhập lại</a>
+            <a href="/login?notice=session" class="btn btn-sm btn-outline-danger fw-semibold" style="min-height:44px;padding:8px 14px;display:inline-flex;align-items:center;" data-enhance-nav="false" @onclick="Relogin" @onclick:preventDefault="true">Đăng nhập lại</a>
         }
     </div>
 }
@@ -18,4 +19,5 @@
     [Parameter] public bool Unavailable { get; set; }
     [Parameter] public bool Busy { get; set; }
     [Parameter] public EventCallback OnRetry { get; set; }
+    private void Relogin() => Navigation.NavigateTo("/login?notice=session", forceLoad: true);
 }
