@@ -6,11 +6,13 @@
 {
     <p class="alert alert-warning" role="alert">Chưa xác định được kết quả ghi kho. Hãy tải lại tồn kho và kiểm tra lịch sử trước khi ghi tiếp.</p>
 }
-<button class="btn btn-sm btn-outline-secondary mb-3" type="button" disabled="@busy" @onclick="ReloadAsync">Tải lại tồn kho và lịch sử</button>
+<div class="management-toolbar stock-toolbar">
+    <button class="btn btn-outline-secondary" type="button" disabled="@busy" @onclick="ReloadAsync">Tải lại dữ liệu kho</button>
+</div>
 <fieldset disabled="@(busy || !loaded || needsLogin || accessDenied || needsVerification)">
     @if (Role == "SYSTEM_ADMIN")
     {
-        <details class="mb-3">
+        <details class="mb-3 management-editor">
         <summary class="fw-semibold mb-2">Quản lý danh mục nguyên liệu</summary>
         <div class="d-flex flex-wrap gap-2 mb-3">
             <input class="form-control w-auto" aria-label="Tên nguyên liệu" placeholder="Tên nguyên liệu" @bind="ingredient.Name" />
@@ -33,7 +35,7 @@
     @if (BranchId == 0) { <p>Chọn chi nhánh để xem tồn kho.</p> }
     else
     {
-        <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Thao tác kho">
+        <nav class="d-flex flex-wrap gap-2 mb-3 management-stock-tabs" aria-label="Thao tác kho">
             <button type="button" class="@TabClass(StockPanel.Balances)" aria-pressed="@(panel == StockPanel.Balances)" @onclick="() => panel = StockPanel.Balances">Xem tồn kho</button>
             @if (capabilities.CanReceive)
             {
@@ -52,14 +54,14 @@
         @if (panel == StockPanel.Balances)
         {
         <h2 class="h5">Tồn kho chi nhánh</h2>
-        <label class="form-label">Tìm nguyên liệu <input class="form-control" type="search" @bind="search" @bind:event="oninput" /></label>
-        <div class="table-responsive"><table class="table"><thead><tr><th>Nguyên liệu</th><th>Tồn</th><th>Ngưỡng cảnh báo</th>@if (IsAdmin) { <th></th> }</tr></thead><tbody>
+        <label class="form-label management-field">Tìm nguyên liệu <input class="form-control" type="search" @bind="search" @bind:event="oninput" /></label>
+        <div class="table-responsive"><table class="table management-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Nguyên liệu</th><th scope="col" role="columnheader">Tồn</th><th scope="col" role="columnheader">Ngưỡng cảnh báo</th>@if (IsAdmin) { <th scope="col" role="columnheader"></th> }</tr></thead><tbody role="rowgroup">
             @foreach (var row in FilteredBalances)
             {
-                <tr><td>@row.Name</td><td>@Quantity(row.Quantity) @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
-                    <td>@if (IsAdmin && row.RowVersion.Length > 0) { <input class="form-control" type="number" min="0" step=".001" aria-label="Ngưỡng @row.Name" @bind="row.WarningThreshold" /> }
+                <tr role="row"><td role="cell" data-label="Nguyên liệu">@row.Name</td><td role="cell" data-label="Tồn">@Quantity(row.Quantity) @row.Unit @if (row.Quantity < row.WarningThreshold) { <span class="badge text-bg-warning">Dưới ngưỡng</span> }</td>
+                    <td role="cell" data-label="Ngưỡng cảnh báo">@if (IsAdmin && row.RowVersion.Length > 0) { <input class="form-control" type="number" min="0" step=".001" aria-label="Ngưỡng @row.Name" @bind="row.WarningThreshold" /> }
                     else { @Quantity(row.WarningThreshold) }</td>
-                    @if (IsAdmin) { <td>@if (row.RowVersion.Length > 0) { <button class="btn btn-outline-secondary" @onclick="() => SaveThresholdAsync(row)">Lưu ngưỡng</button> }</td> }</tr>
+                    @if (IsAdmin) { <td role="cell" data-label="">@if (row.RowVersion.Length > 0) { <button class="btn btn-outline-secondary" @onclick="() => SaveThresholdAsync(row)">Lưu ngưỡng</button> }</td> }</tr>
             }
         </tbody></table></div>
         @if (loaded && !FilteredBalances.Any()) { <p role="status">@(balances.Count == 0 ? "Chi nhánh chưa có nguyên liệu tồn kho." : "Không tìm thấy nguyên liệu phù hợp.")</p> }
@@ -72,7 +74,7 @@
             @foreach (var line in DraftLines)
             {
                 var selected = balances.FirstOrDefault(row => row.IngredientId == line.IngredientId);
-                <div class="row g-2 align-items-end mb-3" @key="line">
+                <div class="row g-2 align-items-end mb-3 management-stock-line" @key="line">
                     <label class="col-12 col-md-5">Nguyên liệu
                         <select class="form-select" @bind="line.IngredientId"><option value="0">Chọn nguyên liệu</option>@foreach (var row in ActiveBalances) { <option value="@row.IngredientId">@row.Name (@row.Unit)</option> }</select>
                     </label>
@@ -98,7 +100,7 @@
         @if (loaded && !busy && history.Count == 0) { <p>Chưa có giao dịch kho.</p> }
         @foreach (var h in history)
         {
-            <details class="mb-2"><summary>#@h.Id · @(h.Type == "IN" ? "Nhập kho" : h.Type == "OUT" ? "Xuất kho" : h.Type) · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
+            <details class="mb-2 management-record"><summary>#@h.Id · @(h.Type == "IN" ? "Nhập kho" : h.Type == "OUT" ? "Xuất kho" : h.Type) · @h.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") · @h.PerformedBy</summary>
                 <ul>@foreach (var l in h.Lines) { <li>@l.Name · @Quantity(l.Before) → @Quantity(l.After) (@Quantity(l.Change))</li> }</ul>
             </details>
         }

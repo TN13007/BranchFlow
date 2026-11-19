@@ -2,6 +2,7 @@ using BranchFlow.Application.DTOs.Sprint4;
 using BranchFlow.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BranchFlow.Api.Controllers;
 
@@ -39,5 +40,19 @@ public sealed class OrdersController(IOrderService orders) : ControllerBase
     {
         var result = await orders.GetDetailAsync(UserId, id, ct);
         return result is null ? Problem(statusCode: 404, title: "Không tìm thấy đơn trong phạm vi của bạn") : Ok(result);
+    }
+
+    [HttpPost("{id:int}/report")]
+    public async Task<IActionResult> ReportAsync(int id, ReportOrderRequest request, CancellationToken ct)
+    {
+        try
+        {
+            return await orders.ReportAsync(UserId, id, request, ct)
+                ? Ok(id)
+                : Problem(statusCode: 404, title: "Không tìm thấy đơn trong phạm vi của bạn");
+        }
+        catch (OrderValidationException ex) { return Problem(statusCode: 400, detail: ex.Message); }
+        catch (OrderReportConflictException ex) { return Problem(statusCode: 409, detail: ex.Message); }
+        catch (DbUpdateConcurrencyException) { return Problem(statusCode: 409, detail: "Đơn đã thay đổi. Hãy tải lại trước khi thử tiếp."); }
     }
 }

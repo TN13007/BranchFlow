@@ -29,14 +29,22 @@ public sealed record CreateOrderRequest(int BranchId, List<CreateOrderItem> Item
 public sealed record CreateOrderItem(int ProductSizeId, int Quantity, List<CreateOrderTopping> Toppings, List<int> NoteOptionIds);
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
 public sealed record CreateOrderTopping(int ToppingId, int Quantity);
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record ReportOrderRequest(string Reason);
 
 public sealed record CreatedOrder(int Id, string Code, int BranchId, DateOnly BusinessDate,
     decimal TotalAmount, string Status, DateTimeOffset CreatedAt);
 public sealed record OrderSummary(int Id, string Code, decimal TotalAmount, int TotalQuantity,
-    string Status, DateTimeOffset CreatedAt);
+    string Status, DateTimeOffset CreatedAt)
+{
+    public bool HasPendingReport { get; init; }
+}
 public sealed record OrderDetail(int Id, string Code, int BranchId, string BranchCode, string BranchName,
     DateOnly BusinessDate, decimal TotalAmount, string Status, string? ReportReason,
-    DateTimeOffset? ReportedAt, DateTimeOffset CreatedAt, List<OrderDetailItem> Items);
+    DateTimeOffset? ReportedAt, DateTimeOffset CreatedAt, List<OrderDetailItem> Items)
+{
+    public bool HasPendingReport { get; init; }
+}
 public sealed record OrderDetailItem(string ProductName, string SizeName, int Quantity, decimal UnitPrice,
     decimal SubtotalAmount, List<OrderDetailTopping> Toppings, List<OrderDetailNote> Notes);
 public sealed record OrderDetailTopping(string Name, int Quantity, decimal UnitPrice);

@@ -5,13 +5,13 @@
 <section class="order-menu-workspace" @ref="workspace">
     <header class="order-menu-hero">
         <div>
-            <h1>Gọi món cho khách</h1>
+            <h1>Gọi món</h1>
             <p class="order-menu-branch">@Menu.Branch.Name <span>@Menu.Branch.Code</span></p>
         </div>
         <button class="order-menu-cart-button" type="button" @onclick="OpenCart" disabled="@(Busy || closingDialog)"
                 aria-label="Mở giỏ hàng, @Cart.TotalQuantity ly" aria-haspopup="dialog">
-            <span aria-hidden="true">🛒</span><span class="order-menu-cart-label">Giỏ hàng</span>
-            <span class="order-menu-cart-count" aria-live="polite">@Cart.TotalQuantity</span>
+            <span class="order-menu-cart-label">Giỏ hàng <span class="order-menu-cart-count" aria-live="polite">@Cart.TotalQuantity ly</span></span>
+            <strong>@Money(Cart.PreviewTotal)</strong>
         </button>
     </header>
 
@@ -83,10 +83,9 @@
                             {
                                 <div class="order-menu-image-placeholder"><span aria-hidden="true">☕</span><small>Chưa có ảnh</small></div>
                             }
-                            <span class="order-menu-price-badge">Từ @Money(product.MinPrice)</span>
                         </div>
                         <div class="order-menu-product-body">
-                            <div><h3>@product.Name</h3><p>@CategoryName(product.Id) · @product.ProductSizes.Count size</p></div>
+                            <div><h3>@product.Name</h3><p>@CategoryName(product.Id)</p><p class="order-menu-product-price">Từ @Money(product.MinPrice)</p></div>
                             <button class="btn btn-brand order-menu-select-button" type="button" @onclick="() => Configure(product)"
                                     disabled="@(Busy || closingDialog || Cart.OutcomeUnknown || !CanOrder)" aria-haspopup="dialog">
                                 <span>Chọn món</span><span aria-hidden="true">＋</span>
@@ -132,7 +131,7 @@
             <footer class="order-cart-footer">
                 <div class="order-cart-total"><div><span>Tổng cộng · @Cart.TotalQuantity ly</span><strong>@Money(Cart.PreviewTotal)</strong></div><small>Giá cuối cùng và mã đơn được máy chủ xác nhận.</small></div>
                 @if (Preview) { <p>Bản xem thử không ghi đơn vào cơ sở dữ liệu.</p> }
-                <div class="d-flex flex-wrap gap-2 justify-content-end"><button class="btn btn-outline-secondary" type="button" @onclick="CloseCart" disabled="@Busy">Tiếp tục chọn món</button>
+                <div class="d-flex flex-wrap gap-2 justify-content-end order-cart-actions"><button class="btn btn-outline-secondary" type="button" @onclick="CloseCart" disabled="@Busy">Chọn thêm món</button>
                     <button class="btn btn-brand" type="button" disabled="@(Preview || Busy || closingDialog || Cart.Lines.Count == 0 || Cart.OutcomeUnknown || !CanOrder)" @onclick="OnConfirm" aria-busy="@Busy">@(Busy ? "Đang gửi…" : "Xác nhận tạo đơn")</button>
                 </div>
             </footer>
@@ -147,9 +146,8 @@
                 <img class="configurator-image" src="@selectedProduct.ImageUrl" alt="" />
             }
             <div class="configurator-title">
-                <p class="eyebrow">TÙY CHỌN MÓN</p>
                 <h2 id="product-options-title">@selectedProduct.Name</h2>
-                <p>Chọn size bắt buộc, topping và ghi chú trước khi thêm món vào giỏ hàng.</p>
+                <p>Chọn size và số ly. Thêm topping hoặc ghi chú nếu cần.</p>
             </div>
             <button class="dialog-close" type="button" aria-label="Đóng tùy chọn món" @onclick="Close">×</button>
         </div>
@@ -157,7 +155,7 @@
             <ApiError Message="@draftError" />
 
             <fieldset class="option-block">
-                <legend>01 · Chọn size <small>Bắt buộc (chọn 1)</small></legend>
+                <legend>Size <small>Chọn một size</small></legend>
                 <div class="option-choices">
                     @foreach (var size in selectedProduct.ProductSizes)
                     {
@@ -170,8 +168,21 @@
                 </div>
             </fieldset>
 
-            <fieldset class="option-block">
-                <legend>02 · Topping <small>Mỗi loại tối đa 3 phần/ly, được chọn nhiều loại</small></legend>
+            <div class="option-block">
+                <label for="cup-quantity" class="form-label fw-semibold">Số ly</label>
+                <div class="order-quantity-controls">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="() => AdjustQuantity(-1)" aria-label="Giảm số ly">−</button>
+                    <input id="cup-quantity" type="number" inputmode="numeric" min="1" step="1" class="form-control text-center fw-semibold"
+                           @bind="quantityInput" @bind:event="oninput" />
+                    <button type="button" class="btn btn-outline-secondary" @onclick="() => AdjustQuantity(1)" aria-label="Tăng số ly">+</button>
+                </div>
+            </div>
+
+            @if (Menu.ToppingGroups.Any(group => group.Toppings.Count > 0))
+            {
+            <details class="option-block order-optional" open="@editingKey.HasValue">
+                <summary>Topping <small>@(toppings.Count > 0 ? $"{toppings.Values.Sum()} phần / ly" : "Không bắt buộc")</small></summary>
+                <p class="text-secondary mt-2 mb-0">Tối đa 3 phần mỗi loại trên một ly.</p>
                 @foreach (var group in Menu.ToppingGroups)
                 {
                     @foreach (var topping in group.Toppings)
@@ -189,10 +200,13 @@
                         </div>
                     }
                 }
-            </fieldset>
+            </details>
+            }
 
-            <fieldset class="option-block">
-                <legend>03 · Ghi chú nhanh <small>Mỗi nhóm chọn tối đa 1 tùy chọn</small></legend>
+            @if (Menu.NoteGroups.Any(group => group.Options.Count > 0))
+            {
+            <details class="option-block order-optional" open="@editingKey.HasValue">
+                <summary>Ghi chú nhanh <small>@(notes.Count > 0 ? $"Đã chọn {notes.Count}" : "Không bắt buộc")</small></summary>
                 @foreach (var group in Menu.NoteGroups)
                 {
                     <div class="note-row">
@@ -212,19 +226,8 @@
                         </div>
                     </div>
                 }
-            </fieldset>
-
-            <div class="option-block">
-                <label for="cup-quantity" class="form-label fw-semibold">04 · Số lượng ly <small class="text-secondary fw-normal ms-1">(Số nguyên dương)</small></label>
-                <div class="d-flex align-items-center gap-2" style="max-width: 240px;">
-                    <button type="button" class="btn btn-outline-secondary" style="width:44px;height:44px;font-weight:600;"
-                            @onclick="() => AdjustQuantity(-1)" aria-label="Giảm số ly">−</button>
-                    <input id="cup-quantity" type="number" min="1" step="1" class="form-control text-center fw-semibold"
-                           style="min-height:44px;" @bind="quantityInput" @bind:event="oninput" />
-                    <button type="button" class="btn btn-outline-secondary" style="width:44px;height:44px;font-weight:600;"
-                            @onclick="() => AdjustQuantity(1)" aria-label="Tăng số ly">+</button>
-                </div>
-            </div>
+            </details>
+            }
         </div>
         <div class="configurator-action d-flex gap-2">
             <button class="btn btn-outline-secondary" type="button" style="min-height:50px; padding:0 18px; font-weight:600;" @onclick="Close">Hủy</button>
@@ -287,7 +290,7 @@
 
     private void Configure(MenuProduct product)
     {
-        selectedProduct = product; sizeId = 0; quantityInput = "1"; editingKey = null;
+        selectedProduct = product; sizeId = product.ProductSizes.Count == 1 ? product.ProductSizes[0].Id : 0; quantityInput = "1"; editingKey = null;
         toppings.Clear(); notes.Clear(); draftError = null; openDialog = true;
     }
     private void Edit(CartLine line)

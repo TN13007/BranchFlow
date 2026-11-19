@@ -78,13 +78,21 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
             .Where(a => branchIds.Contains(a.BranchId) && Effective(a.EffectiveFrom, a.EffectiveTo, now))
             .ToLookup(a => a.EmployeeProfileId);
         var accounts = await repo.UsersAsync(ct);
-        return (from account in accounts
+        var employees = from account in accounts
                 where account.Role.Code == "EMPLOYEE" && !account.Role.Deleted
                 let profile = account.EmployeeProfile
                 where profile is { Deleted: false }
                 from assignment in assignments[profile!.Id]
                 select new EmployeeDirectoryEntry(profile.EmployeeCode, account.FullName, profile.Position,
-                    assignment.BranchId, assignment.Branch.Name, account.IsActive)).ToList();
+                    assignment.BranchId, assignment.Branch.Name, account.IsActive);
+        var managers = from assignment in await repo.AdminAssignmentsAsync(ct)
+                       where branchIds.Contains(assignment.BranchId) && Effective(assignment.EffectiveFrom, assignment.EffectiveTo, now)
+                       join account in accounts on assignment.AdminUserId equals account.Id
+                       where account.Role.Code == "BRANCH_ADMIN" && !account.Role.Deleted
+                       orderby assignment.Branch.Name, account.FullName
+                       select new EmployeeDirectoryEntry("", account.FullName, "Admin Chi nhánh",
+                           assignment.BranchId, assignment.Branch.Name, account.IsActive);
+        return managers.Concat(employees).ToList();
     }
 
     public async Task<List<UserView>> UsersAsync(int user, bool all, CancellationToken ct)
@@ -474,12 +482,16 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
 
     private static ManagedOrderView Order(SalesOrder order) => new() { Id = order.Id, BranchId = order.BranchId, Code = order.Code,
         BranchName = order.Branch.Name, EmployeeName = order.CreatedByUser.FullName, Status = order.Status, TotalAmount = order.TotalAmount,
-        CreatedAt = order.CreatedAt, RowVersion = Convert.ToBase64String(order.RowVersion) };
+        CreatedAt = order.CreatedAt, RowVersion = Convert.ToBase64String(order.RowVersion),
+        ReportReason = order.ReportReason, ReportedAt = order.ReportedAt, HasPendingReport = OrderService.HasPendingReport(order) };
     public async Task<List<ManagedOrderView>> OrdersAsync(int actor, int? branch, DateOnly from, DateOnly to, CancellationToken ct)
     {
         var range = Dates(from, to);
         return (await repo.OrdersAsync(await BranchIdsAsync(actor, branch, ct), range.From, range.To, ct)).Select(Order).ToList();
     }
+    public async Task<List<ManagedOrderView>> ReportedOrdersAsync(int actor, int? branch, CancellationToken ct) =>
+        (await repo.ReportedOrdersAsync(await BranchIdsAsync(actor, branch, ct), ct)).Select(Order).ToList();
+
     public async Task<ManagedOrderView> OrderAsync(int actor, int id, CancellationToken ct)
     {
         var order = Found(await repo.OrderAsync(id, ct));
@@ -588,7 +600,9 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
                 order.TotalAmount = Amount(order.OrderItems.Sum(x => x.SubtotalAmount), 2);
             }
 
-            order.UpdatedAt = Now;
+            var adjustedAt = Now;
+            if (order.ReportedAt is { } reportedAt && reportedAt > adjustedAt) adjustedAt = reportedAt;
+            order.UpdatedAt = adjustedAt;
 
             repo.Add(new OrderAdjustment
             {
@@ -597,7 +611,7 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
                 Reason = reason,
                 BeforeData = before,
                 AfterData = Snapshot(order),
-                CreatedAt = Now
+                CreatedAt = adjustedAt
             });
 
             await work.SaveChangesAsync(ct);

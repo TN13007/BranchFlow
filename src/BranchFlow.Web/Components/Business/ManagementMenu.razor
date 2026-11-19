@@ -6,7 +6,8 @@
 else
 {
     <fieldset disabled="@(busy || !loaded || needsLogin || accessDenied)">
-        <label class="form-label">Danh mục quản trị
+        <div class="management-toolbar">
+        <label class="management-field">Danh mục quản trị
             <select class="form-select" value="@mode" @onchange="ChangeModeAsync">
                 <option value="products">Món và giá theo size</option>
                 <option value="toppings">Topping</option>
@@ -20,104 +21,141 @@ else
                 }
             </select>
         </label>
+        <label class="management-field">Tìm trong danh mục
+            <input class="form-control" type="search" placeholder="Nhập tên để lọc" @bind="keyword" @bind:event="oninput" />
+        </label>
+        @if (SystemMenu)
+        { <button class="btn btn-brand" type="button" @onclick="StartAdd">@AddLabel</button> }
+        </div>
         @if (mode == "products")
         {
-            @if (SystemMenu)
+            @if (SystemMenu && editorOpen)
             {
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <input class="form-control w-auto" aria-label="Tên món" placeholder="Tên món" @bind="product.Name" />
-                    <select class="form-select w-auto" aria-label="Danh mục món" @bind="product.CategoryId"><option value="0">Chọn danh mục</option>@foreach (var c in groups) { <option value="@c.Id">@c.Name</option> }</select>
-                    <input class="form-control w-auto" aria-label="Ảnh món" placeholder="URL ảnh" @bind="product.ImageUrl" />
+                <section class="management-editor">
+                    <h2 class="h5" tabindex="-1" @ref="editorHeading">@(product.Id == 0 ? "Thêm món" : "Sửa món")</h2>
+                <div class="management-form-grid">
+                    <label class="management-field">Tên món <input class="form-control w-auto" aria-label="Tên món" placeholder="Tên món" @bind="product.Name" /></label>
+                    <label class="management-field">Danh mục <select class="form-select w-auto" aria-label="Danh mục món" @bind="product.CategoryId"><option value="0">Chọn danh mục</option>@foreach (var c in groups) { <option value="@c.Id">@c.Name</option> }</select></label>
+                    <label class="management-field">Ảnh món (URL) <input class="form-control w-auto" aria-label="Ảnh món" placeholder="URL ảnh" @bind="product.ImageUrl" /></label>
                     <label><input type="checkbox" @bind="product.IsActive" /> Hoạt động</label>
                 </div>
                 @foreach (var price in product.Prices)
                 {
-                    <div class="d-flex flex-wrap gap-2 mb-2" @key="price">
-                        <select class="form-select w-auto" aria-label="Size" @bind="price.SizeId" disabled="@(price.Id > 0)"><option value="0">Chọn size</option>@foreach (var size in sizes) { <option value="@size.Id">@size.Name</option> }</select>
-                        <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá size" @bind="price.Price" />
+                    <div class="management-form-grid management-price-row" @key="price">
+                        <label class="management-field">Size <select class="form-select w-auto" aria-label="Size" @bind="price.SizeId" disabled="@(price.Id > 0)"><option value="0">Chọn size</option>@foreach (var size in sizes) { <option value="@size.Id">@size.Name</option> }</select></label>
+                        <label class="management-field">Giá theo size <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá size" @bind="price.Price" /></label>
                         <label><input type="checkbox" @bind="price.IsActive" /> Đang dùng</label>
                         @if (price.Id == 0) { <button class="btn btn-outline-secondary" @onclick="() => product.Prices.Remove(price)">Bỏ dòng</button> }
                     </div>
                 }
-                <div class="d-flex gap-2 mb-3">
+                <div class="management-actions">
                     <button class="btn btn-outline-secondary" @onclick="() => product.Prices.Add(new())">Thêm size</button>
                     <button class="btn btn-brand" @onclick="() => SaveAsync(product.Id, product)">Lưu món</button>
-                    <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                    <button class="btn btn-outline-secondary" @onclick="CloseEditor">Đóng</button>
                 </div>
+                </section>
             }
-            <label class="form-label">Tìm món <input class="form-control" type="search" @bind="keyword" @bind:event="oninput" /></label>
-            <div class="table-responsive"><table class="table"><thead><tr><th>Món</th><th>Danh mục</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-            @foreach (var p in products.Where(x => x.Name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase)))
+            <div class="table-responsive"><table class="table management-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Món</th><th scope="col" role="columnheader">Danh mục</th><th scope="col" role="columnheader">Giá</th><th scope="col" role="columnheader">Trạng thái</th><th scope="col" role="columnheader"></th></tr></thead><tbody role="rowgroup">
+            @foreach (var p in products.Where(x => Matches(x.Name)))
             {
-                <tr><td>@p.Name</td><td>@p.CategoryName</td><td>@string.Join(" · ", p.Prices.Where(x => x.IsActive).Select(x => $"{x.SizeName} {BranchFlow.Web.Components.Orders.Display.Money(x.Price)}"))</td>
-                    <td>@State(p.IsActive, p.IsAvailable)</td>
-                    <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => product = Copy(p)">Sửa</button> }
+                <tr role="row"><td role="cell" data-label="Món">@p.Name</td><td role="cell" data-label="Danh mục">@p.CategoryName</td><td role="cell" data-label="Giá">@string.Join(" · ", p.Prices.Where(x => x.IsActive).Select(x => $"{x.SizeName} {BranchFlow.Web.Components.Orders.Display.Money(x.Price)}"))</td>
+                    <td role="cell" data-label="Trạng thái">@State(p.IsActive, p.IsAvailable)</td>
+                    <td role="cell" data-label="">@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => { product = Copy(p); OpenEditor(); }">Sửa</button> }
                     else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(p.Id, !p.IsAvailable)">@(p.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
             }
             </tbody></table></div>
-            @if (loaded && !products.Any(x => x.Name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase)))
+            @if (loaded && !products.Any(x => Matches(x.Name)))
             { <p role="status">@(products.Count == 0 ? "Chưa có món trong danh mục." : "Không có món phù hợp với từ khóa.")</p> }
         }
         else if (mode == "toppings")
         {
-            @if (SystemMenu)
+            @if (SystemMenu && editorOpen)
             {
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <input class="form-control w-auto" aria-label="Tên topping" placeholder="Tên topping" @bind="topping.Name" />
-                    <select class="form-select w-auto" aria-label="Nhóm topping" @bind="topping.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select>
-                    <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá topping" @bind="topping.Price" />
+                <section class="management-editor">
+                    <h2 class="h5" tabindex="-1" @ref="editorHeading">@(topping.Id == 0 ? "Thêm topping" : "Sửa topping")</h2>
+                <div class="management-form-grid">
+                    <label class="management-field">Tên topping <input class="form-control w-auto" aria-label="Tên topping" placeholder="Tên topping" @bind="topping.Name" /></label>
+                    <label class="management-field">Nhóm topping <select class="form-select w-auto" aria-label="Nhóm topping" @bind="topping.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select></label>
+                    <label class="management-field">Giá topping <input class="form-control w-auto" type="number" min="0" step=".01" aria-label="Giá topping" @bind="topping.Price" /></label>
                     <label><input type="checkbox" @bind="topping.IsActive" /> Hoạt động</label>
                     <button class="btn btn-brand" @onclick="() => SaveAsync(topping.Id, topping)">Lưu topping</button>
-                    <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                    <button class="btn btn-outline-secondary" @onclick="CloseEditor">Đóng</button>
                 </div>
+                </section>
             }
-            <div class="table-responsive"><table class="table"><thead><tr><th>Topping</th><th>Nhóm</th><th>Giá</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-            @foreach (var t in toppings)
+            <div class="table-responsive"><table class="table management-table" role="table"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Topping</th><th scope="col" role="columnheader">Nhóm</th><th scope="col" role="columnheader">Giá</th><th scope="col" role="columnheader">Trạng thái</th><th scope="col" role="columnheader"></th></tr></thead><tbody role="rowgroup">
+            @foreach (var t in toppings.Where(x => Matches(x.Name)))
             {
-                <tr><td>@t.Name</td><td>@t.GroupName</td><td>@BranchFlow.Web.Components.Orders.Display.Money(t.Price)</td><td>@State(t.IsActive, t.IsAvailable)</td>
-                    <td>@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => topping = Copy(t)">Sửa</button> }
+                <tr role="row"><td role="cell" data-label="Topping">@t.Name</td><td role="cell" data-label="Nhóm">@t.GroupName</td><td role="cell" data-label="Giá">@BranchFlow.Web.Components.Orders.Display.Money(t.Price)</td><td role="cell" data-label="Trạng thái">@State(t.IsActive, t.IsAvailable)</td>
+                    <td role="cell" data-label="">@if (SystemMenu) { <button class="btn btn-outline-secondary" @onclick="() => { topping = Copy(t); OpenEditor(); }">Sửa</button> }
                     else { <button class="btn btn-outline-secondary" @onclick="() => ToggleAsync(t.Id, !t.IsAvailable)">@(t.IsAvailable ? "Ngừng bán" : "Mở bán")</button> }</td></tr>
             }
             </tbody></table></div>
         }
         else if (mode == "notes")
         {
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <input class="form-control w-auto" aria-label="Tên ghi chú" placeholder="Tên ghi chú" @bind="note.Name" />
-                <select class="form-select w-auto" aria-label="Nhóm ghi chú" @bind="note.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select>
+            @if (editorOpen)
+            {
+            <section class="management-editor">
+                <h2 class="h5" tabindex="-1" @ref="editorHeading">@(note.Id == 0 ? "Thêm ghi chú" : "Sửa ghi chú")</h2>
+            <div class="management-form-grid">
+                <label class="management-field">Tên ghi chú <input class="form-control w-auto" aria-label="Tên ghi chú" placeholder="Tên ghi chú" @bind="note.Name" /></label>
+                <label class="management-field">Nhóm ghi chú <select class="form-select w-auto" aria-label="Nhóm ghi chú" @bind="note.GroupId"><option value="0">Chọn nhóm</option>@foreach (var g in groups) { <option value="@g.Id">@g.Name</option> }</select></label>
                 <label><input type="checkbox" @bind="note.IsActive" /> Hoạt động</label>
                 <button class="btn btn-brand" @onclick="() => SaveAsync(note.Id, note)">Lưu ghi chú</button>
-                <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                <button class="btn btn-outline-secondary" @onclick="CloseEditor">Đóng</button>
             </div>
+            </section>
+            }
             <ul class="list-group">
-                @foreach (var n in notes)
-                { <li class="list-group-item d-flex justify-content-between align-items-center">@n.GroupName · @n.Name · @State(n.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => note = Copy(n)">Sửa</button></li> }
+                @foreach (var n in notes.Where(x => Matches(x.Name)))
+                { <li class="list-group-item d-flex justify-content-between align-items-center">@n.GroupName · @n.Name · @State(n.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => { note = Copy(n); OpenEditor(); }">Sửa</button></li> }
             </ul>
         }
         else
         {
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                <input class="form-control w-auto" aria-label="Tên" placeholder="Tên" @bind="option.Name" />
+            @if (editorOpen)
+            {
+            <section class="management-editor">
+                <h2 class="h5" tabindex="-1" @ref="editorHeading">@(option.Id == 0 ? "Thêm mục danh mục" : "Sửa mục danh mục")</h2>
+            <div class="management-form-grid">
+                <label class="management-field">Tên <input class="form-control w-auto" aria-label="Tên" placeholder="Tên" @bind="option.Name" /></label>
                 <label><input type="checkbox" @bind="option.IsActive" /> Hoạt động</label>
                 <button class="btn btn-brand" @onclick="() => SaveAsync(option.Id, option)">Lưu</button>
-                <button class="btn btn-outline-secondary" @onclick="Reset">Tạo mới</button>
+                <button class="btn btn-outline-secondary" @onclick="CloseEditor">Đóng</button>
             </div>
+            </section>
+            }
             <ul class="list-group">
-                @foreach (var o in options)
-                { <li class="list-group-item d-flex justify-content-between align-items-center">@o.Name · @State(o.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => option = Copy(o)">Sửa</button></li> }
+                @foreach (var o in options.Where(x => Matches(x.Name)))
+                { <li class="list-group-item d-flex justify-content-between align-items-center">@o.Name · @State(o.IsActive, true)<button class="btn btn-outline-secondary" @onclick="() => { option = Copy(o); OpenEditor(); }">Sửa</button></li> }
             </ul>
         }
     </fieldset>
     @if (busy || !loaded && error is null) { <p role="status">Đang tải hoặc xử lý danh mục…</p> }
-    @if (loaded && mode == "toppings" && toppings.Count == 0) { <p role="status">Chưa có topping.</p> }
-    @if (loaded && mode == "notes" && notes.Count == 0) { <p role="status">Chưa có lựa chọn ghi chú.</p> }
-    @if (loaded && mode is not ("products" or "toppings" or "notes") && options.Count == 0) { <p role="status">Danh mục chưa có dữ liệu.</p> }
+    @if (loaded && mode == "toppings" && !toppings.Any(x => Matches(x.Name))) { <p role="status">Chưa có topping.</p> }
+    @if (loaded && mode == "notes" && !notes.Any(x => Matches(x.Name))) { <p role="status">Chưa có lựa chọn ghi chú.</p> }
+    @if (loaded && mode is not ("products" or "toppings" or "notes") && !options.Any(x => Matches(x.Name))) { <p role="status">Danh mục chưa có dữ liệu.</p> }
 }
 @code {
     [Parameter] public bool SystemMenu { get; set; }
     [Parameter] public int BranchId { get; set; }
     private string mode = "products";
     private string keyword = "";
+    private bool editorOpen;
+    private bool focusEditor;
+    private ElementReference editorHeading;
+    private string AddLabel => mode switch
+    {
+        "products" => "Thêm món",
+        "toppings" => "Thêm topping",
+        "notes" => "Thêm ghi chú",
+        _ => "Thêm mục"
+    };
+    private bool Matches(string name) => name.Contains(keyword.Trim(), StringComparison.CurrentCultureIgnoreCase);
+    private void OpenEditor() { editorOpen = true; focusEditor = true; }
+    private void CloseEditor() { editorOpen = false; Reset(); }
+    private void StartAdd() { Reset(); OpenEditor(); }
     private bool busy;
     private bool loaded;
     private bool accessDenied;
@@ -135,6 +173,11 @@ else
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && (SystemMenu || BranchId > 0)) { await RunAsync(LoadAsync); StateHasChanged(); }
+        if (focusEditor)
+        {
+            focusEditor = false;
+            await editorHeading.FocusAsync();
+        }
     }
     private string State(bool active, bool available) => !active ? "Tắt toàn hệ thống" : available ? "Đang bán" : "Ngừng bán tại đây";
     private void Reset() { product = new(); topping = new(); note = new(); option = new(); }
@@ -164,14 +207,14 @@ else
     private Task ChangeModeAsync(ChangeEventArgs args)
     {
         mode = args.Value?.ToString() ?? "products";
-        Reset(); groups = []; sizes = []; options = []; notes = []; products = []; toppings = [];
+        CloseEditor(); keyword = ""; groups = []; sizes = []; options = []; notes = []; products = []; toppings = [];
         return RunAsync(LoadAsync);
     }
     private Task SaveAsync(int id, object input) => RunAsync(async () =>
     {
         var path = mode is "products" or "toppings" or "notes" ? mode : "options/" + mode;
         await Api.SaveAsync(path, id, input);
-        Reset();
+        CloseEditor();
         notice = "Đã lưu danh mục.";
         await LoadAsync();
     });

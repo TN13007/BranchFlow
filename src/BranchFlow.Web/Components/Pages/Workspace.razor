@@ -23,13 +23,19 @@ else if (section is null)
 }
 else
 {
-    @if (role == "OWNER")
-    {
-        <div class="readonly-strip"><img src="/images/christmas/icons/icon-check.svg" alt="" /><strong>Chủ sở hữu</strong><span>Chỉ xem dữ liệu</span></div>
-    }
-    <header class="page-heading business-page-heading">
-        <div><p class="eyebrow">BRANCHFLOW · @Today.ToString("dd/MM/yyyy")</p><h1>@title</h1><p>@subtitle</p></div>
-        <span class="workspace-role-badge">@WorkspaceNavigation.RoleLabel(role)</span>
+    <header class="page-heading business-page-heading @(IsOverview && role == "EMPLOYEE" ? "staff-home-heading" : "")">
+        <div>
+            <h1>@title</h1>
+            <p>@subtitle</p>
+        </div>
+        @if (IsOverview && role == "EMPLOYEE")
+        {
+            <a href="/orders/create" class="btn btn-brand staff-primary-action">Gọi món</a>
+        }
+        else
+        {
+            <span class="workspace-role-badge">@(role == "OWNER" ? "Chủ sở hữu · Chỉ xem" : WorkspaceNavigation.RoleLabel(role))</span>
+        }
     </header>
     <div class="page-content business-content">
         @if (IsOverview && role == "EMPLOYEE")
@@ -42,15 +48,20 @@ else
                     <article class="metric-tile"><span class="metric-label">SỐ LY</span><strong>@(hasEmployeeData ? orders.Sum(o => (long)o.TotalQuantity).ToString() : "—")</strong><small>Trong các đơn hôm nay</small></article>
                     <article class="metric-tile"><span class="metric-label">MÓN MỞ BÁN</span><strong>@(menu is null ? "—" : menu.Categories.Sum(c => c.Products.Count).ToString())</strong><small>Menu chi nhánh</small></article>
                 </div>
-                <section class="business-panel"><div class="panel-heading"><h2>Thao tác nhanh</h2></div><div class="quick-action-grid"><a href="/orders/create"><img src="/images/icons/coffee.svg" alt="" /><strong>Gọi món</strong><span>Tạo đơn mới →</span></a><a href="/orders/mine"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><strong>Đơn của tôi</strong><span>Tra cứu đơn →</span></a><a href="/employee?tab=stock"><img src="/images/christmas/icons/icon-box.svg" alt="" /><strong>Tồn kho</strong><span>Xem nguyên liệu →</span></a><a href="/employee?tab=issue"><img src="/images/christmas/icons/icon-stocktake.svg" alt="" /><strong>Xuất kho</strong><span>Ghi giao dịch →</span></a></div></section>
-                <section class="business-panel"><div class="panel-heading"><h2>Đơn gần đây</h2><a href="/orders/mine">Xem tất cả →</a></div>
+                <div class="staff-home-links">
+                    <a href="/orders/mine"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><strong>Đơn của tôi</strong><span>Tra cứu đơn</span></a>
+                    <a href="/employee?tab=stock"><img src="/images/christmas/icons/icon-box.svg" alt="" /><strong>Kho</strong><span>Xem tồn và lịch sử</span></a>
+                </div>
+                <section class="business-panel"><div class="panel-heading"><h2>Đơn hôm nay</h2><a href="/orders/mine">Xem tất cả →</a></div>
                     @if (hasEmployeeData && orders.Count > 0)
                     {
                         <div class="recent-business-orders">@foreach (var order in orders.OrderByDescending(o => o.CreatedAt).Take(5)) { <a href="@($"/orders/{order.Id}")"><span><strong>@order.Code</strong><small>@order.TotalQuantity ly · @order.CreatedAt.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm")</small></span><span><strong>@Money(order.TotalAmount)</strong><StatusBadge Status="@order.Status" /></span></a> }</div>
                     }
                     else
                     {
-                        <div class="business-empty"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><h3>@(loading ? "Đang tải đơn hàng" : hasEmployeeData ? "Chưa có đơn hôm nay" : "Chưa tải được đơn hàng")</h3><p>@(hasEmployeeData ? "Đơn mới sẽ xuất hiện tại đây." : "Kiểm tra kết nối và thử tải lại.")</p></div>
+                        <div class="business-empty"><img src="/images/christmas/icons/icon-orders.svg" alt="" /><h3>@(loading ? "Đang tải đơn hàng" : hasEmployeeData ? "Chưa có đơn hôm nay" : "Chưa tải được đơn hàng")</h3>
+                            @if (!loading) { <p>@(hasEmployeeData ? "Đơn mới sẽ xuất hiện tại đây." : "Kiểm tra kết nối và thử tải lại.")</p> }
+                        </div>
                     }
                 </section>
         }
@@ -70,12 +81,17 @@ else
     private OrderMenu? menu;
     private List<OrderSummary> orders = [];
     private WorkspaceLink? section;
-    private string title => IsOverview ? role == "EMPLOYEE" ? "Ca làm của bạn" : "Tổng quan hôm nay" : section?.Label ?? "BranchFlow";
-    private string subtitle => IsOverview ? role == "EMPLOYEE" ? $"Xin chào, {username}." : "Theo dõi hoạt động cửa hàng." : tab switch
+    private string title => IsOverview ? role == "EMPLOYEE" ? "Ca làm của bạn" : "Tổng quan kinh doanh" : section?.Label ?? "BranchFlow";
+    private string subtitle => IsOverview ? role == "EMPLOYEE" ? $"Xin chào, {username}." : "So sánh doanh thu và số đơn hoàn tất theo ngày, theo chi nhánh." : tab switch
     {
-        "stock" or "inventory" => "Theo dõi nguyên liệu và ngưỡng cảnh báo.",
-        "stocktake" => "Đối chiếu tồn kho cuối ca.", "payroll" => "Theo dõi kỳ lương và giờ làm.",
-        "orders" => "Tra cứu đơn hàng trong phạm vi được cấp.", _ => "Quản lý theo phạm vi được phân công."
+        "stock" or "inventory" or "issue" => "Xem tồn nguyên liệu và lịch sử nhập xuất tại chi nhánh.",
+        "orders" => "Chọn khoảng ngày và tìm theo mã đơn hoặc tên nhân viên.",
+        "branches" => "Xem địa chỉ, quản lý và trạng thái hoạt động của chi nhánh.",
+        "employee-directory" => "Lọc theo chi nhánh hoặc tìm theo tên, mã nhân viên.",
+        "employees" => "Tìm tài khoản và mở hồ sơ để xem hoặc cập nhật.",
+        "branch-menu" => "Bật hoặc tắt món và topping đang bán tại chi nhánh.",
+        "system-menu" => "Quản lý món, size, giá và topping dùng chung.",
+        _ => "Quản lý theo phạm vi được phân công."
     };
     private bool IsOverview => tab is "home" or "overview";
     private static DateOnly Today => DateOnly.FromDateTime(DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(7)).DateTime);

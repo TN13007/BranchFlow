@@ -4,26 +4,25 @@
 @inject OrderApiClient Api
 
 <PageTitle>Đơn của tôi | BranchFlow</PageTitle>
-<header class="page-heading">
+<header class="page-heading business-page-heading staff-page-heading">
     <div>
-        <p class="eyebrow">ĐƠN HÀNG</p>
         <h1>Đơn của tôi</h1>
-        <p>Các đơn hàng do bạn tạo.</p>
+        <p>Tra cứu theo mã đơn hoặc ngày bán.</p>
     </div>
     <a href="/orders/create" class="btn btn-brand">+ Gọi món mới</a>
 </header>
-<div class="page-content">
-    <form class="history-filters" @onsubmit="LoadAsync" @onsubmit:preventDefault aria-label="Bộ lọc đơn hàng">
-        <div class="flex-grow-1" style="min-width: 220px;">
-            <label for="keyword" class="form-label fw-bold">Mã đơn hàng</label>
-            <input id="keyword" class="form-control" placeholder="Ví dụ: Q1-20261104-0001" @bind="keyword" />
-        </div>
-        <div style="min-width: 190px;">
-            <label for="business-date" class="form-label fw-bold">Ngày kinh doanh</label>
+<div class="page-content staff-content">
+    <form class="history-filters staff-history-filters" @onsubmit="LoadAsync" @onsubmit:preventDefault aria-label="Bộ lọc đơn hàng">
+        <label class="management-field staff-order-search">Mã đơn hàng
+            <input id="keyword" class="form-control" type="search" placeholder="Nhập mã đơn" @bind="keyword" />
+        </label>
+        <label class="management-field">Ngày kinh doanh
             <InputDate id="business-date" class="form-control" @bind-Value="businessDate" />
+        </label>
+        <div class="management-actions">
+            <button class="btn btn-brand" type="submit" disabled="@loading">Tìm đơn</button>
+            <button class="btn btn-outline-secondary" type="button" @onclick="ClearAsync" disabled="@loading">Bỏ bộ lọc</button>
         </div>
-        <button class="btn btn-brand" type="submit" disabled="@loading">Tìm đơn</button>
-        <button class="btn btn-outline-secondary" type="button" @onclick="ClearAsync" disabled="@loading">Bỏ bộ lọc</button>
     </form>
 
     <ApiError Message="@error" NeedsLogin="needsLogin" Unavailable="unavailable" OnRetry="LoadAsync" Busy="loading" />
@@ -54,14 +53,15 @@
             </div>
             @foreach (var order in orders)
             {
-                <a class="order-row" href="/orders/@order.Id">
+                <a class="order-row staff-order-row" href="/orders/@order.Id">
                     <div>
                         <strong>@order.Code</strong>
                         <small>Tạo lúc @Display.VietnamTime(order.CreatedAt) (Giờ VN) · Tổng @order.TotalQuantity ly</small>
+                        @if (order.HasPendingReport) { <small class="staff-report-status">Đã báo sai · Chờ xử lý</small> }
                     </div>
                     <b>@Display.Money(order.TotalAmount)</b>
                     <StatusBadge Status="@order.Status" />
-                    <span class="btn btn-sm btn-outline-secondary text-nowrap">Xem chi tiết ›</span>
+                    <span class="staff-order-link">Xem chi tiết <span aria-hidden="true">›</span></span>
                 </a>
             }
         }

@@ -134,7 +134,8 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
         var branches = await access.GetAccessibleBranchesAsync(userId, ct);
         var rows = await orders.GetMineAsync(userId, branches.Select(b => b.Id).ToList(), keyword?.Trim(), date, ct);
         return rows.Select(o => new OrderSummary(o.Id, o.Code, o.TotalAmount, o.OrderItems.Sum(i => i.Quantity), o.Status,
-            new DateTimeOffset(DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc)))).ToList();
+            new DateTimeOffset(DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc)))
+            { HasPendingReport = HasPendingReport(o) }).ToList();
     }
 
     public async Task<OrderDetail?> GetDetailAsync(int userId, int id, CancellationToken ct = default)
@@ -146,6 +147,35 @@ public sealed class OrderService(IOrderRepository orders, IOrderMenuService menu
             new DateTimeOffset(DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc)), o.OrderItems.OrderBy(i => i.Id).Select(i =>
                 new OrderDetailItem(i.ProductNameSnapshot, i.SizeNameSnapshot, i.Quantity, i.UnitPriceSnapshot, i.SubtotalAmount,
                     i.OrderItemToppings.Select(t => new OrderDetailTopping(t.ToppingNameSnapshot, t.Quantity, t.UnitPriceSnapshot)).ToList(),
-                    i.OrderItemNotes.Select(n => new OrderDetailNote(n.NoteNameSnapshot)).ToList())).ToList());
+                    i.OrderItemNotes.Select(n => new OrderDetailNote(n.NoteNameSnapshot)).ToList())).ToList())
+            { HasPendingReport = HasPendingReport(o) };
+    }
+
+    // UpdatedAt records the last admin adjustment. Reporting keeps sales status and totals intact.
+    internal static bool HasPendingReport(SalesOrder order) =>
+        order.Status == "COMPLETED" && order.ReportedAt is { } reportedAt &&
+        (!order.UpdatedAt.HasValue || order.UpdatedAt.Value < reportedAt);
+
+    public async Task<bool> ReportAsync(int userId, int id, ReportOrderRequest request, CancellationToken ct = default)
+    {
+        var order = await orders.FindOwnedForUpdateAsync(id, userId, ct);
+        if (order is null || !await access.CanAccessBranchAsync(userId, order.BranchId, ct)) return false;
+
+        var reason = request.Reason?.Trim();
+        if (reason is null || reason.Length is < 1 or > 500)
+            throw new OrderValidationException("Nhập lý do từ 1 đến 500 ký tự.");
+        if (order.Status != "COMPLETED")
+            throw new OrderReportConflictException("Chỉ có thể báo sai với đơn đã hoàn tất.");
+        if (HasPendingReport(order))
+            throw new OrderReportConflictException("Đơn đã có báo cáo đang chờ Admin xử lý.");
+
+        var now = clock.GetUtcNow().UtcDateTime;
+        order.ReportReason = reason;
+        order.ReportedByUserId = userId;
+        order.ReportedAt = order.UpdatedAt is { } lastAdjustment && lastAdjustment >= now
+            ? lastAdjustment.AddTicks(1)
+            : now;
+        await work.SaveChangesAsync(ct);
+        return true;
     }
 }

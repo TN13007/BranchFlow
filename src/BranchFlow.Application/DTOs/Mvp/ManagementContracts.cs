@@ -140,6 +140,9 @@ public sealed class ManagedOrderView
     public string Status { get; set; } = "";
     public decimal TotalAmount { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? ReportReason { get; set; }
+    public DateTime? ReportedAt { get; set; }
+    public bool HasPendingReport { get; set; }
     public string RowVersion { get; set; } = "";
     public List<ManagedOrderLine> Items { get; set; } = [];
     public List<AdjustmentView> History { get; set; } = [];

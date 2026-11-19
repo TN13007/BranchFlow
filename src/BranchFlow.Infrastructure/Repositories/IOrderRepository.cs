@@ -8,4 +8,5 @@ public interface IOrderRepository
     void Add(SalesOrder order);
     Task<List<SalesOrder>> GetMineAsync(int userId, IReadOnlyList<int> branchIds, string? keyword, DateOnly? date, CancellationToken ct);
     Task<SalesOrder?> GetDetailAsync(int id, int userId, CancellationToken ct);
+    Task<SalesOrder?> FindOwnedForUpdateAsync(int id, int userId, CancellationToken ct);
 }

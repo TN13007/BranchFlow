@@ -20,7 +20,7 @@ public static class WorkspaceNavigation
     public static IReadOnlyList<WorkspaceLink> Links(string role)
     {
         const string icons = "/images/christmas/icons/";
-        WorkspaceLink account = new("account", "Tài khoản", "/account", icons + "icon-user.svg", true);
+        WorkspaceLink account = new("account", "Tài khoản", "/account", icons + "icon-user.svg", role == "EMPLOYEE");
         return role switch
         {
             "OWNER" => [
@@ -36,11 +36,11 @@ public static class WorkspaceNavigation
                 new("branches", "Chi nhánh", "/admin?tab=branches", icons + "icon-admin.svg", true),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
                 new("employees", "Tài khoản nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
-                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"), account],
+                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg", true), account],
             "BRANCH_ADMIN" => [
                 new("overview", "Tổng quan", "/admin", "/images/icons/house.svg", true),
                 new("branch-menu", "Menu", "/admin?tab=branch-menu", "/images/icons/coffee.svg", true),
-                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"),
+                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg", true),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
                 new("employees", "Nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
                 account],

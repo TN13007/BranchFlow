@@ -7,11 +7,13 @@ Phạm vi hiện hành của bản demo nhóm. Project Charter v1.0 lưu kế ho
 | Owner | Xem chi nhánh, đơn, tồn kho và doanh thu toàn chuỗi |
 | Admin Tổng | Quản lý chi nhánh, tài khoản, phân công, menu và giá chung. Quản lý kho, đơn và doanh thu toàn chuỗi |
 | Admin Chi nhánh | Sửa hồ sơ nhân viên trong chi nhánh được giao. Bật/tắt món và topping tại chi nhánh. Quản lý kho, đơn và doanh thu trong phạm vi được giao |
-| Employee | Tạo đơn và xem đơn của mình. Xem kho chi nhánh và nhập/xuất khi được cấp quyền |
+| Employee | Tạo đơn, xem đơn và báo sai trên đơn đã hoàn tất do mình tạo. Xem kho chi nhánh và nhập/xuất khi được cấp quyền |
 
 Mỗi chi nhánh có tối đa một quản lý đang hiệu lực. Admin Tổng phân công ban đầu và có thể giao nhiều chi nhánh cho cùng một Admin Chi nhánh. Nhân viên đang có phân công không chuyển sang chi nhánh khác trong MVP.
 
 Mỗi ly chọn tối đa ba phần cho từng topping. Giá tạo đơn lấy từ DB. Admin sửa số ly theo giá, size và topping đã lưu. Sửa/hủy yêu cầu lý do và lưu lịch sử. Đơn hủy không mở lại và không tính doanh thu. Doanh thu theo ngày Việt Nam và chi nhánh.
+
+Nhân viên gửi lý do báo sai đơn của mình trong chi nhánh còn được phân công. Báo cáo xuất hiện tại mục **Đơn nhân viên báo sai** của Admin trong phạm vi quản lý. Một đơn chỉ có một báo cáo đang chờ. Việc báo sai không đổi trạng thái đơn hoặc doanh thu. Sau khi Admin sửa số ly hoặc hủy đơn, báo cáo rời danh sách chờ và lý do gần nhất vẫn xem được trong chi tiết.
 
 Kho dùng nhập/xuất thủ công. Số tồn và lịch sử giao dịch được lưu cùng nhau, chặn tồn âm. Bán hàng không tự trừ kho.
 

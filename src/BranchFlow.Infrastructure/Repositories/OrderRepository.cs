@@ -34,4 +34,7 @@ public sealed class OrderRepository(BranchFlowDbContext db) : IOrderRepository
         .Include(o => o.Branch).Include(o => o.OrderItems).ThenInclude(i => i.OrderItemToppings)
         .Include(o => o.OrderItems).ThenInclude(i => i.OrderItemNotes)
         .AsSplitQuery().SingleOrDefaultAsync(o => o.Id == id && o.CreatedByUserId == userId, ct);
+
+    public Task<SalesOrder?> FindOwnedForUpdateAsync(int id, int userId, CancellationToken ct) =>
+        db.SalesOrders.SingleOrDefaultAsync(o => o.Id == id && o.CreatedByUserId == userId, ct);
 }

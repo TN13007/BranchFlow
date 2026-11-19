@@ -1,0 +1,199 @@
+.management-shell {
+    --manage-surface: #fff;
+    --manage-background: #f4f7f7;
+    --manage-border: #dce6e5;
+    --manage-ink: #182d30;
+    --manage-muted: #516a6e;
+    --manage-accent: #08796b;
+}
+
+.management-shell .employee-main { background: var(--manage-background); }
+.management-shell .employee-sidebar { background: var(--manage-surface); color: var(--manage-ink); border-inline-end: 1px solid var(--manage-border); }
+.management-shell .employee-brand, .management-shell .employee-brand:hover { color: var(--manage-ink); }
+.management-shell .employee-brand small, .management-shell .workspace-navigation-label, .management-shell .user-badge { color: var(--manage-muted); }
+.management-shell .employee-mark { background: #0b554e; color: #fff; }
+.management-shell .employee-sidebar nav a { color: var(--manage-ink); min-height: 46px; border-radius: 10px; }
+.management-shell .employee-sidebar nav a:not(.active) img { filter: brightness(0) saturate(100%) invert(35%) sepia(18%) saturate(750%) hue-rotate(135deg); opacity: .92; }
+.management-shell .employee-sidebar nav a:hover { background: #f0f6f5; color: var(--manage-ink); }
+.management-shell .employee-sidebar nav a.active { background: #e3f3ee; color: #085e52; font-weight: 700; }
+.management-shell .employee-user { border-color: var(--manage-border); }
+.management-shell .logout-button, .management-shell .logout-button:hover { color: #215451; border-color: #b5cdca; background: #f8fbfa; }
+.management-shell .business-page-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: auto;
+    padding: clamp(24px, 4vw, 44px) clamp(20px, 4vw, 48px) 24px;
+    background: var(--manage-background);
+    border: 0;
+}
+.management-shell .business-page-heading h1 {
+    margin: 0 0 7px;
+    color: var(--manage-ink);
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: 750;
+    line-height: 1.12;
+    letter-spacing: -.035em;
+}
+.management-shell .business-page-heading p { margin: 0; color: var(--manage-muted); font-size: .95rem; }
+.management-shell .account-page-heading .eyebrow { display: none; }
+.management-shell .workspace-role-badge { align-self: flex-start; color: #105d53; background: #e2f1ee; border: 1px solid #cde2dd; }
+.management-shell :is(.business-content, .account-page-content) {
+    max-width: 1480px;
+    margin-inline: auto;
+    padding: 0 clamp(20px, 4vw, 48px) 40px;
+}
+.management-shell .account-page-content .business-panel { border-color: var(--manage-border); border-radius: 16px; }
+.management-shell .account-page-content .account-shortcuts a { min-height: 44px; border-radius: 9px; }
+.management-shell .management-panel {
+    padding: clamp(16px, 2.4vw, 28px);
+    border: 1px solid var(--manage-border);
+    border-radius: 18px;
+}
+.management-shell :is(h2, h3) { color: var(--manage-ink); }
+.management-shell .management-panel h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -.015em; }
+.management-shell .management-panel :is(.btn, .form-control, .form-select) { min-height: 44px; border-radius: 9px; font-size: .9rem; }
+.management-shell .management-panel :is(.form-control, .form-select, .btn-outline-secondary) { border-color: #b9cdcb; }
+.management-shell .management-panel .btn-outline-secondary { color: #254b50; background: #fff; }
+.management-shell .management-panel .btn-outline-secondary:hover { background: #eaf4f1; }
+.management-shell .management-panel .btn-danger { background: #ab2936; border-color: #ab2936; }
+.management-shell :is(.management-toolbar, .management-filters, .management-actions, .management-presets) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px 12px;
+}
+.management-shell .management-toolbar { margin-block-end: 16px; }
+.management-shell .management-toolbar > :is(.btn, .management-actions) { margin-inline-start: auto; }
+.management-shell .management-filters {
+    margin-block-end: 18px;
+    padding: 14px;
+    border: 1px solid var(--manage-border);
+    border-radius: 13px;
+    background: #f5faf9;
+}
+.management-shell .management-field { display: grid; gap: 5px; margin: 0; min-width: 0; color: #3a5659; font-size: .84rem; font-weight: 650; }
+.management-shell .management-toolbar .management-field { flex: 1 1 170px; max-width: 360px; }
+.management-shell .management-filters .management-field { flex: 1 1 135px; max-width: 320px; }
+.management-shell .management-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr));
+    align-items: end;
+    gap: 12px;
+}
+.management-shell .management-form-grid .w-auto { width: 100% !important; }
+.management-shell .management-editor {
+    margin-block: 0 18px;
+    padding: clamp(14px, 2vw, 22px);
+    border: 1px solid #bed8d3;
+    border-radius: 14px;
+    background: #f7fbfa;
+}
+.management-shell .management-editor :is(.management-actions, .management-price-row) { margin-top: 14px; }
+.management-shell .management-editor input[type=checkbox] { accent-color: var(--manage-accent); }
+.management-shell :is(.management-order-report, .staff-order-report) {
+    padding: 14px;
+    margin-bottom: 14px;
+    background: #fff9eb;
+    border: 1px solid #e4d2a4;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+.management-shell .management-order-report p { margin: 4px 0; white-space: pre-wrap; }
+.management-shell .management-report-list { margin-bottom: 8px; padding: 0; list-style: none; }
+.management-shell .management-report-list li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid #e4d2a4; }
+.management-shell .management-report-list li > div { flex: 1 1 220px; min-width: 0; }
+.management-shell .management-report-list small { display: block; color: var(--manage-muted); }
+.management-shell .management-order-heading { align-items: center; }
+.management-shell :is(.management-order-summary, .management-metrics) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.management-shell :is(.management-order-summary > div, .management-metrics article) {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    border: 1px solid var(--manage-border);
+    border-radius: 13px;
+    padding: 13px;
+    background: #f7faf9;
+}
+.management-shell .management-metrics article { padding: clamp(14px, 2vw, 20px); }
+.management-shell .management-metrics article:first-child { background: #e3f3ee; border-color: #c8e4dc; }
+.management-shell :is(.management-metrics, .management-order-summary) :is(small, article > span, div > span:not(.status-badge)) { color: var(--manage-muted); }
+.management-shell .management-metrics strong { font-size: clamp(22px, 2.6vw, 31px); letter-spacing: -.04em; line-height: 1.08; overflow-wrap: anywhere; }
+.management-shell .management-order-summary .status-badge { justify-self: start; }
+.management-shell .management-table { margin-bottom: 0; font-size: .9rem; }
+.management-shell .management-table th { background: #eef5f3; color: #3a5758; font-weight: 650; white-space: nowrap; }
+.management-shell .management-table :is(th, td) { padding: 11px 10px; vertical-align: middle; border-color: var(--manage-border); }
+.management-shell .management-table tbody tr:hover td { background: #f6faf9; }
+.management-shell .management-table td:first-child { font-weight: 650; }
+.management-shell .management-table td:last-child[data-label=""] { text-align: end; }
+.management-shell .management-table td :is(.form-control, .form-select) { width: min(100%, 112px); }
+.management-shell .management-empty { margin: 12px 0 0; padding: 12px; border-radius: 9px; color: var(--manage-muted); background: #f5f8f8; }
+.management-shell .management-record { border: 1px solid var(--manage-border); border-radius: 10px; margin-block: 8px; padding: 10px 13px; }
+.management-shell .management-record summary { cursor: pointer; min-height: 27px; color: #254b50; font-weight: 650; }
+.management-shell .management-record p { margin: 8px 0 0; }
+.management-shell .management-stock-tabs { background: #edf4f3; padding: 7px; border: 1px solid var(--manage-border); border-radius: 12px; }
+.management-shell .management-stock-tabs .btn { flex: 1 1 auto; }
+.management-shell .management-stock-line { background: #f7faf9; border: 1px solid var(--manage-border); border-radius: 10px; padding: 7px 9px 12px; margin-inline: 0; }
+.management-shell .stock-toolbar { justify-content: flex-end; }
+.management-shell .management-panel :is(.list-group-item, .stock-toolbar) { gap: 10px; overflow-wrap: anywhere; }
+
+@media (max-width: 767px) {
+    .management-shell .business-page-heading { padding: 20px 14px 15px; }
+    .management-shell .business-page-heading h1 { font-size: 27px; }
+    .management-shell .business-page-heading p { font-size: .88rem; }
+    .management-shell :is(.business-content, .account-page-content) { padding: 0 12px 28px; }
+    .management-shell .management-panel { padding: 12px; border-radius: 13px; }
+    .management-shell :is(.management-filters, .management-toolbar) .management-field { flex: 1 1 100%; max-width: none; }
+    .management-shell .management-filters { padding: 11px; }
+    .management-shell .management-filters .management-date { flex: 1 1 calc(50% - 6px); }
+    .management-shell .management-date input { width: 100%; padding-inline: 8px; }
+    .management-shell .management-toolbar > :is(.btn, .management-actions) { margin-inline-start: 0; }
+    .management-shell :is(.management-actions, .management-presets) { width: 100%; }
+    .management-shell :is(.management-actions, .management-presets) > .btn { flex: 1 1 115px; }
+    .management-shell .management-filters > .btn { flex: 1 1 100%; }
+    .management-shell .management-metrics,
+    .management-shell .management-order-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .management-shell .management-metrics article:first-child { grid-column: 1 / -1; }
+    .management-shell :is(.management-metrics, .management-order-summary) strong { overflow-wrap: anywhere; }
+    .management-shell .management-stock-tabs .btn { flex: 1 1 calc(50% - 8px); }
+    .management-shell .management-table :is(tbody, tr, td) { display: block; }
+    .management-shell .management-table { display: block; }
+    .management-shell .management-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        clip-path: inset(50%);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .management-shell .management-table tbody tr {
+        border: 1px solid var(--manage-border);
+        border-radius: 12px;
+        margin-bottom: 10px;
+        padding: 8px 11px;
+    }
+    .management-shell .management-table tbody td {
+        display: grid;
+        grid-template-columns: minmax(82px, .85fr) minmax(0, 1.25fr);
+        align-items: center;
+        gap: 4px 10px;
+        padding: 6px 0;
+        border: 0;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+    .management-shell .management-table tbody td:first-child { padding-bottom: 9px; border-bottom: 1px solid var(--manage-border); margin-bottom: 4px; }
+    .management-shell .management-table td::before { content: attr(data-label); font-size: .79rem; color: var(--manage-muted); font-weight: 600; }
+    .management-shell .management-table td[data-label=""]::before { display: none; }
+    .management-shell .management-table td[data-label=""] { grid-template-columns: 1fr; }
+    .management-shell .management-table td[data-label=""]:empty { display: none; }
+    .management-shell .management-table td > button { grid-column: 1 / -1; }
+    .management-shell .management-table td > .status-badge { justify-self: start; }
+    .management-shell .management-table tbody tr:hover td { background: inherit; }
+}

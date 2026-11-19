@@ -25,6 +25,7 @@ public interface IMvpRepository
     Task<List<BranchIngredient>> BalancesAsync(int branchId, CancellationToken ct);
     Task<List<StockTransaction>> StockHistoryAsync(int branchId, CancellationToken ct);
     Task<List<SalesOrder>> OrdersAsync(int[] branchIds, DateTime fromUtc, DateTime toUtc, CancellationToken ct);
+    Task<List<SalesOrder>> ReportedOrdersAsync(int[] branchIds, CancellationToken ct);
     Task<SalesOrder?> OrderAsync(int id, CancellationToken ct);
     Task<List<RevenueData>> RevenueAsync(int[] branchIds, DateTime fromUtc, DateTime toUtc, CancellationToken ct);
     void Add(object entity);
