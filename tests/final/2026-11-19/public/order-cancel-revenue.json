@@ -1,0 +1,11 @@
+{
+  "status": "CANCELLED",
+  "environment": "Azure public",
+  "total": 138000.0,
+  "code": "BF-DEMO-01-20261119-0001",
+  "afterRevenue": 0,
+  "date": "2026-11-19",
+  "result": "Pass",
+  "beforeRevenue": 138000.0,
+  "afterRowCount": 0
+}
