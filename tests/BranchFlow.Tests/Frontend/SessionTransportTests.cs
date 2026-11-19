@@ -1,8 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using BranchFlow.Application.DTOs.Sprint4;
 using BranchFlow.Web.Services.Api;
 using BranchFlow.Web.Services.Auth;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 
 namespace BranchFlow.Tests.Frontend;
 
@@ -145,5 +150,49 @@ public sealed class SessionTransportTests
         var transport = new SessionApiTransport(factory, store, new(factory), TimeProvider.System);
         await Assert.ThrowsAnyAsync<Exception>(() => transport.SendAsync<object>(key, HttpMethod.Post, "api/orders", new { }));
         Assert.Equal(1, calls);
+    }
+
+    [Fact]
+    public async Task ReloginAntiforgeryAcceptsTokenFromJustExpiredSessionButRejectsMissingOrDifferentUser()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDataProtection();
+        services.AddAntiforgery();
+        await using var provider = services.BuildServiceProvider();
+        var antiforgery = provider.GetRequiredService<IAntiforgery>();
+
+        var employee = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "demo.employee.01.a")], "Cookies"));
+        var renderContext = new DefaultHttpContext { RequestServices = provider, User = employee };
+        var tokenSet = antiforgery.GetAndStoreTokens(renderContext);
+        var setCookie = renderContext.Response.Headers.SetCookie.ToString();
+        var cookiePair = setCookie.Split(';')[0];
+
+        // Khi phiên bị xóa sau 401, OnValidatePrincipal đặt lại User = anonymous nhưng lưu RejectedPrincipalKey.
+        var postContext = new DefaultHttpContext { RequestServices = provider, User = new ClaimsPrincipal(new ClaimsIdentity()) };
+        postContext.Items[WebSessionStore.RejectedPrincipalKey] = employee;
+        postContext.Request.Method = HttpMethods.Post;
+        postContext.Request.Headers.Cookie = cookiePair;
+        postContext.Request.ContentType = "application/x-www-form-urlencoded";
+        postContext.Request.Form = new FormCollection(new Dictionary<string, StringValues>
+        {
+            ["__RequestVerificationToken"] = tokenSet.RequestToken!
+        });
+
+        Assert.True(await WebAuthEndpoints.ValidateAntiforgeryAsync(postContext, antiforgery));
+
+        // Token của user khác phải bị từ chối.
+        var otherUser = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "demo.employee.02.a")], "Cookies"));
+        postContext.Items[WebSessionStore.RejectedPrincipalKey] = otherUser;
+        Assert.False(await WebAuthEndpoints.ValidateAntiforgeryAsync(postContext, antiforgery));
+
+        // Không có token phải bị từ chối.
+        var emptyContext = new DefaultHttpContext { RequestServices = provider };
+        emptyContext.Request.Method = HttpMethods.Post;
+        emptyContext.Request.ContentType = "application/x-www-form-urlencoded";
+        emptyContext.Request.Form = new FormCollection([]);
+        Assert.False(await WebAuthEndpoints.ValidateAntiforgeryAsync(emptyContext, antiforgery));
     }
 }

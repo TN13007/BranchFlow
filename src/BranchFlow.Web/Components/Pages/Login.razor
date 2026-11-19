@@ -1,7 +1,12 @@
 @page "/login"
 @layout AuthLayout
 @using BranchFlow.Web.Models.Auth
+@using BranchFlow.Web.Services.Auth
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider Authentication
+@inject WebSessionStore Sessions
+@inject NavigationManager Navigation
 @implements IAsyncDisposable
 
 <PageTitle>Đăng nhập | BranchFlow</PageTitle>
@@ -114,9 +119,20 @@
     }
 
     // Chỉ nhận nhập liệu sau khi circuit tương tác sẵn sàng, tránh mất giá trị lúc hydrate.
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender) { ready = true; StateHasChanged(); }
+        if (firstRender)
+        {
+            var state = await Authentication.GetAuthenticationStateAsync();
+            var key = state.User.FindFirst(WebSessionStore.SessionClaim)?.Value;
+            if (state.User.Identity?.IsAuthenticated == true && Sessions.Find(key) is null)
+            {
+                Navigation.NavigateTo("/login?notice=session", forceLoad: true);
+                return;
+            }
+            ready = true;
+            StateHasChanged();
+        }
     }
 
     private void TogglePassword() => showPassword = !showPassword;
