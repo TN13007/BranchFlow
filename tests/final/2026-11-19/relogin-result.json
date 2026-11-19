@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-19T12:17:15.377Z",
+  "scenario": "SCRUM-140: successful create followed by injected HTTP 401; first re-login succeeds and uncertain cart stays locked",
+  "result": "Pass",
+  "events": [
+    {
+      "path": "/auth/login",
+      "status": 302,
+      "resource": "document"
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "path": "/auth/login",
+      "status": 302,
+      "resource": "document"
+    }
+  ]
+}

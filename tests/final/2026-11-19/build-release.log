@@ -1,0 +1,12 @@
+  BranchFlow.Infrastructure -> D:\BranchFlow\src\BranchFlow.Infrastructure\bin\Release\net10.0\BranchFlow.Infrastructure.dll
+  BranchFlow.Application -> D:\BranchFlow\src\BranchFlow.Application\bin\Release\net10.0\BranchFlow.Application.dll
+  BranchFlow.DemoSeed -> D:\BranchFlow\tools\BranchFlow.DemoSeed\bin\Release\net10.0\BranchFlow.DemoSeed.dll
+  BranchFlow.Api -> D:\BranchFlow\src\BranchFlow.Api\bin\Release\net10.0\BranchFlow.Api.dll
+  BranchFlow.Web -> D:\BranchFlow\src\BranchFlow.Web\bin\Release\net10.0\BranchFlow.Web.dll
+  BranchFlow.Tests -> D:\BranchFlow\tests\BranchFlow.Tests\bin\Release\net10.0\BranchFlow.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.01

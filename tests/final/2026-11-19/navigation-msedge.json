@@ -1,0 +1,438 @@
+{
+  "date": "2026-11-19T12:18:31.246Z",
+  "channel": "msedge",
+  "results": [
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=system-menu",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=system-menu",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=system-menu",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=branches",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=branches",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=branches",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=inventory",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=inventory",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=inventory",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=employees",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=employees",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=employees",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=orders",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=orders",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/admin?tab=orders",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/account",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/account",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.systemadmin",
+      "route": "/account",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=branch-menu",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=branch-menu",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=branch-menu",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=orders",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=orders",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=orders",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=inventory",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=inventory",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=inventory",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=employees",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=employees",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/admin?tab=employees",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/account",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/account",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.branchadmin.01",
+      "route": "/account",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=orders",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=orders",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=orders",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=branches",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=branches",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=branches",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=inventory",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=inventory",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=inventory",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=employee-directory",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=employee-directory",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/owner?tab=employee-directory",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/account",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/account",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.owner",
+      "route": "/account",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/create",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/create",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/create",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/mine",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/mine",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/orders/mine",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee?tab=stock",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee?tab=stock",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/employee?tab=stock",
+      "width": 1366,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/account",
+      "width": 360,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/account",
+      "width": 768,
+      "result": "Pass"
+    },
+    {
+      "user": "demo.employee.a",
+      "route": "/account",
+      "width": 1366,
+      "result": "Pass"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider Authentication
 
-<div class="employee-shell business-shell workspace-shell @(isOrdering ? "ordering-shell" : "")">
+<div class="employee-shell business-shell workspace-shell @(role is "OWNER" or "SYSTEM_ADMIN" or "BRANCH_ADMIN" or "EMPLOYEE" ? "management-shell" : "") @(role == "EMPLOYEE" ? "staff-shell" : "") @(isOrdering ? "ordering-shell" : "")">
     <a class="skip-link" href="#main-content">Đến nội dung</a>
     <aside class="employee-sidebar">
         <a href="@WorkspaceNavigation.Home(role)" class="employee-brand">

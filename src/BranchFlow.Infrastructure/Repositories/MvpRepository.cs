@@ -12,7 +12,7 @@ public sealed class MvpRepository(BranchFlowDbContext db) : IMvpRepository
     public Task<List<AppUser>> UsersAsync(CancellationToken ct) => db.AppUsers.Include(x => x.Role).Include(x => x.EmployeeProfile).Where(x => !x.Deleted).OrderBy(x => x.FullName).ToListAsync(ct);
     public Task<List<Branch>> BranchesAsync(CancellationToken ct) => db.Branches.Where(x => !x.Deleted).OrderBy(x => x.Code).ToListAsync(ct);
     public Task<Branch?> BranchAsync(int id, CancellationToken ct) => db.Branches.SingleOrDefaultAsync(x => x.Id == id && !x.Deleted, ct);
-    public Task<List<AdminBranchAssignment>> AdminAssignmentsAsync(CancellationToken ct) => db.AdminBranchAssignments.Include(x => x.AdminUser).ToListAsync(ct);
+    public Task<List<AdminBranchAssignment>> AdminAssignmentsAsync(CancellationToken ct) => db.AdminBranchAssignments.Include(x => x.AdminUser).Include(x => x.Branch).ToListAsync(ct);
     public Task<List<EmployeeBranchAssignment>> EmployeeAssignmentsAsync(CancellationToken ct) => db.EmployeeBranchAssignments.Include(x => x.Branch).ToListAsync(ct);
     public Task<List<EmployeeStockPermission>> StockPermissionsAsync(CancellationToken ct) => db.EmployeeStockPermissions.ToListAsync(ct);
     public Task<List<Category>> CategoriesAsync(CancellationToken ct) => db.Categories.Where(x => !x.Deleted).OrderBy(x => x.Name).ToListAsync(ct);
@@ -28,6 +28,11 @@ public sealed class MvpRepository(BranchFlowDbContext db) : IMvpRepository
     public Task<List<BranchIngredient>> BalancesAsync(int branchId, CancellationToken ct) => db.BranchIngredients.Include(x => x.Ingredient).ThenInclude(x => x.Unit).Where(x => x.BranchId == branchId).ToListAsync(ct);
     public Task<List<StockTransaction>> StockHistoryAsync(int branchId, CancellationToken ct) => db.StockTransactions.AsNoTracking().Include(x => x.PerformedByUser).Include(x => x.StockTransactionDetails).ThenInclude(x => x.Ingredient).Where(x => x.BranchId == branchId).OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id).Take(100).ToListAsync(ct);
     public Task<List<SalesOrder>> OrdersAsync(int[] branchIds, DateTime fromUtc, DateTime toUtc, CancellationToken ct) => db.SalesOrders.AsNoTracking().Include(x => x.Branch).Include(x => x.CreatedByUser).Where(x => branchIds.Contains(x.BranchId) && x.CreatedAt >= fromUtc && x.CreatedAt < toUtc).OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id).Take(200).ToListAsync(ct);
+    public Task<List<SalesOrder>> ReportedOrdersAsync(int[] branchIds, CancellationToken ct) => db.SalesOrders
+        .AsNoTracking().Include(x => x.Branch).Include(x => x.CreatedByUser)
+        .Where(x => branchIds.Contains(x.BranchId) && x.Status == "COMPLETED" && x.ReportedAt != null
+            && (x.UpdatedAt == null || x.UpdatedAt < x.ReportedAt))
+        .OrderByDescending(x => x.ReportedAt).ThenByDescending(x => x.Id).Take(50).ToListAsync(ct);
     public Task<SalesOrder?> OrderAsync(int id, CancellationToken ct) => db.SalesOrders.Include(x => x.Branch).Include(x => x.CreatedByUser).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemToppings).Include(x => x.OrderItems).ThenInclude(x => x.OrderItemNotes).Include(x => x.OrderAdjustments).ThenInclude(x => x.AdjustedByUser).AsSplitQuery().SingleOrDefaultAsync(x => x.Id == id, ct);
     // Tổng hợp trong SQL trước khi trả về; không tính từ danh sách 200 đơn trên UI.
     public Task<List<RevenueData>> RevenueAsync(int[] branchIds, DateTime fromUtc, DateTime toUtc, CancellationToken ct) => db.SalesOrders.AsNoTracking().Where(x => branchIds.Contains(x.BranchId) && x.Status == "COMPLETED" && x.CreatedAt >= fromUtc && x.CreatedAt < toUtc)

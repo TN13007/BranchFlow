@@ -5,24 +5,21 @@
 @inject CartState Cart
 
 <PageTitle>Chi tiết đơn | BranchFlow</PageTitle>
-<header class="page-heading">
+<header class="page-heading business-page-heading staff-page-heading">
     <div>
-        <p class="eyebrow">ĐƠN HÀNG</p>
         <h1>Chi tiết đơn</h1>
-        <p>Thông tin tại thời điểm xác nhận.</p>
+        <p>Xem món, số tiền và trạng thái của đơn.</p>
     </div>
-    <div class="d-flex flex-wrap gap-2">
-        <a href="/orders/mine" class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;">← Đơn của tôi</a>
+    <div class="staff-page-actions">
+        <a href="/orders/mine" class="btn btn-outline-secondary">← Đơn của tôi</a>
         <a href="/orders/create" class="btn btn-brand">+ Tạo đơn mới</a>
     </div>
 </header>
-<div class="page-content">
+<div class="page-content staff-content">
     @if (Cart.LastCreated is { } result && result.Id == Id)
     {
-        <div class="alert alert-success position-relative" role="status" style="border:1.5px solid #8CC4A9; background:#E6F4EE; color:#0D4A30; border-radius:12px; padding:18px 22px;">
-            <img class="cart-summary-ribbon decor-non-interactive" src="/images/christmas/decorations/bell-bauble-sprig.svg" alt="" aria-hidden="true" />
-            <strong>✓ Đã xác nhận tạo đơn thành công: @result.Code</strong><br />
-            <span>Tổng tiền máy chủ xác nhận: <strong>@Display.Money(result.TotalAmount)</strong> · Ngày kinh doanh: <strong>@result.BusinessDate.ToString("dd/MM/yyyy")</strong></span>
+        <div class="alert alert-success staff-order-success" role="status">
+            <strong>Đã tạo đơn @result.Code</strong>
         </div>
     }
 
@@ -37,8 +34,7 @@
     }
     else if (order is not null)
     {
-        <section class="detail-summary" aria-label="Tóm tắt hóa đơn">
-            <img class="cart-summary-ribbon decor-non-interactive" src="/images/christmas/decorations/candy-cane-swirl-set.svg" alt="" aria-hidden="true" />
+        <section class="detail-summary staff-detail-summary" aria-label="Tóm tắt hóa đơn">
             <div>
                 <p class="eyebrow">@order.BranchCode · @order.BranchName</p>
                 <h2>@order.Code</h2>
@@ -50,6 +46,44 @@
                 <small>Ngày kinh doanh: @order.BusinessDate.ToString("dd/MM/yyyy")</small>
             </div>
         </section>
+
+        @if (order.Status == "COMPLETED" || !string.IsNullOrWhiteSpace(order.ReportReason))
+        {
+        <section class="staff-order-report" aria-labelledby="order-report-title">
+            <h2 id="order-report-title">Báo đơn sai</h2>
+            @if (!string.IsNullOrWhiteSpace(order.ReportReason))
+            {
+                <p class="staff-report-status" role="status">
+                    @(order.HasPendingReport ? "Đã gửi · Chờ Admin xử lý" : order.Status == "NEEDS_REVIEW" ? "Cần xem lại" : "Báo cáo đã được xử lý")
+                </p>
+                <p class="staff-report-reason">@order.ReportReason</p>
+                @if (order.ReportedAt is { } reportedAt) { <small>Ngày gửi @Display.VietnamTime(reportedAt) (giờ VN)</small> }
+            }
+            <ApiError Message="@reportError" NeedsLogin="@reportNeedsLogin" />
+            @if (reportReloadRequired && !reportNeedsLogin)
+            {
+                <button class="btn btn-outline-secondary" type="button" @onclick="ReloadAfterReportAsync" disabled="@reportSending">Kiểm tra lại trạng thái đơn</button>
+            }
+            @if (order.Status == "COMPLETED" && !order.HasPendingReport && !reportReloadRequired)
+            {
+                @if (reportOpen)
+                {
+                    <label class="management-field">Lý do báo đơn sai
+                        <textarea class="form-control" rows="3" maxlength="500" placeholder="Ví dụ: khách gọi 2 ly nhưng đơn ghi 1 ly"
+                                  @bind="reportReason" @bind:event="oninput" disabled="@reportSending"></textarea>
+                    </label>
+                    <div class="management-actions mt-2">
+                        <button class="btn btn-brand" type="button" disabled="@(reportSending || string.IsNullOrWhiteSpace(reportReason))" @onclick="SendReportAsync">@(reportSending ? "Đang gửi…" : "Gửi báo cáo")</button>
+                        <button class="btn btn-outline-secondary" type="button" disabled="@reportSending" @onclick="() => reportOpen = false">Đóng</button>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-outline-secondary mt-2" type="button" @onclick="() => reportOpen = true">@(order.ReportedAt.HasValue ? "Báo sai lần nữa" : "Báo đơn sai")</button>
+                }
+            }
+        </section>
+        }
 
         <div class="section-heading pt-0 border-top-0">
             <h2>Danh sách đồ uống trong đơn</h2>
@@ -75,21 +109,6 @@
             </article>
         }
 
-        @if (order.ReportReason is not null)
-        {
-            <div class="alert alert-warning mt-3" role="status">
-                <strong>Ghi nhận báo cáo đơn:</strong> @order.ReportReason
-                @if (order.ReportedAt.HasValue)
-                {
-                    <small class="ms-1">· @Display.VietnamTime(order.ReportedAt.Value)</small>
-                }
-            </div>
-        }
-
-        <div class="d-flex flex-wrap gap-2 mt-4">
-            <a href="/orders/create" class="btn btn-brand">Tạo đơn mới</a>
-            <a href="/orders/mine" class="btn btn-outline-secondary" style="min-height:44px;display:inline-flex;align-items:center;">Quay lại danh sách đơn</a>
-        </div>
     }
 
 </div>
@@ -102,9 +121,50 @@
     private string? error;
     private bool needsLogin;
     private bool unavailable;
+    private bool reportOpen, reportSending, reportReloadRequired, reportNeedsLogin;
+    private string reportReason = "";
+    private string? reportError;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender || loadedId != Id) { loadedId = Id; await LoadAsync(); StateHasChanged(); }
+        if (firstRender || loadedId != Id)
+        {
+            loadedId = Id;
+            reportOpen = reportReloadRequired = reportNeedsLogin = false;
+            reportReason = ""; reportError = null;
+            await LoadAsync();
+            StateHasChanged();
+        }
+    }
+    private async Task SendReportAsync()
+    {
+        if (reportSending || reportReloadRequired || order is not { Status: "COMPLETED", HasPendingReport: false }
+            || string.IsNullOrWhiteSpace(reportReason)) return;
+        reportSending = true;
+        reportError = null;
+        try
+        {
+            await Api.ReportAsync(Id, reportReason);
+            reportReason = "";
+            reportOpen = false;
+            await LoadAsync();
+        }
+        catch (ApiException ex)
+        {
+            reportError = ex.Message;
+            reportNeedsLogin = ex.StatusCode == System.Net.HttpStatusCode.Unauthorized;
+            reportReloadRequired = reportNeedsLogin || ex.StatusCode == System.Net.HttpStatusCode.Conflict || (int)ex.StatusCode >= 500;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException)
+        {
+            reportReloadRequired = true;
+            reportError = "Chưa xác định kết quả gửi báo cáo. Kiểm tra trạng thái đơn trước khi gửi lại.";
+        }
+        finally { reportSending = false; }
+    }
+    private async Task ReloadAfterReportAsync()
+    {
+        await LoadAsync();
+        if (order is not null) { reportReloadRequired = false; reportError = null; }
     }
     private async Task LoadAsync()
     {

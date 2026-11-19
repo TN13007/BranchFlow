@@ -20,7 +20,7 @@ public static class WorkspaceNavigation
     public static IReadOnlyList<WorkspaceLink> Links(string role)
     {
         const string icons = "/images/christmas/icons/";
-        WorkspaceLink account = new("account", "Tài khoản", "/account", icons + "icon-user.svg", true);
+        WorkspaceLink account = new("account", "Tài khoản", "/account", icons + "icon-user.svg", role == "EMPLOYEE");
         return role switch
         {
             "OWNER" => [
@@ -36,15 +36,12 @@ public static class WorkspaceNavigation
                 new("branches", "Chi nhánh", "/admin?tab=branches", icons + "icon-admin.svg", true),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
                 new("employees", "Tài khoản nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
-                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"), account],
+                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg", true), account],
             "BRANCH_ADMIN" => [
                 new("overview", "Tổng quan", "/admin", "/images/icons/house.svg", true),
                 new("branch-menu", "Menu", "/admin?tab=branch-menu", "/images/icons/coffee.svg", true),
-                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg"),
+                new("orders", "Đơn hàng", "/admin?tab=orders", icons + "icon-orders.svg", true),
                 new("inventory", "Kho", "/admin?tab=inventory", icons + "icon-box.svg", true),
-
-
-                new("issue", "Xuất kho", "/admin?tab=issue", icons + "icon-box.svg"),
                 new("employees", "Nhân viên", "/admin?tab=employees", icons + "icon-user.svg"),
                 account],
             "EMPLOYEE" => [
@@ -52,8 +49,6 @@ public static class WorkspaceNavigation
                 new("create", "Gọi món", "/orders/create", "/images/icons/coffee.svg", true),
                 new("mine", "Đơn của tôi", "/orders/mine", icons + "icon-orders.svg", true),
                 new("stock", "Kho", "/employee?tab=stock", icons + "icon-box.svg", true),
-                new("issue", "Xuất kho", "/employee?tab=issue", icons + "icon-box.svg"),
-
                 account],
             _ => [account]
         };
@@ -64,6 +59,7 @@ public static class WorkspaceNavigation
         var target = link.Url.Split('?')[0].Trim('/');
         if (link.Key == "mine" && path.StartsWith("orders/", StringComparison.OrdinalIgnoreCase) && path != "orders/create") return true;
         if (!string.Equals(path, target, StringComparison.OrdinalIgnoreCase)) return false;
+        if (tab == "issue" && target is ("admin" or "employee") && link.Key is ("stock" or "inventory")) return true;
         var query = link.Url.Contains('?') ? link.Url.Split("tab=")[1] : null;
         return string.Equals(query, string.IsNullOrWhiteSpace(tab) ? null : tab, StringComparison.OrdinalIgnoreCase);
     }

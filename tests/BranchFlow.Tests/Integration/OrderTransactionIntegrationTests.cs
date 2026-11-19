@@ -231,5 +231,8 @@ public sealed class OrderTransactionIntegrationTests
             int userId,
             CancellationToken ct)
             => inner.GetDetailAsync(id, userId, ct);
+
+        public Task<SalesOrder?> FindOwnedForUpdateAsync(int id, int userId, CancellationToken ct)
+            => inner.FindOwnedForUpdateAsync(id, userId, ct);
     }
 }

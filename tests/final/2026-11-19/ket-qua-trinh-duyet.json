@@ -1,0 +1,68 @@
+[
+  {
+    "id": "UAT-01",
+    "condition": "Bốn vai trò đăng nhập và vào đúng phân hệ",
+    "actual": "Nhân viên /employee, hai Admin /admin, Owner /owner",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-03",
+    "condition": "Báo đơn sai giữ nguyên doanh thu, gửi lặp bị chặn",
+    "actual": "Mã BF-DEMO-01-20261119-0001, báo cáo chờ xử lý, API trả 409 cho báo trùng",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-04",
+    "condition": "Cách ly tài khoản và chi nhánh",
+    "actual": "Nhân viên khác trả 404; Admin khác chi nhánh và Owner ghi đơn trả 403; báo sai không lộ ở hàng chờ chi nhánh khác",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-05",
+    "condition": "Admin nhận báo cáo, sửa số ly và lưu lịch sử",
+    "actual": "3 → 2 ly; 159.000đ → 106.000đ; Nhân viên thấy đã xử lý",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-06",
+    "condition": "Admin Tổng truy cập form danh mục và hồ sơ",
+    "actual": "Đã mở giá theo size của Demo - Cà phê sữa và hồ sơ demo.employee.a",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-07",
+    "condition": "Ngừng bán và mở bán ảnh hưởng menu chi nhánh, giữ giá đơn đã tạo",
+    "actual": "Món Demo - Cà phê sữa biến mất rồi hiện lại; tổng đơn cũ giữ 106.000đ",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-08",
+    "condition": "Hủy đơn và đối chiếu doanh thu",
+    "actual": "Nhân viên thấy Đã hủy; doanh thu chi nhánh 159.000đ → 0đ sau toàn bộ lượt",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-09",
+    "condition": "Owner xem đúng doanh thu, danh bạ và kho chỉ đọc",
+    "actual": "Tổng UI khớp API 0đ; hiện nhân viên và tồn kho trong phạm vi; không có nút ghi",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-10",
+    "condition": "Nhập, chặn xuất quá tồn, xuất hợp lệ và tra lịch sử",
+    "actual": "Tồn 7 → 9 → 9 → 7, phiếu IN #144 và OUT #145",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-11",
+    "condition": "Nút xuất kho của Nhân viên tuân theo quyền",
+    "actual": "Quyền API và nút trên UI nhất quán và hiện phiếu khi Admin Tổng cấp quyền thử",
+    "result": "Pass"
+  },
+  {
+    "id": "UAT-12",
+    "condition": "Đăng xuất chặn truy cập lại phân hệ",
+    "actual": "Owner quay về trang đăng nhập và không mở lại được /owner",
+    "result": "Pass"
+  }
+]

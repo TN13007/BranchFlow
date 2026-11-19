@@ -51,7 +51,7 @@ try
     await using (var db = Db())
     {
         var branch = await db.Branches.SingleAsync(x => x.Code == "BF-DEMO-01" && x.IsActive && !x.Deleted);
-        foreach (var name in new[] { "demo.systemadmin", "demo.branchadmin.01", "demo.branchadmin.02", "demo.employee.a", "demo.owner" })
+        foreach (var name in new[] { "demo.systemadmin", "demo.branchadmin.01", "demo.branchadmin.02", "demo.employee.a", "demo.employee.b", "demo.owner" })
         {
             var user = await db.AppUsers.Include(x => x.Role).SingleAsync(x => x.Username == name && x.IsActive && !x.Deleted);
             var sid = Guid.NewGuid(); sessionIds.Add(sid); actors[name] = user.Id;
@@ -124,7 +124,7 @@ try
     async Task<string> Snapshot()
     {
         await using var db = Db(); var o = await new MvpRepository(db).OrderAsync(orderId, default) ?? throw new Exception("Missing order");
-        return JsonSerializer.Serialize(new { o.Status, o.TotalAmount, o.UpdatedAt, RowVersion = Convert.ToBase64String(o.RowVersion),
+        return JsonSerializer.Serialize(new { o.Status, o.TotalAmount, o.UpdatedAt, o.ReportReason, o.ReportedAt, o.ReportedByUserId, RowVersion = Convert.ToBase64String(o.RowVersion),
             Items = o.OrderItems.OrderBy(x => x.Id).Select(x => new { x.Id, x.Quantity, x.ProductSizeId, x.UnitPriceSnapshot, x.SubtotalAmount, x.Note,
                 Toppings = x.OrderItemToppings.OrderBy(t => t.Id).Select(t => new { t.Id, t.ToppingId, t.Quantity, t.UnitPriceSnapshot, t.ToppingNameSnapshot }),
                 Notes = x.OrderItemNotes.OrderBy(n => n.Id).Select(n => new { n.Id, n.NoteOptionId, n.NoteNameSnapshot }) }),
@@ -142,6 +142,48 @@ try
         Check(before == await Snapshot(),
             $"SQL unchanged header/detail/topping/note/history/version after rejected cancel {actor} {status}");
     }
+    async Task<decimal> Revenue(DateOnly? queryDay = null)
+    {
+        await using var db = Db(); var order = await db.SalesOrders.AsNoTracking().SingleAsync(x => x.Id == orderId);
+        var day = (queryDay ?? DateOnly.FromDateTime(order.CreatedAt.AddHours(7))).ToString("yyyy-MM-dd");
+        var rows = await Request("demo.systemadmin", "GET", $"api/management/revenue?branchId={order.BranchId}&from={day}&to={day}", null, 200);
+        return rows.EnumerateArray().Sum(x => x.GetProperty("amount").GetDecimal());
+    }
+    const string reportQueue = "api/management/orders/reported";
+    string reportPath = $"api/orders/{orderId}/report";
+    async Task<bool> InReportQueue(string admin)
+    {
+        var rows = await Request(admin, "GET", reportQueue, null, 200);
+        return rows.EnumerateArray().Any(x => x.GetProperty("id").GetInt32() == orderId);
+    }
+    decimal beforeReport = await Revenue();
+    var report = new { reason = "WBS3421 employee reports incorrect quantity" };
+    await Request("anonymous", "POST", reportPath, report, 401);
+    await Request("demo.employee.b", "POST", reportPath, report, 404);
+    await Request("demo.employee.a", "POST", reportPath, new { reason = " " }, 400);
+    await Request("demo.employee.a", "GET", reportQueue, null, 403);
+    await Request("demo.owner", "GET", reportQueue, null, 403);
+    async Task<int> SubmitReport()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, reportPath);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens["demo.employee.a"]);
+        request.Content = JsonContent.Create(report);
+        using var response = await client.SendAsync(request);
+        return (int)response.StatusCode;
+    }
+    var simultaneousReports = await Task.WhenAll(SubmitReport(), SubmitReport());
+    Check(simultaneousReports.Order().SequenceEqual(new[] { 200, 409 }), "simultaneous reports persist only one pending report");
+    var reported = await Read();
+    Check(reported.GetProperty("hasPendingReport").GetBoolean() && reported.GetProperty("reportReason").GetString() == report.reason
+        && reported.GetProperty("status").GetString() == "COMPLETED" && reported.GetProperty("totalAmount").GetDecimal() == 98000,
+        "report visible to admin without modifying order status or total");
+    var employeeReport = await Request("demo.employee.a", "GET", $"api/orders/{orderId}", null, 200);
+    Check(employeeReport.GetProperty("hasPendingReport").GetBoolean(), "employee sees pending report");
+    Check(await Revenue() == beforeReport, "pending report does not change revenue");
+    Check(await InReportQueue("demo.branchadmin.01"), "assigned admin can see reported order regardless of order date");
+    Check(!await InReportQueue("demo.branchadmin.02"), "other branch cannot see the report");
+    await Request("demo.employee.a", "POST", reportPath, new { reason = "duplicate" }, 409);
+    Check((await Read()).GetProperty("reportReason").GetString() == report.reason, "duplicate cannot overwrite the pending report");
     var initial = await Read();
     await Request("demo.systemadmin", "GET", path, null, 200);
     await Request("demo.branchadmin.02", "GET", path, null, 403);
@@ -153,6 +195,9 @@ try
     await Request("demo.branchadmin.01", "PUT", path, Change(initial, 3), 200);
     var adjusted = await Read();
     Check(adjusted.GetProperty("totalAmount").GetDecimal() == 147000 && adjusted.GetProperty("history").GetArrayLength() == 1, "SQL-backed API total147000 and one history after branch admin2->3");
+    Check(!adjusted.GetProperty("hasPendingReport").GetBoolean() && adjusted.GetProperty("reportReason").GetString() == report.reason,
+        "admin edit clears pending flag while retaining the report reason");
+    Check(!await InReportQueue("demo.branchadmin.01"), "resolved report leaves the queue");
     await Rejected("demo.branchadmin.01", Change(initial, 4), 409);
     await Request("demo.systemadmin", "PUT", path, Change(adjusted, 4, "WBS3421 system quantity"), 200);
     var current = await Read();
@@ -175,13 +220,9 @@ try
         Check(sqlFailure && fault.Triggered, $"actual SQL FK547 injected in {(historyFault ? "history" : "detail")} save");
         Check(before == await Snapshot(), $"rollback restores header/detail/topping/note/history/version after {(historyFault ? "history" : "detail")} SQL failure");
     }
-    async Task<decimal> Revenue(DateOnly? queryDay = null)
-    {
-        await using var db = Db(); var order = await db.SalesOrders.AsNoTracking().SingleAsync(x => x.Id == orderId);
-        var day = (queryDay ?? DateOnly.FromDateTime(order.CreatedAt.AddHours(7))).ToString("yyyy-MM-dd");
-        var rows = await Request("demo.systemadmin", "GET", $"api/management/revenue?branchId={order.BranchId}&from={day}&to={day}", null, 200);
-        return rows.EnumerateArray().Sum(x => x.GetProperty("amount").GetDecimal());
-    }
+    await Request("demo.employee.a", "POST", reportPath, new { reason = "WBS3421 re-report after adjustment" }, 200);
+    Check(await InReportQueue("demo.branchadmin.01"), "employee can submit a new report after the previous one was handled");
+    current = await Read();
     decimal beforeCancel = await Revenue();
     DateOnly todayVietnam = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(7));
     decimal todayBeforeCancel = crossDay ? await Revenue(todayVietnam) : 0;
@@ -209,6 +250,8 @@ try
     }, 200);
     current = await Read();
     Check(current.GetProperty("status").GetString() == "CANCELLED" && current.GetProperty("history").GetArrayLength() == 3, "cancel retains order and adds third history");
+    Check(!await InReportQueue("demo.branchadmin.01"), "cancelled order leaves the report queue");
+    await Request("demo.employee.a", "POST", reportPath, report, 409);
     Check(beforeCancel - await Revenue() == 196000, "cancelled order196000 removed from actual HTTP revenue");
     if (crossDay)
     {

@@ -16,4 +16,6 @@ public sealed class OrderApiClient(AuthenticationStateProvider state, SessionApi
     public async Task<List<OrderSummary>> MineAsync(string keyword, DateOnly? date) => await transport.SendAsync<List<OrderSummary>>(await KeyAsync(), HttpMethod.Get,
         $"api/orders/mine?keyword={Uri.EscapeDataString(keyword)}" + (date.HasValue ? $"&businessDate={date:yyyy-MM-dd}" : ""));
     public async Task<OrderDetail> DetailAsync(int id) => await transport.SendAsync<OrderDetail>(await KeyAsync(), HttpMethod.Get, $"api/orders/{id}");
+    public async Task ReportAsync(int id, string reason) =>
+        await transport.SendAsync<int>(await KeyAsync(), HttpMethod.Post, $"api/orders/{id}/report", new ReportOrderRequest(reason));
 }

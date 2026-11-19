@@ -7,7 +7,9 @@ public interface IOrderService
     Task<CreatedOrder> CreateAsync(int userId, CreateOrderRequest request, CancellationToken ct = default);
     Task<List<OrderSummary>> GetMineAsync(int userId, string? keyword, DateOnly? date, CancellationToken ct = default);
     Task<OrderDetail?> GetDetailAsync(int userId, int id, CancellationToken ct = default);
+    Task<bool> ReportAsync(int userId, int id, ReportOrderRequest request, CancellationToken ct = default);
 }
 
 public sealed class OrderValidationException(string message) : Exception(message);
 public sealed class OrderBranchUnavailableException : Exception;
+public sealed class OrderReportConflictException(string message) : Exception(message);
