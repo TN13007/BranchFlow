@@ -1,0 +1,23 @@
+=== SCRUM-140 VERIFICATION LOG (2026-11-18, Asia/Saigon) ===
+Base Commit (origin/main): 8f56909e3088f2d9712ef65f5ddaab11275d64ea
+Branch: fix/SCRUM-140-relogin-form-expired
+
+1. Baseline Reproduction on 8f56909 (Before Fix, Single Clean Origin https://localhost:7133):
+[1] BEFORE SUBMIT cookies: [ '.AspNetCore.Antiforgery.Sq-sV7zhRFM=CfDJ8GlRBcKgR_hN...' ] form tokens: [ 'CfDJ8GlRBcKgR_hNn9FO-SgY...(len=155)' ]
+[2] ON EMPLOYEE 401 cookies: [ '__Host-BranchFlow.Auth=CfDJ8GlRBcKgR_hN...', '.AspNetCore.Antiforgery.Sq-sV7zhRFM=CfDJ8GlRBcKgR_hN...' ] form tokens: [ 'CfDJ8GlRBcKgR_hNn9FO-SgY...(len=198)' ]
+[3] BEFORE SUBMIT (after clicking "Đăng nhập lại" without forceLoad): cookies: [ '__Host-BranchFlow.Auth=CfDJ8GlRBcKgR_hN...', '.AspNetCore.Antiforgery.Sq-sV7zhRFM=CfDJ8GlRBcKgR_hN...' ] form tokens: [ 'CfDJ8GlRBcKgR_hNn9FO-SgY...(len=198)' ]
+NET Document 400 https://localhost:7133/auth/login -> "Form đã hết hạn. Vui lòng tải lại trang."
+RESULT (Before Fix): FAIL (reproduced on a single clean origin without multi-port interference)
+
+2. Verification After Fix (Single Clean Origin https://localhost:7133 + Fault Proxy returning 401 on POST /api/orders):
+[Step 1a] Initial login: from=https://localhost:7133/login (csrfLen=155) -> to=https://localhost:7133/employee | text="Đến nội dung BF BranchFlow Nhân viên Menu BRANCHFLOW · 18/11/2026 Ca làm của bạn Xin chào, qa.stub.employee. Chi nhánh BF-DEMO-01 · Chi nhánh Quận 1 Thời gian Hôm nay · 18/11 T"
+[Step 1b] Added 1 cup Demo Cà phê sữa M (29.000đ) to cart.
+[Step 2-3] After POST /api/orders -> 401: hasRelogin=true, hasUnknownWarn=true, confirmDisabled=true
+[Step 4] First re-login submit after 401: from=https://localhost:7133/login?notice=session (csrfLen=155) -> to=https://localhost:7133/employee | text="Đến nội dung BF BranchFlow Nhân viên Menu BRANCHFLOW · 18/11/2026 Ca làm của bạn Xin chào, qa.stub.employee. Chi nhánh BF-DEMO-01 · Chi nhánh Quận 1 Thời gian Hôm nay · 18/11 T"
+[Step 5] Back on /orders/create: cartAndUnknownWarningPreserved=true
+FINAL VERDICT: PASS (SCRUM-140 resolved on single clean origin)
+
+3. Build & Unit Tests (Release):
+- dotnet build src/BranchFlow.Web -c Release: Build succeeded. 0 Warning(s), 0 Error(s)
+- dotnet test tests/BranchFlow.Tests -c Release --filter SessionTransportTests: Passed! Failed: 0, Passed: 12, Skipped: 0, Total: 12
+- dotnet test tests/BranchFlow.Tests -c Release: Passed! Failed: 0, Passed: 123, Skipped: 5 (SQL env var unset), Total: 128

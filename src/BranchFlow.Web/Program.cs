@@ -38,6 +38,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         var session = store.Find(context.Principal?.FindFirst(WebSessionStore.SessionClaim)?.Value);
         if (session is null || context.Principal?.Identity?.Name != session.User.Username)
         {
+            if (context.Principal?.Identity?.IsAuthenticated == true)
+                context.HttpContext.Items[WebSessionStore.RejectedPrincipalKey] = context.Principal;
             context.RejectPrincipal();
             await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }

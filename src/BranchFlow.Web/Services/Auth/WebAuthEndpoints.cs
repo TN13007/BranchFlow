@@ -23,8 +23,8 @@ public static class WebAuthEndpoints
     {
         context.Response.Headers.CacheControl = "no-store";
         if (!context.Request.IsHttps) return Results.BadRequest("Đăng nhập yêu cầu HTTPS.");
-        try { await antiforgery.ValidateRequestAsync(context); }
-        catch (AntiforgeryValidationException) { return Results.BadRequest("Form đã hết hạn. Vui lòng tải lại trang."); }
+        if (!await ValidateAntiforgeryAsync(context, antiforgery))
+            return Results.BadRequest("Form đã hết hạn. Vui lòng tải lại trang.");
         var fields = await context.Request.ReadFormAsync(context.RequestAborted);
         var model = new LoginFormModel { Username = fields["username"].ToString().Trim(), Password = fields["password"].ToString() };
         if (!Validator.TryValidateObject(model, new ValidationContext(model), [], true))
@@ -73,8 +73,8 @@ public static class WebAuthEndpoints
     private static async Task<IResult> LogoutAsync(HttpContext context, IAntiforgery antiforgery, WebSessionStore store, AuthApiClient api)
     {
         context.Response.Headers.CacheControl = "no-store";
-        try { await antiforgery.ValidateRequestAsync(context); }
-        catch (AntiforgeryValidationException) { return Results.BadRequest("Form đã hết hạn. Vui lòng tải lại trang."); }
+        if (!await ValidateAntiforgeryAsync(context, antiforgery))
+            return Results.BadRequest("Form đã hết hạn. Vui lòng tải lại trang.");
         var key = context.User.FindFirst(WebSessionStore.SessionClaim)?.Value;
         var session = store.Find(key);
         var remoteFailed = false;
@@ -95,5 +95,38 @@ public static class WebAuthEndpoints
         }
         await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Results.LocalRedirect(remoteFailed ? "/login?notice=local-logout" : "/login?notice=logout");
+    }
+
+    public static async Task<bool> ValidateAntiforgeryAsync(HttpContext context, IAntiforgery antiforgery)
+    {
+        try
+        {
+            await antiforgery.ValidateRequestAsync(context);
+            return true;
+        }
+        catch (AntiforgeryValidationException) when (
+            context.Items.TryGetValue(WebSessionStore.RejectedPrincipalKey, out var item) &&
+            item is ClaimsPrincipal rejected)
+        {
+            var current = context.User;
+            try
+            {
+                context.User = rejected;
+                await antiforgery.ValidateRequestAsync(context);
+                return true;
+            }
+            catch (AntiforgeryValidationException)
+            {
+                return false;
+            }
+            finally
+            {
+                context.User = current;
+            }
+        }
+        catch (AntiforgeryValidationException)
+        {
+            return false;
+        }
     }
 }

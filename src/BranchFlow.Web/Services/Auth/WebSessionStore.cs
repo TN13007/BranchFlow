@@ -17,6 +17,7 @@ public sealed class WebSession(CurrentUser user, TokenPair tokens, DateTimeOffse
 public sealed class WebSessionStore(TimeProvider clock) : BackgroundService
 {
     public const string SessionClaim = "web_session";
+    public const string RejectedPrincipalKey = "BranchFlow.RejectedPrincipal";
     private readonly ConcurrentDictionary<string, WebSession> sessions = new();
 
     public string Add(CurrentUser user, TokenPair tokens)
