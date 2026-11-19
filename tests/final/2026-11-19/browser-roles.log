@@ -1,0 +1,12 @@
+UAT-01 PASS Nhân viên /employee, hai Admin /admin, Owner /owner
+UAT-03 PASS Mã BF-DEMO-01-20261119-0001, báo cáo chờ xử lý, API trả 409 cho báo trùng
+Login rate limit, retrying after the published window
+UAT-04 PASS Nhân viên khác trả 404; Admin khác chi nhánh và Owner ghi đơn trả 403; báo sai không lộ ở hàng chờ chi nhánh khác
+UAT-05 PASS 3 → 2 ly; 159.000đ → 106.000đ; Nhân viên thấy đã xử lý
+UAT-06 PASS Đã mở giá theo size của Demo - Cà phê sữa và hồ sơ demo.employee.a
+UAT-07 PASS Món Demo - Cà phê sữa biến mất rồi hiện lại; tổng đơn cũ giữ 106.000đ
+UAT-08 PASS Nhân viên thấy Đã hủy; doanh thu chi nhánh 159.000đ → 0đ sau toàn bộ lượt
+UAT-09 PASS Tổng UI khớp API 0đ; hiện nhân viên và tồn kho trong phạm vi; không có nút ghi
+UAT-10 PASS Tồn 7 → 9 → 9 → 7, phiếu IN #144 và OUT #145
+UAT-11 PASS Quyền API và nút trên UI nhất quán và hiện phiếu khi Admin Tổng cấp quyền thử
+UAT-12 PASS Owner quay về trang đăng nhập và không mở lại được /owner

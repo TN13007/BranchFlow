@@ -1,0 +1,6 @@
+PASS chrome demo.systemadmin 21 viewport checks
+Waiting for published login limit
+PASS chrome demo.branchadmin.01 18 viewport checks
+PASS chrome demo.owner 18 viewport checks
+PASS chrome demo.employee.a 15 viewport checks
+PASS 72 navigation/viewport checks on chrome

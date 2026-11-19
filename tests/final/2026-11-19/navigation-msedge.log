@@ -1,0 +1,5 @@
+PASS msedge demo.systemadmin 21 viewport checks
+PASS msedge demo.branchadmin.01 18 viewport checks
+PASS msedge demo.owner 18 viewport checks
+PASS msedge demo.employee.a 15 viewport checks
+PASS 72 navigation/viewport checks on msedge
