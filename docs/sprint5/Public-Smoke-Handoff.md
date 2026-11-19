@@ -53,6 +53,8 @@ Runner đọc `sourceCommit` từ manifest được bàn giao và so với Expec
 
 ## Triển khai ngày 14 tháng 11 năm 2026
 
+**QA cập nhật 17/11:** [Biên bản retest public độc lập](../../tests/sprint5/QA-Public-Retest-2026-11-17.md) và [27 kết quả HTTP](../../tests/sprint5/QA-Public-Smoke-2026-11-17.json) ghi nhận Web/API HTTPS, bốn vai trò, phạm vi quyền và hành trình Employee tạo đơn `BF-DEMO-01-20261117-0001`, Owner/Branch Admin đối chiếu doanh thu. SHA bản đang chạy vẫn theo xác nhận của người triển khai; ba người UAT thật và phê duyệt stakeholder chưa có bằng chứng hoàn tất.
+
 - Khang triển khai Web tại https://branchflow-team-web-khang153.azurewebsites.net/login và API tại https://branchflow-team-api-khang153.azurewebsites.net.
 - Candidate ứng dụng là `28441013318ffee1a6b8541f1318dab9ca124201`. Release manifest và hai ZIP được tạo bằng `tools/Publish-Release.ps1`.
 - Azure SQL `BranchFlow_GroupDemo` nằm trên logical server riêng của nhóm, dùng Free với AutoPause khi hết hạn mức. Web/API dùng plan B1 hiện có.

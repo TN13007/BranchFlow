@@ -1,0 +1,56 @@
+FIXTURE WBS3421-a046d6b9c6a9 ID=313; isolated menu/order fixture; direct test fixture, not order-code allocator output.
+PASS 01 isolated API starts with normal authentication, anonymous request returns401
+PASS 02 HTTP demo.branchadmin.01 GET api/management/orders/313 expected=200 actual=200
+PASS 03 HTTP demo.systemadmin GET api/management/orders/313 expected=200 actual=200
+PASS 04 HTTP demo.branchadmin.02 GET api/management/orders/313 expected=403 actual=403
+PASS 05 HTTP anonymous PUT api/management/orders/313 expected=401 actual=401
+PASS 06 SQL unchanged header/detail/topping/note/history/version after rejected anonymous 401
+PASS 07 HTTP demo.employee.a PUT api/management/orders/313 expected=403 actual=403
+PASS 08 SQL unchanged header/detail/topping/note/history/version after rejected demo.employee.a 403
+PASS 09 HTTP demo.owner PUT api/management/orders/313 expected=403 actual=403
+PASS 10 SQL unchanged header/detail/topping/note/history/version after rejected demo.owner 403
+PASS 11 HTTP demo.branchadmin.02 PUT api/management/orders/313 expected=403 actual=403
+PASS 12 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.02 403
+PASS 13 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=400 actual=400
+PASS 14 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 400
+PASS 15 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=400 actual=400
+PASS 16 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 400
+PASS 17 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=400 actual=400
+PASS 18 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 400
+PASS 19 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=200 actual=200
+PASS 20 HTTP demo.branchadmin.01 GET api/management/orders/313 expected=200 actual=200
+PASS 21 SQL-backed API total147000 and one history after branch admin2->3
+PASS 22 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=409 actual=409
+PASS 23 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 409
+PASS 24 HTTP demo.systemadmin PUT api/management/orders/313 expected=200 actual=200
+PASS 25 HTTP demo.branchadmin.01 GET api/management/orders/313 expected=200 actual=200
+PASS 26 system admin permitted; total196000 and two history
+PASS 27 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=409 actual=409
+PASS 28 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 409
+PASS 29 actual SQL FK547 injected in detail save
+PASS 30 rollback restores header/detail/topping/note/history/version after detail SQL failure
+PASS 31 actual SQL FK547 injected in history save
+PASS 32 rollback restores header/detail/topping/note/history/version after history SQL failure
+PASS 33 HTTP demo.systemadmin GET api/management/revenue?branchId=43&from=2026-11-17&to=2026-11-17 expected=200 actual=200
+PASS 34 HTTP anonymous POST api/management/orders/313/cancel expected=401 actual=401
+PASS 35 SQL unchanged header/detail/topping/note/history/version after rejected cancel anonymous 401
+PASS 36 HTTP demo.employee.a POST api/management/orders/313/cancel expected=403 actual=403
+PASS 37 SQL unchanged header/detail/topping/note/history/version after rejected cancel demo.employee.a 403
+PASS 38 HTTP demo.owner POST api/management/orders/313/cancel expected=403 actual=403
+PASS 39 SQL unchanged header/detail/topping/note/history/version after rejected cancel demo.owner 403
+PASS 40 HTTP demo.branchadmin.02 POST api/management/orders/313/cancel expected=403 actual=403
+PASS 41 SQL unchanged header/detail/topping/note/history/version after rejected cancel demo.branchadmin.02 403
+PASS 42 HTTP demo.branchadmin.01 POST api/management/orders/313/cancel expected=200 actual=200
+PASS 43 HTTP demo.branchadmin.01 GET api/management/orders/313 expected=200 actual=200
+PASS 44 cancel retains order and adds third history
+PASS 45 HTTP demo.systemadmin GET api/management/revenue?branchId=43&from=2026-11-17&to=2026-11-17 expected=200 actual=200
+PASS 46 cancelled order196000 removed from actual HTTP revenue
+PASS 47 HTTP demo.systemadmin PUT api/management/orders/313 expected=409 actual=409
+PASS 48 SQL unchanged header/detail/topping/note/history/version after rejected demo.systemadmin 409
+PASS 49 HTTP demo.branchadmin.01 PUT api/management/orders/313 expected=409 actual=409
+PASS 50 SQL unchanged header/detail/topping/note/history/version after rejected demo.branchadmin.01 409
+PASS 51 HTTP demo.employee.a GET api/orders/313 expected=200 actual=200
+PASS 52 employee sees actual cancellation
+PASS 53 SQL final size/topping prices/text and structured notes preserved
+PASS COMPLETE checks=53; fixture=WBS3421-a046d6b9c6a9 ID=313 CANCELLED196000; no Dev writes, no application/schema changes.
+CLEANUP isolated API stopped; owned SQL fixtures/sessions removed; existing evidence orders and demo passwords unchanged.
