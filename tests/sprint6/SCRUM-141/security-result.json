@@ -1,0 +1,25 @@
+{
+  "result": "Pass",
+  "count": 19,
+  "checks": [
+    "demo.systemadmin login",
+    "demo.owner login",
+    "demo.branchadmin.01 login",
+    "owner cannot read recovery requests",
+    "branch admin cannot read recovery requests",
+    "system admin cannot reset owner",
+    "system admin cannot reset system admin",
+    "web forgot rejects missing CSRF token",
+    "web change requires login",
+    "recovery accepts bounded attempts",
+    "recovery accepts bounded attempts",
+    "recovery accepts bounded attempts",
+    "recovery accepts bounded attempts",
+    "recovery accepts bounded attempts",
+    "recovery rate limit publishes retry delay",
+    "recovery rate limit enforced",
+    "authenticated password form rejects missing CSRF token",
+    "row reset action selects intended user",
+    "mobile admin support has no horizontal overflow"
+  ]
+}

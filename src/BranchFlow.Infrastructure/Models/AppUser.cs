@@ -13,6 +13,10 @@ public partial class AppUser
 
     public string PasswordHash { get; set; } = null!;
 
+    public bool MustChangePassword { get; set; }
+    public DateTime? TemporaryPasswordExpiresAt { get; set; }
+    public int CredentialVersion { get; set; }
+
     public string FullName { get; set; } = null!;
 
     public string? Email { get; set; }

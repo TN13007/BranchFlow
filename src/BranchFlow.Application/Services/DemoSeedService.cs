@@ -210,6 +210,9 @@ public sealed class DemoSeedService : IDemoSeedService
             foreach (AppUser user in users)
             {
                 user.PasswordHash = _passwordHasher.HashPassword(user, password);
+                user.MustChangePassword = false;
+                user.TemporaryPasswordExpiresAt = null;
+                user.CredentialVersion++;
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

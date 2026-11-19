@@ -9,6 +9,8 @@ public partial class AuthSession
 
     public int UserId { get; set; }
 
+    public int CredentialVersion { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime ExpiresAt { get; set; }

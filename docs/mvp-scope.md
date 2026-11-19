@@ -17,6 +17,8 @@ Nhân viên gửi lý do báo sai đơn của mình trong chi nhánh còn đư�
 
 Kho dùng nhập/xuất thủ công. Số tồn và lịch sử giao dịch được lưu cùng nhau, chặn tồn âm. Bán hàng không tự trừ kho.
 
+SCRUM-141 bổ sung đổi mật khẩu và hỗ trợ khôi phục có xác minh: tài khoản mới buộc đổi mật khẩu tạm; người quên mật khẩu gửi yêu cầu để Admin Tổng xử lý. Không hiển thị mật khẩu đã lưu, không tự reset về mật khẩu demo. Đổi/reset vô hiệu hóa mọi phiên cũ. [Phạm vi, API và migration](Password-Management.md); thay đổi đã kiểm thử local, chờ deploy cùng phiên bản API/Web.
+
 Hoãn bảng lương, điều chuyển, kiểm kê/duyệt phiếu, báo sai nhiều bước, dashboard nâng cao và kiểm tải mở rộng. Mốc kết thúc nội bộ 23h ngày 26/11/2026. Kết quả deploy public và nghiệm thu ghi theo môi trường và bằng chứng thực tế.
 
 ## Chạy bản MVP

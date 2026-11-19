@@ -18,4 +18,7 @@ public sealed class ManagementApiClient(AuthenticationStateProvider state, Sessi
         : PutAsync(path + "/" + id, input);
     public Task<int> PutAsync(string path, object input) => SendAsync<int>(HttpMethod.Put, path, input);
     public Task<int> PostAsync(string path, object input) => SendAsync<int>(HttpMethod.Post, path, input);
+    public Task<BranchFlow.Application.DTOs.Sprint4.TemporaryPasswordResult> ResetPasswordAsync(int userId,
+        BranchFlow.Application.DTOs.Sprint4.AdminResetPasswordRequest input) =>
+        SendAsync<BranchFlow.Application.DTOs.Sprint4.TemporaryPasswordResult>(HttpMethod.Post, $"users/{userId}/reset-password", input);
 }

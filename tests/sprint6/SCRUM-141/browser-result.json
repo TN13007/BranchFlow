@@ -1,0 +1,30 @@
+{
+  "result": "Pass",
+  "count": 23,
+  "checks": [
+    "admin API login",
+    "create temporary account",
+    "new account login",
+    "forced change blocks business API",
+    "me exposes change requirement only",
+    "legacy employee login preserved",
+    "employee cannot reset",
+    "unverified admin cannot reset",
+    "anonymous response does not enumerate accounts",
+    "reset without token denied",
+    "new login goes to required change UI",
+    "direct protected page redirects",
+    "mobile change form has no horizontal overflow",
+    "change signs out and confirms",
+    "changed password logs into workspace",
+    "old access JWT rejected immediately",
+    "old refresh rejected immediately",
+    "forgot form records support request",
+    "reset disabled until identity attested",
+    "admin issues random temporary password",
+    "temporary credential hidden after handover",
+    "reset temporary password requires successful change",
+    "no browser runtime errors"
+  ],
+  "fixtureId": 166
+}

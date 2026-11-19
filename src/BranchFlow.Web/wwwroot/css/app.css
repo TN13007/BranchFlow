@@ -107,3 +107,7 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: var(--bf-control-border);
 }
+
+.password-card{width:min(100% - 2rem,36rem);margin:2rem auto;padding:clamp(1.25rem,4vw,2rem)}
+.password-card h1{font-size:1.65rem}.password-card form,.password-fields{display:grid;gap:.85rem}.password-card form{margin:1.2rem 0}.password-card label{font-weight:600}.password-card input{width:100%}.password-support{margin-top:1.5rem}.password-fields{max-width:42rem}.password-confirm{display:flex;gap:.6rem;align-items:flex-start}.password-requests{padding-left:1.2rem}.password-requests li{margin:.7rem 0;display:flex;gap:.8rem;flex-wrap:wrap;align-items:center}.password-issued{margin-top:1.2rem}.temporary-password{display:block;font-family:monospace;font-size:1.1rem;overflow-wrap:anywhere;user-select:all;margin:.8rem 0}.password-fields button{white-space:normal}
+.password-support{padding:1.25rem}.password-support .panel-heading{padding:0 0 1rem}.password-support .password-issued{margin-bottom:0}.password-fields select{min-width:0;max-width:100%}

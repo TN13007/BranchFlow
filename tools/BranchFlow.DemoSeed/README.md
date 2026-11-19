@@ -5,7 +5,7 @@ Công cụ tạo dữ liệu demo có thể chạy lại an toàn cho SCRUM-70.
 ## Điều kiện trước khi chạy
 
 1. SQL Server local đã có database `BranchFlow_Dev` hoặc `BranchFlow_Test`.
-2. Đã chạy `database/001-baseline.sql` và `database/002-reference-data.sql`. Seeder không tự tạo schema hoặc role.
+2. Đã chạy `database/001-baseline.sql`, `database/002-reference-data.sql` và `database/007-password-recovery.sql`. Seeder không tự tạo schema hoặc role. Khi chủ động dùng `--reset-demo-passwords`, credential version tăng để vô hiệu hóa các phiên demo cũ; tài khoản demo trở về chế độ fixture, không buộc đổi mật khẩu.
 3. Dùng môi trường `Development` hoặc `Testing`.
 4. Connection string được truyền qua biến môi trường, không lưu vào source code.
 

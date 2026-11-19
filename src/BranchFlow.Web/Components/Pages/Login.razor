@@ -81,7 +81,7 @@
 
         <div class="support-box">
             <p class="support-note">
-                Quên mật khẩu? Liên hệ quản lý để được hỗ trợ.
+                <a href="/forgot-password">Quên mật khẩu?</a>
             </p>
         </div>
     </section>
@@ -111,6 +111,7 @@
         };
         noticeMessage = Notice switch
         {
+            "password-changed" => "Đã đổi mật khẩu và kết thúc các phiên cũ. Vui lòng đăng nhập bằng mật khẩu mới.",
             "logout" => "Bạn đã đăng xuất.",
             "local-logout" => "Đã đăng xuất khỏi Web. Chưa xác nhận thu hồi phiên tại dịch vụ; vui lòng liên hệ quản lý nếu cần.",
             "session" => "Vui lòng đăng nhập để tiếp tục.",

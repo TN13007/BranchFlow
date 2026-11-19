@@ -39,7 +39,7 @@ public sealed class AuthRepository : IAuthRepository
                 user.Username,
                 user.PasswordHash,
                 user.FullName,
-                user.Role.Code))
+                user.Role.Code, user.MustChangePassword, user.TemporaryPasswordExpiresAt, user.CredentialVersion))
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -64,7 +64,7 @@ public sealed class AuthRepository : IAuthRepository
             .Select(user => new AuthCurrentUserData(
                 user.Id,
                 user.Username,
-                user.Role.Code))
+                user.Role.Code, user.MustChangePassword))
             .FirstOrDefaultAsync(cancellationToken);
     }
 

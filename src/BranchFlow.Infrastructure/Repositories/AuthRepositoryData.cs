@@ -5,7 +5,10 @@ public sealed record AuthUserData(
     string Username,
     string PasswordHash,
     string FullName,
-    string RoleCode);
+    string RoleCode,
+    bool MustChangePassword = false,
+    DateTime? TemporaryPasswordExpiresAt = null,
+    int CredentialVersion = 0);
 
 public sealed record AccessibleBranchData(
     int Id,
@@ -15,4 +18,5 @@ public sealed record AccessibleBranchData(
 public sealed record AuthCurrentUserData(
     int Id,
     string Username,
-    string RoleCode);
+    string RoleCode,
+    bool MustChangePassword = false);

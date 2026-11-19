@@ -4,6 +4,8 @@ Dự án nhóm môn Quản lý dự án CNTT, xây dựng bằng .NET 10, Blazor
 
 Phạm vi bản demo, quyền của bốn vai trò và các chức năng hoãn nằm trong [Phạm vi MVP hiện hành](docs/mvp-scope.md).
 
+Sau khi pull bản SCRUM-141, chạy `database/007-password-recovery.sql` trên DB nhóm local trước khi chạy API hoặc seeder. Xem [hướng dẫn đổi và khôi phục mật khẩu](docs/Password-Management.md). Tài khoản demo hiện có giữ nguyên; tài khoản mới dùng mật khẩu tạm và bắt buộc đổi lần đầu.
+
 ## Cấu trúc
 
 ```text

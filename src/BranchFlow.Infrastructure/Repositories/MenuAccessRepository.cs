@@ -12,6 +12,8 @@ public sealed class MenuAccessRepository(BranchFlowDbContext context, TimeProvid
         return context.AuthSessions.AsNoTracking().AnyAsync(s =>
             s.Id == sessionId && s.UserId == userId && s.CreatedAt <= now &&
             s.RevokedAt == null && s.ExpiresAt > now &&
+            s.CredentialVersion == s.User.CredentialVersion &&
+            (!s.User.MustChangePassword || s.User.TemporaryPasswordExpiresAt > now) &&
             s.User.IsActive && !s.User.Deleted && !s.User.Role.Deleted &&
             s.User.Role.Code == role, cancellationToken);
     }

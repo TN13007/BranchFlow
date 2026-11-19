@@ -40,13 +40,20 @@ SELECT (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0) AS Tables,
        (SELECT COUNT(*) FROM sys.foreign_keys WHERE delete_referential_action<>0 OR is_disabled=1 OR is_not_trusted=1) AS InvalidForeignKeys;
 '@
 $row = $counts.Rows[0]
-if ($row.Tables -ne 35 -or $row.Fields -ne 271 -or $row.ForeignKeys -ne 59 -or $row.InvalidForeignKeys -ne 0) {
+$passwordSchema = Invoke-TestQuery "SELECT CASE WHEN COL_LENGTH('dbo.AppUser','CredentialVersion') IS NULL THEN 0 ELSE 1 END AS IsV2;"
+$manifestFile = if ($passwordSchema.Rows[0].IsV2 -eq 1) { 'schema-v2.json' } else { 'schema-v1.json' }
+$manifest = Get-Content (Join-Path $PSScriptRoot $manifestFile) -Raw | ConvertFrom-Json
+$expectedTables = @($manifest.tables.PSObject.Properties).Count
+$expectedFields = 0
+foreach ($entry in $manifest.tables.PSObject.Properties) { $expectedFields += @($entry.Value).Count }
+$expectedForeignKeys = 0
+foreach ($entry in $manifest.foreign_key_targets.PSObject.Properties) { $expectedForeignKeys += @($entry.Value.PSObject.Properties).Count }
+if ($row.Tables -ne $expectedTables -or $row.Fields -ne $expectedFields -or $row.ForeignKeys -ne $expectedForeignKeys -or $row.InvalidForeignKeys -ne 0) {
     throw 'Metadata count, FK trust or no-cascade verification failed.'
 }
-Write-Output 'PASS: metadata 35 tables / 271 columns / 59 trusted FK, no cascade delete'
+Write-Output "PASS: metadata $expectedTables tables / $expectedFields columns / $expectedForeignKeys trusted FK, no cascade delete"
 
 # Doi chieu tung cot va FK voi manifest, tranh truong hop dung so luong nhung sai kieu.
-$manifest = Get-Content (Join-Path $PSScriptRoot 'schema-v1.json') -Raw | ConvertFrom-Json
 $columns = Invoke-TestQuery @'
 SELECT t.name AS TableName,c.name AS ColumnName,
 CASE WHEN y.name='timestamp' THEN 'ROWVERSION'
@@ -79,7 +86,7 @@ foreach ($tableProperty in $manifest.foreign_key_targets.PSObject.Properties) {
         if ($matching.Count -ne 1) { throw "FK target mismatch: $($tableProperty.Name).$($field.Name)" }
     }
 }
-Write-Output 'PASS: all 271 column types/nullability/computed/identity flags and all 59 FK targets match schema-v1.json'
+Write-Output "PASS: all $expectedFields column types/nullability/computed/identity flags and all $expectedForeignKeys FK targets match $manifestFile"
 
 $branchId = $null
 $jobs = @()

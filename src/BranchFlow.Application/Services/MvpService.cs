@@ -125,7 +125,8 @@ public sealed class MvpService(IMvpRepository repo, IUnitOfWork work, IBranchAcc
         if (!System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-z0-9._-]+$"))
             throw new ArgumentException("Tên đăng nhập chỉ dùng chữ không dấu, số, dấu chấm, gạch dưới hoặc gạch ngang.");
         var account = new AppUser { RoleId = role.Id, Username = username, FullName = Required(input.FullName, 150),
-            Email = Optional(input.Email, 254), Phone = Optional(input.Phone, 30), IsActive = true };
+            Email = Optional(input.Email, 254), Phone = Optional(input.Phone, 30), IsActive = true,
+            MustChangePassword = true, TemporaryPasswordExpiresAt = Now.AddHours(24) };
         account.PasswordHash = hasher.HashPassword(account, input.Password);
         if (input.Role == "EMPLOYEE")
             account.EmployeeProfile = new EmployeeProfile { EmployeeCode = "NV-" + Guid.NewGuid().ToString("N")[..20],

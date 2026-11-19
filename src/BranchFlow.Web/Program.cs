@@ -64,6 +64,19 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.Use(async (context, next) =>
+{
+    var session = context.RequestServices.GetRequiredService<WebSessionStore>()
+        .Find(context.User.FindFirst(WebSessionStore.SessionClaim)?.Value);
+    var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
+    if (session?.User.MustChangePassword == true && path is not ("/change-password" or "/auth/change-password" or "/auth/logout") &&
+        !path.StartsWith("/_") && !Path.HasExtension(path))
+    {
+        context.Response.Redirect("/change-password");
+        return;
+    }
+    await next();
+});
 app.UseAuthorization();
 app.Use(async (context, next) =>
 {

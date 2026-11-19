@@ -79,7 +79,7 @@ public sealed class AuthService : IAuthService
             return null;
         }
 
-        return new CurrentUser(user.Id, user.Username, user.RoleCode);
+        return new CurrentUser(user.Id, user.Username, user.RoleCode, user.MustChangePassword);
     }
 
     public async Task<bool> LogoutAsync(
@@ -134,7 +134,8 @@ public sealed class AuthService : IAuthService
             username.Trim(),
             cancellationToken);
 
-        if (user is null || !IsSupportedRole(user.RoleCode))
+        if (user is null || !IsSupportedRole(user.RoleCode) ||
+            (user.MustChangePassword && (user.TemporaryPasswordExpiresAt is null || user.TemporaryPasswordExpiresAt <= _clock.GetUtcNow().UtcDateTime)))
         {
             return null;
         }
@@ -165,6 +166,7 @@ public sealed class AuthService : IAuthService
         {
             Id = sessionId,
             UserId = user.Id,
+            CredentialVersion = user.CredentialVersion,
             CreatedAt = nowUtc,
             ExpiresAt = sessionExpiresAt.UtcDateTime
         };
@@ -261,7 +263,9 @@ public sealed class AuthService : IAuthService
                 return null;
             }
 
-            if (!user.IsActive ||
+            if (session.CredentialVersion != user.CredentialVersion ||
+                (user.MustChangePassword && (user.TemporaryPasswordExpiresAt is null || user.TemporaryPasswordExpiresAt <= nowUtc)) ||
+                !user.IsActive ||
                 user.Deleted ||
                 user.Role.Deleted ||
                 !IsSupportedRole(user.Role.Code))

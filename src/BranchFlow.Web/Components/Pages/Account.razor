@@ -10,7 +10,7 @@
         <div class="account-grid">
             <section class="business-panel"><div class="panel-heading"><h2>Thông tin cá nhân</h2><span class="business-status success">Đang đăng nhập</span></div>
                 <dl class="account-facts"><div><dt>Tên đăng nhập</dt><dd>@auth.User.Identity?.Name</dd></div><div><dt>Vai trò</dt><dd>@WorkspaceNavigation.RoleLabel(WorkspaceNavigation.Role(auth.User))</dd></div><div><dt>Phân quyền</dt><dd>Theo tài khoản và chi nhánh được cấp</dd></div></dl>
-                <div class="account-actions"><form action="/auth/logout" method="post" data-enhance="false"><AntiforgeryToken /><button type="submit" class="btn btn-outline-secondary">Đăng xuất</button></form></div>
+                <div class="account-actions"><a class="btn btn-brand" href="/change-password">Đổi mật khẩu</a><form action="/auth/logout" method="post" data-enhance="false"><AntiforgeryToken /><button type="submit" class="btn btn-outline-secondary">Đăng xuất</button></form></div>
             </section>
             <section class="business-panel"><div class="panel-heading"><h2>Chức năng</h2></div><nav class="account-shortcuts" aria-label="Chức năng tài khoản">@foreach (var link in WorkspaceNavigation.Links(WorkspaceNavigation.Role(auth.User)).Where(item => item.Key != "account")) { <a href="@link.Url"><img src="@link.Icon" alt="" /><span>@link.Label</span></a> }</nav></section>
         </div>

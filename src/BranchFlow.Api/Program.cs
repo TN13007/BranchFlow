@@ -65,6 +65,8 @@ builder.Services.AddSingleton(new AuthTokenSettings(
     qaAccessSeconds.HasValue ? TimeSpan.FromSeconds(qaAccessSeconds.Value) : null,
     qaSessionSeconds.HasValue ? TimeSpan.FromSeconds(qaSessionSeconds.Value) : null));
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<PasswordRepository>();
+builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<IBranchAccessService, BranchAccessService>();
 builder.Services.AddScoped<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 builder.Services.AddBranchFlowJwt(builder.Configuration);
@@ -73,6 +75,9 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
 
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("password-support", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Request.Path + ":" + (context.User.FindFirst("sub")?.Value ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown"),
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("auth-login", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -118,8 +123,8 @@ app.UseExceptionHandler();
 app.Use(async (context, next) =>
 {
     string? path = context.Request.Path.Value?.TrimEnd('/');
-    if (string.Equals(path, "/api/auth/login", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(path, "/api/auth/refresh", StringComparison.OrdinalIgnoreCase))
+    if (path?.StartsWith("/api/auth/", StringComparison.OrdinalIgnoreCase) == true ||
+        path?.EndsWith("/reset-password", StringComparison.OrdinalIgnoreCase) == true)
     {
         context.Response.Headers.CacheControl = "no-store";
     }
@@ -129,7 +134,6 @@ app.Use(async (context, next) =>
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseRateLimiter();
 
 // Chỉ mở tài liệu Swagger trong môi trường phát triển.
 if (app.Environment.IsDevelopment())
@@ -142,6 +146,22 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+app.UseRateLimiter();
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true && int.TryParse(context.User.FindFirst("sub")?.Value, out var userId))
+    {
+        var user = await context.RequestServices.GetRequiredService<PasswordRepository>().UserAsync(userId, context.RequestAborted);
+        var path = context.Request.Path.Value?.TrimEnd('/').ToLowerInvariant();
+        if (user?.MustChangePassword == true && path is not ("/api/auth/me" or "/api/auth/change-password" or "/api/auth/logout"))
+        {
+            await Results.Problem(statusCode: 403, title: "Cần đổi mật khẩu", detail: "Đổi mật khẩu tạm trước khi sử dụng hệ thống.",
+                extensions: new Dictionary<string, object?> { ["code"] = "PASSWORD_CHANGE_REQUIRED" }).ExecuteAsync(context);
+            return;
+        }
+    }
+    await next();
+});
 app.UseAuthorization();
 
 app.MapControllers();

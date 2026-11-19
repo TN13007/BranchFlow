@@ -7,6 +7,22 @@ namespace BranchFlow.Web.Services.Auth;
 
 public sealed class AuthApiClient(IHttpClientFactory factory)
 {
+    public async Task ForgotAsync(string username, CancellationToken ct = default)
+    {
+        using var client = factory.CreateClient("BranchFlowApi");
+        using var response = await client.PostAsJsonAsync("api/auth/forgot-password", new ForgotPasswordRequest(username), ct);
+        if (!response.IsSuccessStatusCode) throw await ApiException.FromResponseAsync(response, ct);
+    }
+
+    public async Task ChangePasswordAsync(string accessToken, ChangePasswordRequest input, CancellationToken ct = default)
+    {
+        using var client = factory.CreateClient("BranchFlowApi");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "api/auth/change-password");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        request.Content = JsonContent.Create(input);
+        using var response = await client.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode) throw await ApiException.FromResponseAsync(response, ct);
+    }
     public async Task<TokenPair> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         using var client = factory.CreateClient("BranchFlowApi");

@@ -11,7 +11,7 @@ public sealed class TokenPair
     public DateTimeOffset AccessTokenExpiresAt { get; init; }
     public DateTimeOffset RefreshTokenExpiresAt { get; init; }
 }
-public sealed record CurrentUser(int UserId, string Username, string Role);
+public sealed record CurrentUser(int UserId, string Username, string Role, bool MustChangePassword = false);
 public sealed record AccessibleBranch(int Id, string Code, string Name);
 public sealed record OrderMenu(AccessibleBranch Branch, List<MenuCategory> Categories,
     List<MenuToppingGroup> ToppingGroups, List<MenuNoteGroup> NoteGroups);

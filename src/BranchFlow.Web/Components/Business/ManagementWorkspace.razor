@@ -100,7 +100,7 @@
                     <div class="management-form-grid">
                     <label class="management-field">Tên đăng nhập <input class="form-control w-auto" aria-label="Tên đăng nhập" placeholder="Tên đăng nhập" @bind="newUser.Username" /></label>
                     <label class="management-field">Họ tên <input class="form-control w-auto" aria-label="Họ tên tài khoản mới" placeholder="Họ tên" @bind="newUser.FullName" /></label>
-                    <label class="management-field">Mật khẩu ban đầu <input class="form-control w-auto" type="password" autocomplete="new-password" aria-label="Mật khẩu ban đầu" placeholder="Mật khẩu ban đầu" @bind="newUser.Password" /></label>
+                    <label class="management-field">Mật khẩu tạm (hiệu lực 24 giờ, buộc đổi lần đầu) <input class="form-control w-auto" type="password" autocomplete="new-password" aria-label="Mật khẩu ban đầu" placeholder="Mật khẩu ban đầu" @bind="newUser.Password" /></label>
                     <label class="management-field">Vai trò <select class="form-select w-auto" aria-label="Vai trò" @bind="newUser.Role"><option value="EMPLOYEE">Nhân viên</option><option value="BRANCH_ADMIN">Admin Chi nhánh</option></select></label>
                     <label class="management-field">Chi nhánh ban đầu <select class="form-select w-auto" aria-label="Chi nhánh ban đầu" @bind="newUser.BranchId"><option value="">Chưa phân công</option>@foreach (var b in branches.Where(b => b.IsActive)) { <option value="@b.Id">@b.Name</option> }</select></label>
                     </div>
@@ -153,10 +153,11 @@
             @foreach (var u in FilteredUsers)
             {
                 <tr role="row"><td role="cell" data-label="Tài khoản">@u.Username</td><td role="cell" data-label="Họ tên">@u.FullName</td><td role="cell" data-label="Vai trò">@BranchFlow.Web.Models.Appearance.WorkspaceNavigation.RoleLabel(u.Role)</td><td role="cell" data-label="Chi nhánh">@u.BranchName</td><td role="cell" data-label="Trạng thái">@(u.IsActive ? "Hoạt động" : "Đã khóa")</td>
-                    <td role="cell" data-label="">@if (CanEditUser(u)) { <button class="btn btn-outline-secondary" @onclick="() => EditUser(u)">Sửa hồ sơ</button> }</td></tr>
+                    <td role="cell" data-label="">@if (CanEditUser(u)) { <button class="btn btn-outline-secondary" @onclick="() => EditUser(u)">Sửa hồ sơ</button> } @if (IsSystem && u.IsActive && u.Role is "EMPLOYEE" or "BRANCH_ADMIN") { <button class="btn btn-outline-secondary" @onclick="() => resetPasswordUserId = u.Id">Đặt lại mật khẩu</button> }</td></tr>
             }
             </tbody></table></div>
             @if (loaded && !FilteredUsers.Any()) { <p class="management-empty" role="status">Không tìm thấy tài khoản phù hợp.</p> }
+            @if (IsSystem) { <PasswordSupportPanel Users="users" TargetUserId="resetPasswordUserId" /> }
             break;
         case "system-menu":
         case "branch-menu":
@@ -296,6 +297,7 @@
 </div>
 
 @code {
+    private int resetPasswordUserId;
     [Parameter, EditorRequired] public string Tab { get; set; } = "";
     [Parameter, EditorRequired] public string Role { get; set; } = "";
     private bool IsSystem => Role == "SYSTEM_ADMIN";

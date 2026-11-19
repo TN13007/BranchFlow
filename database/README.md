@@ -2,6 +2,8 @@
 
 Baseline v1 ngày 02/11/2026: SQL Server 2019+, 35 bảng, 271 trường, 59 FK. Dùng schema nhóm đã đối chiếu source cá nhân; không chạy SQL cá nhân trực tiếp. Không có cascade delete hoặc tài khoản/mật khẩu seed.
 
+Mã nguồn từ SCRUM-141 cần thêm `007-password-recovery.sql` sau baseline/reference, trước khi chạy API hoặc DemoSeed. Migration có thể chạy lại trên DB nhóm Dev/Test/UxReview/GroupDemo, không xóa dữ liệu và không đổi mật khẩu tài khoản hiện có. Schema sau migration: 36 bảng, 280 trường, 61 FK; `schema-v1.json` vẫn lưu baseline ban đầu, `schema-v2.json` mô tả bản có khôi phục mật khẩu.
+
 ## Tạo DB trên máy thành viên
 
 Cần SQL Server engine, SSMS và sqlcmd; SSMS riêng lẻ không tạo được instance. Mỗi thành viên dùng BranchFlow_Dev riêng; QA dùng thêm BranchFlow_Test. Chạy trong SSMS tại instance local, chỉ tạo DB chưa tồn tại:
@@ -20,6 +22,8 @@ sqlcmd -S localhost -E -C -b -d BranchFlow_Dev -i database/001-baseline.sql
 if ($LASTEXITCODE -ne 0) { throw 'Baseline failed; stop.' }
 sqlcmd -S localhost -E -C -b -d BranchFlow_Dev -i database/002-reference-data.sql
 if ($LASTEXITCODE -ne 0) { throw 'Reference seed failed; stop.' }
+sqlcmd -S localhost -E -C -b -d BranchFlow_Dev -i database/007-password-recovery.sql
+if ($LASTEXITCODE -ne 0) { throw 'Password migration failed; stop.' }
 dotnet user-secrets set 'ConnectionStrings:BranchFlowDb' 'Server=localhost;Database=BranchFlow_Dev;Trusted_Connection=True;TrustServerCertificate=True' --project src/BranchFlow.Api
 ```
 
@@ -41,7 +45,7 @@ Có thể chạy lại: chỉ thêm bản ghi còn thiếu, không ghi đè giá
 
 ## Chạy kiểm tra schema
 
-Tạo BranchFlow_Test mới bằng SSMS với cùng collation, rồi chạy 001 và 002 vào DB đó. Sau đó:
+Tạo BranchFlow_Test mới bằng SSMS với cùng collation, rồi chạy 001, 002 và 007 vào DB đó. Các script dữ liệu 003–006 không thay thế migration 007. Sau đó:
 
 ```powershell
 ./database/Verify-Database.ps1 -Server localhost
